@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databases>
+    <database>
+        <name>SQL</name>
+        <class>pdo</class>
+        <servers>
+            <server>
+                <type>master</type><!-- master / slave -->
+                <dsn>mysql:dbname=test;host=127.0.0.1;port=3306;charset=utf8</dsn><!-- driver: dbname, host, port, charset -->
+                <!-- id's -->
+                <dbuser>user</dbuser>
+                <dbpassword>password</dbpassword>
+            </server>
+            <server>
+                <type>slave</type><!-- master / slave -->
+                <!-- No dsn ... -->
+                <driver>mysql</driver>
+                <dbname>test</dbname>
+                <host>127.0.0.1</host>
+                <port>3306</port>
+                <charset>utf8</charset>
+                <!-- id's -->
+                <dbuser>user</dbuser>
+                <dbpassword>password</dbpassword>
+            </server>
+        </servers>
+        <debug>true</debug><!-- true/false -->
+    </database>
+</databases>

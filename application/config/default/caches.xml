@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caches>
+    <cache>
+        <name>core</name>
+        <class>file</class><!-- file/apc -->
+        <debug>true</debug><!-- true/false -->
+        <options>
+            <option>
+                <name>prefix</name>
+                <value>_</value><!-- prefix string for stored datas -->
+            </option>
+            <option>
+                <name>path</name><!--  -->
+                <value>[PATH_CACHE_CORE]</value>
+            </option>
+            <option>
+                <name>gc</name>
+                <value>time</value><!-- time/number => toutes les x secondes, ou toutes les x requests -->
+            </option>
+            <option>
+                <name>gcOption</name>
+                <value>86400</value><!-- seconds/request -->
+            </option>
+            <option>
+                <name>groups</name>
+                <value>autoloader,logger</value><!-- group list separated by , -->
+            </option>
+        </options>
+    </cache>
+    <cache>
+        <name>default</name>
+        <class>file</class><!-- file/apc -->
+        <debug>true</debug><!-- true/false -->
+        <options>
+            <option>
+                <name>prefix</name>
+                <value>_</value><!-- prefix string for stored datas -->
+            </option>
+            <option>
+                <name>path</name><!--  -->
+                <value>[PATH_CACHE_DEFAULT]</value>
+            </option>
+            <option>
+                <name>groups</name>
+                <value>group1,group2</value><!-- group list separated by , -->
+            </option>
+            
+            <option>
+                <name>gc</name>
+                <value>time</value><!-- time/number => toutes les x secondes, ou toutes les x requests -->
+            </option>
+            <option>
+                <name>gcOption</name>
+                <value>86400</value><!-- seconds/request -->
+            </option>
+        </options>
+    </cache>
+    
+</caches>

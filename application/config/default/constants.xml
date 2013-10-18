@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Config constants :
+ * Example:
+ * <constant>
+ *  <name>CONS_NAME</name>
+ *  <value>value</value>
+ * </constant>
+ * Possible cast value with <value type="">value</value> type accepted = const TYPE_INTEGER = int, float, string, bool, null
+ * Possible include const on value with <value>[CONS_NAME]value</value>
+ * 
+ * @copyright  Copyright 2013 - MidichlorianPHP and contributors
+ * @author     NAYRAND Jérémie (dreadlokeur) <dreadlokeur@gmail.com>
+ * @version    1.0.1dev2
+ * @license    GNU General Public License 3 http://www.gnu.org/licenses/gpl.html
+ * @package    app
+ * @subpackage config
+-->
+<constants>
+    <constant>
+        <name>ENVIRONNEMENT</name>
+        <value>debug</value><!-- debug/test/prod debug: debug+profiler, test: profiler, prod: void -->
+    </constant>
+    <constant>
+        <name>SITE_MAINTENANCE</name>
+        <value>false</value>
+    </constant>
+    <constant>
+        <name>ADMIN_NAME</name>
+        <value>dreadlokeur</value>
+    </constant>
+    <constant>
+        <name>ADMIN_EMAIL</name>
+        <value>dreadlokeur@gmail.com</value>
+    </constant>
+    <constant>
+        <name>ADMIN_PASSWORD</name>
+        <value>d033e22ae348aeb5660fc2140aec35850c4da997</value>
+    </constant>
+    <constant>
+        <name>SMTP_SERVER</name>
+        <value>smtp.orange.fr</value>
+    </constant>
+    <constant>
+        <name>TIMEZONE</name>
+        <value>Europe/Paris</value>
+    </constant>
+    <constant>
+        <name>CHARSET</name>
+        <value>utf-8</value>
+    </constant>
+    <constant>
+        <name>LEVEL_LOG</name>
+        <value>4</value><!--EMERGENCY = 0;ALERT = 1;CRITICAL = 2;ERROR = 3;WARNING = 4;NOTICE = 5;INFO = 6;DEBUG = 7; by default into logger class : 4-->
+    </constant>
+    <constant>
+        <name>LEVEL_LOG_BACKTRACE</name>
+        <value>false</value><!-- true / false-->
+    </constant>
+    
+    <constant>
+        <name>DISPLAY_LOG</name>
+        <value>display,firebug,chrome</value><!--false for display, else Observers list, see namespace logger for more informations. Séparé par des virgules (sans espace)-->
+    </constant>
+    <constant>
+        <name>MAIL_LOG</name>
+        <value>false</value>
+    </constant>
+    <constant>
+        <name>MAIL_LOG_TO_EMAIL</name>
+        <value>[ADMIN_EMAIL]</value>
+    </constant>
+    <constant>
+        <name>MAIL_LOG_TO_NAME</name>
+        <value>[ADMIN_NAME]</value>
+    </constant>
+    <constant>
+        <name>WRITE_LOG</name>
+        <value>false</value>
+    </constant>
+    <constant>
+        <name>GOOGLE_VERIFICATION</name>
+        <value>vulTOWigwPWjKsa_CM_UgVsiRjv7JvJhVOhxx0XzS2c</value>
+    </constant>
+    <constant>
+        <name>GOOGLE_UA</name>
+        <value>UA-39980015-1</value>
+    </constant>
+    <constant>
+        <name>LANGUAGE_DEFAULT</name>
+        <value>fr_FR</value>
+    </constant>
+    <constant>
+        <name>LANGUAGE_ACCEPTED</name>
+        <value>fr_FR,en_EN</value><!--  séparé par des virgules (sans espace)-->
+    </constant>
+    <constant>
+        <name>LANGUAGE_FORMAT</name>
+        <value>xml</value><!--  seulement xml pour l'instant-->
+    </constant>
+    <constant>
+        <name>TEMPLATE_DEFAULT</name>
+        <value>default</value><!--  name of default template -->
+    </constant>
+    <constant>
+        <name>REWRITE_URLS</name>
+        <value>true</value><!--  true/false -->
+    </constant>
+    <constant>
+        <name>AUTOLOADER_CACHE</name>
+        <value>core</value><!--  cache name -->
+    </constant>
+    <constant>
+        <name>LOGGER_CACHE</name>
+        <value>core</value><!--  cache name -->
+    </constant>
+    <constant>
+        <name>AUTOLOADER_GLOBALIZER</name>
+        <value>true</value><!--  true/false -->
+    </constant>
+</constants>

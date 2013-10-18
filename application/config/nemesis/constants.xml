@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<constants>
+    <constant>
+        <name>DEBUG</name>
+        <value>true</value><!-- set debug mode enable for : config manager, session, dispatcher, and logger (with debug level)-->
+    </constant>
+</constants>
