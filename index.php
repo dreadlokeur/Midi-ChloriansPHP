@@ -52,7 +52,6 @@
 use framework\Application;
 use framework\mvc\Dispatcher;
 
-
 ini_set('display_errors', 1);
 ini_set('output_buffering', 1);
 
