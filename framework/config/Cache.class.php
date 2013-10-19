@@ -4,8 +4,7 @@ namespace framework\config;
 
 use framework\Config;
 use framework\utility\Tools;
-use framework\Logger;
-use framework\Cache as CacheFactory;
+use framework\Cache as CacheManager;
 
 class Cache extends Config {
 
@@ -35,8 +34,6 @@ class Cache extends Config {
                     if (!isset($cache->name))
                         throw new \Exception('Miss cache name value');
                     $name = Tools::castValue((string) $cache->name);
-                    if (array_key_exists($name, self::$_caches))
-                        Logger::getInstance()->debug('Cache : "' . $name . '" already defined, was overloaded');
                     if (!isset($cache->class))
                         throw new \Exception('Miss cache class value');
 
@@ -53,7 +50,7 @@ class Cache extends Config {
                     }
                     $options['debug'] = isset($cache->debug) ? Tools::castValue((string) $cache->debug) : false;
                     $options['name'] = $name;
-                    self::$_caches[$name] = CacheFactory::factory((string) $cache->class, $options);
+                    CacheManager::addCache($name, CacheManager::factory((string) $cache->class, $options), true);
                 }
                 break;
             case self::INI:

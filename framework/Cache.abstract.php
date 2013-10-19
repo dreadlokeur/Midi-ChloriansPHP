@@ -11,8 +11,8 @@
 namespace framework;
 
 use framework\utility\Validate;
-use framework\Config;
 use framework\utility\Date;
+use framework\Logger;
 
 abstract class Cache {
 
@@ -39,6 +39,32 @@ abstract class Cache {
     protected $_prefixGroups = '';
     protected $_lockName = 'lock';
     protected $_gcName = 'gc';
+    protected static $_caches = array();
+
+    public static function getCache($name) {
+        if (!is_string($name))
+            throw new \Exception('Cache name must be a string');
+        if (!array_key_exists($name, self::$_caches)) {
+            Logger::getInstance()->debug('Cache ' . $name . ' is not setted');
+            return false;
+        }
+
+        return self::$_caches[$name];
+    }
+
+    public static function getCaches() {
+        return self::$_caches;
+    }
+
+    public function addCache($name, $conf, $forceReplace = false) {
+        if (array_key_exists($name, self::$_caches)) {
+            if ($forceReplace)
+                throw new \Exception('Cache : "' . $name . '" already defined');
+
+            Logger::getInstance()->debug('Cache : "' . $name . '" already defined, was overloaded');
+        }
+        self::$_caches[$name] = $conf;
+    }
 
     public function __destruct() {
         
@@ -149,12 +175,12 @@ abstract class Cache {
 
     protected static function _getCachesList($caches) {
         if (!$caches)
-            return Config::getInstance()->getCaches();
+            return self::getCaches();
 
         $list = array();
         if (!is_array($caches)) {
             foreach ($caches as $cache) {
-                $cache = Config::getInstance()->getCache($cache);
+                $cache = self::getCache($cache);
                 if ($cache)
                     $list[] = $cache;
             }

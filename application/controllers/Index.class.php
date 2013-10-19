@@ -15,13 +15,13 @@ class Index extends Controller {
     }
 
     public function action() {
-        //$cache = \framework\Config::getCache('default');
+        //$cache = \framework\Cache::getCache('default');
         //$cache->write('test', '1fff', true, 10, $cache::TYPE_NUMBER);
         //$cache->write('test', '1fff');
         //$cache->delete('test');
         //$cache->lock('test', 10);
         //$cache->unlock('test');
-        //$cache = \framework\Config::getCache('default2');
+        //$cache = \framework\Cache::getCache('default2');
         //$cache->write('test', 1, 100);
         //$cache->increment('test', 1);
         //$cache->clearGroup('group1');

@@ -32,7 +32,6 @@ class Config {
     const REWRITE_URLS = 4;
 
     protected static $_urls = null;
-    protected static $_caches = array();
     protected static $_constants = array();
 
     protected function __construct() {
@@ -109,22 +108,6 @@ class Config {
             return $urls;
         }
         return self::$_urls;
-    }
-
-    // Caches
-    public static function getCache($name) {
-        if (!is_string($name))
-            throw new \Exception('Cache name must be a string');
-        if (!array_key_exists($name, self::$_caches)) {
-            Logger::getInstance()->debug('Cache ' . $name . ' is not setted');
-            return false;
-        }
-
-        return self::$_caches[$name];
-    }
-
-    public static function getCaches() {
-        return self::$_caches;
     }
 
 }

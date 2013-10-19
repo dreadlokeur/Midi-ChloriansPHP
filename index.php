@@ -40,7 +40,7 @@
                 "-.t-._:'
  * 
  * Index file :
- *     - Include loader, path and run application
+ *     - Include loader, paths and run application
  *
  * @copyright  Copyright 2013 - MidichlorianPHP and contributors
  * @author     NAYRAND Jérémie (dreadlokeur) <dreadlokeur@gmail.com>

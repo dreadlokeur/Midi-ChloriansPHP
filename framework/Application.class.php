@@ -84,8 +84,10 @@ class Application {
 
     public function __destruct() {
         // Stop managers
-        $this->_exc->stop();
-        $this->_err->stop();
+        /*if ($this->_exc)
+            $this->_exc->stop();
+        if ($this->_err)
+            $this->_err->stop();*/
     }
 
     protected function _init() {

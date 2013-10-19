@@ -24,10 +24,21 @@ require_once PATH_FRAMEWORK . 'Autoloader.class.php';
 require_once PATH_FRAMEWORK . 'autoloader' . DS . 'IAutoloaders.interface.php';
 // Autoloader configuration
 $autoloader = new Autoloader();
-$autoloader->setAutoloadExtensions(array('class.php', 'abstract.php', 'interface.php', 'trait.php', 'php'));
-$autoloader->addNamespaces(array('framework' => PATH_FRAMEWORK, 'libs' => PATH_LIBS, 'controllers' => PATH_CONTROLLERS, 'models' => PATH_MODELS));
+$autoloader->setAutoloadExtensions(array(
+    'class.php',
+    'abstract.php',
+    'interface.php',
+    'trait.php',
+    'php')
+);
+$autoloader->addNamespaces(array(
+    'framework' => PATH_FRAMEWORK,
+    'libs' => PATH_LIBS,
+    'controllers' => PATH_CONTROLLERS,
+    'models' => PATH_MODELS)
+);
 
-// Include autoloader drivers
+// Include autoloaders drivers
 require_once PATH_FRAMEWORK . 'autoloader' . DS . 'autoloaders' . DS . 'Finder.class.php';
 require_once PATH_FRAMEWORK . 'autoloader' . DS . 'autoloaders' . DS . 'Cache.class.php';
 require_once PATH_FRAMEWORK . 'autoloader' . DS . 'autoloaders' . DS . 'Includer.class.php';

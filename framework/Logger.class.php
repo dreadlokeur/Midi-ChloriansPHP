@@ -8,6 +8,7 @@ use framework\mvc\Dispatcher;
 use framework\utility\Benchmark;
 use framework\Application;
 use framework\Database;
+use framework\Cache as CacheManager;
 
 class Logger implements \SplSubject {
 
@@ -42,7 +43,7 @@ class Logger implements \SplSubject {
             foreach ($dbs as $db)
                 $db->__destruct();
 
-            $caches = Config::getCaches();
+            $caches = CacheManager::getCaches();
             foreach ($caches as $cache)
                 $cache->__destruct();
 
