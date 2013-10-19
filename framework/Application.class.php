@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Include necessary files, and setting class autoloader
+ * 
+ * @copyright  Copyright 2013 - MidichlorianPHP and contributors
+ * @author     NAYRAND Jérémie (dreadlokeur) <dreadlokeur@gmail.com>
+ * @version    1.0.1dev2
+ * @license    GNU General Public License 3 http://www.gnu.org/licenses/gpl.html
+ * @package    framework
+ */
+
 namespace framework;
 
 use framework\Cli;
@@ -35,8 +45,8 @@ class Application {
     protected $_config = null; //Config instance
     protected $_language = null;
     protected $_isRunned = false; //State
-    protected $_ex = false; // Exception manager
-    protected $_err = false; // Error manager
+    protected $_ex = null; // Exception manager
+    protected $_err = null; // Error manager
     protected $_log = false;
     protected $_bench = array('time' => null, 'ram' => null); //Benchmark
     protected $_globalizeClassList = array(
@@ -58,7 +68,6 @@ class Application {
             self::setDebug(true);
         if ($env == self::ENV_DEBUG || $env == self::ENV_TEST) {
             self::setProfiler(true);
-            //TODO run profiler
         }
 
         self::$_env = $env;
@@ -84,10 +93,10 @@ class Application {
 
     public function __destruct() {
         // Stop managers
-        /*if ($this->_exc)
+        if (!is_null($this->_exc))
             $this->_exc->stop();
-        if ($this->_err)
-            $this->_err->stop();*/
+        if (!is_null($this->_err))
+            $this->_err->stop();
     }
 
     protected function _init() {
@@ -118,7 +127,7 @@ class Application {
         // Add vendors directory
         Autoloader::addDirectory(PATH_VENDORS);
 
-        //Globalize essentials classes (TODO replace by autoloader ClassMapLoader)
+        //Globalize essentials classes
         if (defined('AUTOLOADER_GLOBALIZER') && AUTOLOADER_GLOBALIZER && !self::getDebug()) {
             $globalizer = new Globalizer($this->_globalizeClassList, true);
             $globalizer->loadGlobalizedClass();
@@ -189,7 +198,6 @@ class Application {
 
         // Setting
         Date::setDateDefaultTimezone(TIMEZONE);
-        //TODO replace by cookie
         if (!is_null(Session::getInstance()->get('language')))
             $this->_language->setLanguage(Session::getInstance()->get('language'));
 
@@ -200,14 +208,12 @@ class Application {
     public function run() {
         if ($this->_isRunned)
             throw new \Exception('Application already runned');
-        if (Cli::isCli()) {
-            //TODO instance console ...
+        if (Cli::isCli())
             throw new \Exception('CLI not yet');
-        } else {
-            // Run dispatcher : Catcher http request and instanciate controller
-            $dispatcher = Dispatcher::getInstance(PATH_CONTROLLERS);
-            $dispatcher->run();
-        }
+
+        // Run dispatcher : Catcher http request and instanciate controller
+        $dispatcher = Dispatcher::getInstance(PATH_CONTROLLERS);
+        $dispatcher->run();
 
         $this->_isRunned = true;
     }

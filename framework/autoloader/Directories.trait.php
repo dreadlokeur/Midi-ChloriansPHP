@@ -109,10 +109,8 @@ trait Directories {
     }
 
     public static function purgeCacheDirectories() {
-        foreach (self::$_directories as &$directory) {
+        foreach (self::$_directories as &$directory)
             self::purgeCacheDirectory($directory);
-            //TODO fix: need delete only root cache path insered on cache key name
-        }
     }
 
     public static function purgeCacheDirectory($directory) {

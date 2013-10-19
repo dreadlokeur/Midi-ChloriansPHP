@@ -4,7 +4,7 @@ namespace framework\config;
 
 use framework\Config;
 use framework\utility\Tools;
-use framework\mvc\Template as Tpl;
+use framework\mvc\Template as TemplateManager;
 
 class Template extends Config {
 
@@ -85,7 +85,7 @@ class Template extends Config {
                     $templateValue->charset = isset($template->charset) ? Tools::castValue((string) $template->charset) : 'UTF-8';
 
                     // Finally, add loaded conf
-                    Tpl::addTemplate($templateValue->name, $templateValue);
+                    TemplateManager::addTemplate($templateValue->name, $templateValue);
                 }
                 break;
             case self::INI:

@@ -1,19 +1,5 @@
 <?php
 
-// TODO : proxy support
-// TODO : implement benchmarking
-// TODO : implement SSH and HTTP method
-// TODO : options for save in txt found value ...
-// TODO : rework algo generate bruteforcing ... (dictionary, start with minLengh)
-// TODO : most get & set ...
-// TODO : check validy of assign vars ...
-// TODO : support multi login username support
-// TODO : support multi bryteTypeMethod en meme temps ^^
-// TODO : support save last bruteForcing generate or tested for stop script ...
-// TODO : tester sur la connexion au server est encore etablie toute les x combinaison ou heures...
-// TODO : max combinaison ou hours ... ?
-// TODO : see https://gist.github.com/1224935 for curl_multi process
-
 namespace framework\hacking;
 
 use framework\Logger;
@@ -154,7 +140,8 @@ class BruteForce {
                     $this->_setChecked(true);
                     $this->_setFoundValue($generateValue);
                     return true;
-                } else
+                }
+                else
                     return false;
                 break;
             case self::WEB:

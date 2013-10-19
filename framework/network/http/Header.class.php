@@ -28,7 +28,7 @@ class Header {
         'status',
         'via',
         'x-requested-with'
-    );//TODO need complete...
+    );
 
     public static function sentHeader($directiveName, $directiveValue, $replace = true, $forceResponseCode = false, $checkIfHeaderSent = true, $directiveSeparator = ':') {
         if (!is_bool($checkIfHeaderSent))

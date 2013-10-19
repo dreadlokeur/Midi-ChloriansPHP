@@ -1,9 +1,5 @@
 <?php
 
-// TODO regler l'injection de dependance de la classe mail via un futur gestionnaire de dépendances
-// TODO se servir de la classe mailContents lors de l'envoit du mail...
-// TODO faire une meilleur gestion du mailer ... trop merdique
-
 namespace framework\error\observers;
 
 use framework\mail\SwiftMailer;

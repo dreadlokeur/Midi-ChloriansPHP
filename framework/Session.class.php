@@ -1,9 +1,5 @@
 <?php
 
-//session_get_cookie_params()
-// TODO handlers : validator, encrypter, compressor, cache, save (file, db) etc ...
-//todo add lock when read key, and implement lock time
-
 namespace framework;
 
 use framework\Cli;
@@ -63,14 +59,7 @@ class Session {
     }
 
     public function __destruct() {
-        if (self::getDebug()) {
-            //TODO
-            // Dump of session  $_SESSION ?
-            // count number of key registered into a session
-            // Koctets sessions ?
-            // locked key ?
-            // benchmark ? ...
-        }
+        
     }
 
     public static function setDebug($bool) {
@@ -190,7 +179,6 @@ class Session {
     }
 
     public static function setSaveDirectory($dir, $forceCreate = true) {
-        // TODO Check if is started session ?
         if ($forceCreate && !is_dir($dir)) {
             if (!mkdir($dir, 0775, true))
                 throw new \Exception('Error on creating "' . $dir . '" directory');
@@ -284,13 +272,6 @@ class Session {
     public function destroy() {
         self::_checkState();
 
-        /*
-         * TODO must be completed
-         * Pour détruire complètement une session, comme faire sortir l'utilisateur, 
-         * l'identifiant de la session doit également être effacé. 
-         * Si un cookie est utilisé pour propager l'identifiant de session (comportement par défaut), 
-         * alors le cookie de session doit être effacé. La fonction setcookie() peut être utilisée pour cela.
-         */
         if (!session_destroy())
             throw new \Exception('Error during destroy session');
 

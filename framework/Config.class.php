@@ -1,7 +1,5 @@
 <?php
 
-// TODO rework with strategy pattern ?
-
 namespace framework;
 
 use framework\config\Constant;
@@ -14,22 +12,15 @@ class Config {
     use pattern\Singleton,
         debugger\Debug;
 
-    const XML = 'xml'; // conf format
+    const XML = 'xml'; // format
     const INI = 'ini';
-    // conf type
-    const CONTROLLER = 'controller';
+    // type
     const CONSTANT = 'constant';
     const URL = 'url';
     const TEMPLATE = 'template';
     const SECURITY = 'security';
     const DATABASE = 'database';
     const CACHE = 'cache';
-
-    // for edit conf file
-    const ADD = 1;
-    const UPDATE = 2;
-    const DEL = 3;
-    const REWRITE_URLS = 4;
 
     protected static $_urls = null;
     protected static $_constants = array();

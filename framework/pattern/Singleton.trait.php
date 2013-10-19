@@ -1,11 +1,5 @@
 <?php
 
-// TODO : fix getSingleton: check if is locked or not ...
-// TODO : getSingleton and _getSingleton WTF ? !
-// TODO : lock and unlock methods must be public, why not ?
-// TODO : rename multiSingleton into multiton .. ?
-// TODO : support string multiton, not only number ?
-
 namespace framework\pattern;
 
 trait Singleton {

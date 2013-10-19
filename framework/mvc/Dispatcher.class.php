@@ -1,9 +1,5 @@
 <?php
 
-// TODO : set and get urlKeyController && urlKeyAction
-// TODO : rename en rework class router...
-// TODO : language support ?
-
 namespace framework\mvc;
 
 use framework\utility\Tools\Validate;
@@ -41,7 +37,6 @@ class Dispatcher {
             Benchmark::getInstance('dispatcher')->startTime(2)->startRam(2);
             Logger::getInstance()->addGroup('dispatcher', 'Dispatcher Benchmark and Informations', true);
         }
-        // TODO check urls config, get KeyController/Action and set this +DEBUG mode
     }
 
     public function setControllersPath($path, $forceCreate = true) {
@@ -173,7 +168,6 @@ class Dispatcher {
     }
 
     public function show401($die = false) {
-        // TODO add possibility to use different http protocol ?
         Header::setResponseStatusCode(ResponseCode::CODE_UNAUTHORIZED, true);
 
         // Run controller url "httpError401"
@@ -184,7 +178,6 @@ class Dispatcher {
     }
 
     public function show403($die = false) {
-        // TODO add possibility to use different http protocol ?
         // Use http protocol 1.0
         // And http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
         // If use Http 1.1 protocol, header connection is keep-alive, else is close
@@ -198,7 +191,6 @@ class Dispatcher {
     }
 
     public function show404($die = false) {
-        // TODO add possibility to use different http protocol ?
         // Set Header
         // Use http protocol 1.0 look this : http://stackoverflow.com/questions/2769371/404-header-http-1-0-or-1-1
         // And http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
@@ -213,7 +205,6 @@ class Dispatcher {
     }
 
     public function show500($die = false) {
-        // TODO add possibility to use different http protocol ?
         Header::setResponseStatusCode(ResponseCode::CODE_INTERNAL_SERVER_ERROR, true);
         // Run controller url "httpError500"
         $this->_runErrorController('httpError500');
@@ -223,7 +214,6 @@ class Dispatcher {
     }
 
     public function show503($die = false) {
-        // TODO add possibility to use different http protocol ?
         Header::setResponseStatusCode(ResponseCode::CODE_SERVICE_UNAVAILABLE, true);
 
         // Run controller url "httpError403"
@@ -234,7 +224,6 @@ class Dispatcher {
     }
 
     public function showDebugger($die = false) {
-        //Header::setResponseStatusCode(ResponseCode::CODE_SERVICE_UNAVAILABLE, true);
         // Run controller url "debugger"
         $this->_runErrorController('debugger');
         if ($die)
@@ -357,7 +346,6 @@ class Dispatcher {
                 }
             }
         }
-        //TODO DEBUG trace ?
     }
 
 }

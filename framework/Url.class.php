@@ -1,8 +1,5 @@
 <?php
 
-//TODO add filter for valid argument
-// TODO : add forceReplace Arguments ?
-
 namespace framework;
 
 use framework\url\Rewriting;

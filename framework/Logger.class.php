@@ -1,7 +1,5 @@
 <?php
 
-// TODO : multi logger (comme pour le benchmark) ?
-
 namespace framework;
 
 use framework\mvc\Dispatcher;
@@ -173,7 +171,6 @@ class Logger implements \SplSubject {
     }
 
     public function getObservers($observerName = false) {
-        // TODO : get cloned observer feature ...
         if (!$observerName)
             return $this->_observers;
         else {
@@ -193,7 +190,6 @@ class Logger implements \SplSubject {
     public function notify($lastLogOnly = false) {
         if ($this->_observers->count() && $this->countLogs() > 0) {
             $logs = $this->getLogs();
-            // TODO FIX when display log Immediately and template not displayed, balise <pre> its display before template ... :(
             if ($lastLogOnly)
                 $logs = array(end($logs));
 

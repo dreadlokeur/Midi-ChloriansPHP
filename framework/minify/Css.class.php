@@ -1,11 +1,5 @@
 <?php
 
-// TODO set and get ...
-// TODO compress options for all files and file by file
-// TODO factoryse minifier for css and js ...
-// TODO rewrite url into css ..
-// TODO autoloading css files into cssDir ...
-
 namespace framework\minify;
 
 class Css {

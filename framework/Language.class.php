@@ -1,6 +1,5 @@
 <?php
 
-//TODO set cookie when update language with setLanguage, if !isDefault
 namespace framework;
 
 use framework\utility\Validate;
@@ -49,7 +48,6 @@ class Language {
             throw new \Exception('Directory "' . $datasPath . '" is not readable');
 
         $this->_datasPath = realpath($datasPath) . DS;
-        //TODO check if contains alls langs ?
 
         $this->setLanguage($defaultLanguage, true, true);
     }

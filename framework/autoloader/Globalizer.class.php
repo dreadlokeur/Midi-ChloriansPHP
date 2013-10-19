@@ -83,7 +83,7 @@ class Globalizer extends Autoloader {
     public function loadGlobalizedClass($checkCache = true, $forceUpdateCache = false) {
         if (!self::getCache())
             return;
-        // TODO add checkMinTime ?
+
         if (self::getDebug()) {
             $benchTime = microtime(true);
             $benchMemory = memory_get_usage();
@@ -124,7 +124,6 @@ class Globalizer extends Autoloader {
     }
 
     protected function _isExpiredCache() {
-        // TODO FIX : if class is in global file, but if not a globalized classe ...?
         $globalizedClasses = $this->getGlobalizedClasses();
         $cache = self::getCache()->read('GlobalizedClassesCache');
         if (!$cache)
@@ -206,7 +205,6 @@ class Globalizer extends Autoloader {
     }
 
     protected function _deletePhpTags($classContents) {
-        // TODO check other tags = <? ???
         return str_replace(array('<?php', '?>'), ' ', $classContents);
     }
 
@@ -222,7 +220,6 @@ class Globalizer extends Autoloader {
     }
 
     protected function _fixNamespace($contents) {
-        //TODO FIXME
         // Rewrite namespaces declaration for fix this fatal error :  "Cannot mix bracketed namespace declarations with unbracketed namespace declarations"
         if ($this->_haveNamespace($contents)) {
             // Rewrite unbracketed namespaces

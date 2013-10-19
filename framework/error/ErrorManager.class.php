@@ -1,9 +1,5 @@
 <?php
 
-// TODO implement error_reporting level (comme le logger)
-// TODO most options for display error etc etc
-// TODO rework attach methode and getObservers : inspire by logger code ...
-
 namespace framework\error;
 
 use framework\mvc\Dispatcher;
@@ -42,9 +38,6 @@ class ErrorManager implements \SplSubject {
 
     public function stop() {
         restore_error_handler();
-        //TODO implement unregister_shutdown_function
-        //if($this->_catchFatal)
-        //unregister_shutdown_function();
     }
 
     public function attach(\SplObserver $observer) {

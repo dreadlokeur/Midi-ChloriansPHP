@@ -1,7 +1,5 @@
 <?php
 
-// TODO implement Formater html, xml and other...
-
 namespace framework\logger\observers;
 
 use framework\Logger;

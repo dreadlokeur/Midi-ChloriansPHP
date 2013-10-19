@@ -15,11 +15,17 @@ ErrorDocument 503 /Midi-ChloriansPHP/index.php?controller=error&action=serviceUn
 RewriteEngine on
 Options -Multiviews
 Options +FollowSymlinks +SymLinksIfOwnerMatch
-
-#RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteCond %{REQUEST_FILENAME} !-d
-#RewriteRule . /index.php [L]
 RewriteBase /Midi-ChloriansPHP/
+
+# Protect hidden files from being viewed
+<Files .*>
+	Order Deny,Allow
+	Deny From All
+</Files>
+
+# Allow any files or directories that exist to be displayed directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 
 #Controller's rules
 RewriteRule ^([A-Za-z0-9_]+)$ index.php?controller=$1  [L,QSA]

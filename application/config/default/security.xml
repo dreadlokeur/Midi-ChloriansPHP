@@ -9,7 +9,7 @@
         <type>form</type>
         <autorun>false</autorun>
         <form>
-            <name>login</name>
+            <name>example</name>
             <protection>
                 <type>csrf</type>
                 <option>
@@ -23,10 +23,6 @@
                 </option>
             </protection>
             <protection>
-                <type>bruteforce</type>
-                <!-- TODO options -->
-            </protection>
-            <protection>
                 <type>captcha</type>
                 <option>
                     <name>dataFile</name>
@@ -35,20 +31,6 @@
                     <!--<value>[PATH_DATA]captcha[DS]captcha-audio.xml</value>-->
                 </option>
                 <!-- possible to override ooption value defined into dataFile -->
-            </protection>
-        </form>
-        <form>
-            <name>another</name>
-            <protection>
-                <type>csrf</type>
-                <option>
-                    <name>timeValidity</name>
-                    <value>60</value>
-                </option>
-                <option>
-                    <name>referer</name>
-                    <value>root</value><!-- url name, defined into urls.xml -->
-                </option>
             </protection>
         </form>
     </api>

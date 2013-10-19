@@ -155,12 +155,6 @@ class Database {
                 throw new \Exception('Server type ' . $type . ' don\'t exist !');
                 break;
         }
-
-        // TODO :
-        //   Connection persistente possible sur un serveur
-        //   Possiblité de recuperer un serveur précis .... (et pas que celui de la session (persistent)
-        //   Améliorer le loadBalancing avec un system de priorité sur le serveur: là c'est un rand aléatoire ok, sauf que si on veut garder certains serveur et 
-        //             en gros en "exclure" certains partiellement, pour les serveurs de secours ou autre quoi ...
     }
 
     // Cette fonction retourne tous les serveurs (possible de définir le type), dans array global des serveurs...

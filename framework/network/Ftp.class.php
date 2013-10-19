@@ -1,8 +1,5 @@
 <?php
 
-// TODO :  proxy implementation : http://www.php.net/manual/fr/function.ftp-login.php#46865 or http://blog.mayflower.de/archives/310-FTP-via-Proxy-with-cURL.html
-// TODO : check validy of assign vars ...
-
 namespace framework\network;
 
 use framework\Logger;
@@ -117,10 +114,8 @@ class Ftp {
             $this->_conn = ftp_ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout());
 
         if (!$this->getConn()) {
-            if (self::getDebug()) {
+            if (self::getDebug())
                 Logger::getInstance()->debug('Connection to the ftp server  "' . $this->getHost() . '" on port "' . $this->getPort() . '" failed');
-                //TODO get error message ...
-            }
             else
                 throw new \Exception('Connection to the ftp server failed "' . $this->getHost() . '" on port "' . $this->getPort() . '"');
             return false;

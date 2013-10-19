@@ -48,9 +48,5 @@
             </asset>
         </assets>
         <charset>UTF-8</charset>
-        <!-- TODO -->
-        <debug>true</debug><!-- true/false -->
-        <format>phtml</format><!-- phtml/smarty/twig/templiz ... -->
-        <cache>true</cache><!-- cache name -->
     </template>
 </templates>

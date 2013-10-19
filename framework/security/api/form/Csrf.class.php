@@ -24,7 +24,8 @@ class Csrf implements IForm {
             if (is_array($options['urlReferer'])) {
                 foreach ($options['urlReferer'] as &$url)
                     $this->_urlsReferer[] = Config::getUrl($url);
-            }else
+            }
+            else
                 $this->_urlsReferer[] = Config::getUrl($options['urlReferer']);
         }
     }
@@ -52,8 +53,6 @@ class Csrf implements IForm {
         $session->add($this->getFormName() . 'CsrfToken', $this->_token, true, true);
         if ($this->_timeValidity > 0)
             $session->add($this->getFormName() . 'CsrfTokenTime', time(), true, true);
-
-        // TODO hash this values ?
     }
 
     public function get() {

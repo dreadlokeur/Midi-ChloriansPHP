@@ -1,13 +1,5 @@
 <?php
 
-//TODO implement get all Keys, all Keys groups, all lock
-//TODO lock on write function ?
-//TODO mask file creation (File)
-//TODO verifier fonctionnement gc et modifier la facon dont il est expiré (set expire time, no in data key) (File)
-//TODO FIX fetch write key name contains "lock" or "gc", car actuellement si on lock une clé : "sherlock" ça marche pas
-//TODO verifier fonctionnement de purge, clear, et clearGrousp
-//TODO clear lock for apc, gc ?
-
 namespace framework;
 
 use framework\utility\Validate;

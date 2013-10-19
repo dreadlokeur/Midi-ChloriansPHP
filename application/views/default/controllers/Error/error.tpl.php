@@ -1,4 +1,3 @@
-<!-- TODO : html5 support -->
 <!DOCTYPE html>
 <html>
     <head>

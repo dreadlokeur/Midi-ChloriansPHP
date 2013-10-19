@@ -170,7 +170,6 @@ class Pdo implements IDriver {
             );
         }
         return $this;
-        //TODO length for bind param
     }
 
     public function execute($closeStatement = false) {

@@ -1,7 +1,5 @@
 <?php
 
-// TODO : implement mode debug (what is this implementation ? )
-
 namespace framework\mvc;
 
 use framework\mvc\Template;
@@ -73,13 +71,13 @@ abstract class Controller {
             }
             switch ($this->_ajaxDatasType) {
                 case self::HTML:
-                    // TODO check datas and securise, and compress html... ?
+
                     Header::sentHeader('Content-type', 'text/html');
                     foreach ($this->_ajaxDatas as $data)
                         echo $data;
                     break;
                 case self::XML:
-                    throw new \Exception('not yet'); //todo ...constuction d'un xml de sortie...
+                    throw new \Exception('not yet');
                     break;
                 case self::JSON:
                     Header::sentHeader('Content-type', 'application/json');
@@ -93,7 +91,6 @@ abstract class Controller {
             if (!$this->_templateInitialized)//try init
                 $this->initTemplate();
 
-            // TODO, compress and cache template file ?
             if ($this->_templateInitialized) {
                 $display = $this->_template->displayTemplate();
                 if (self::getDebug() && $display)

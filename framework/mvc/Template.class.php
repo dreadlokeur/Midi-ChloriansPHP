@@ -1,10 +1,5 @@
 <?php
 
-// TODO : Implemente parseTpl for bbcode and personal syntaxe into tpl file
-// TODO : implement mode debug
-// TODO : multi driver with factory ...
-// TODO : need rewrite path, url for image, font, sound etc ...for global cache assets javascript and css
-
 namespace framework\mvc;
 
 use framework\utility\Validate;

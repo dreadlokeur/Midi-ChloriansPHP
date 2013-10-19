@@ -1,8 +1,5 @@
 <?php
 
-// http://www.php.net/manual/fr/reserved.exceptions.php
-// TODO rework attach methode and getObservers : inspire by logger code ...
-
 namespace framework\error;
 
 class ExceptionManager implements \SplSubject {

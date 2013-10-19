@@ -15,10 +15,11 @@ class Cryption extends Api implements IApi {
     protected $_passwordAlgorithmList = array('des', 'desExt', 'md5', 'blowfish', 'sha256', 'sha512');
 
     public function __construct($options = array()) {
-        if (!isset($options['key']))
-            throw new \Exception('Api cryption need a key');
-        $this->_key = Hash::hashString($options['key'], Hash::ALGORITHM_SHA1, false, 10);
-        // TODO hash algo for key ???
+        throw new \Exception('Not yet');
+
+        /* if (!isset($options['key']))
+          throw new \Exception('Api cryption need a key');
+          $this->_key = Hash::hashString($options['key'], Hash::ALGORITHM_SHA1, false, 10); */
     }
 
     public function run() {
@@ -35,8 +36,7 @@ class Cryption extends Api implements IApi {
     }
 
     public function cryptPassword($password, $algorithm, $depth) {
-        if (!$this->isValidAlgorithm($algorithm))
-            throw new \Exception('cryptPassword need a valid algorithm parameter');
+        
     }
 
     public function checkPassword($cryptedPassword, $passwordCheck, $algorithm, $string, $depth) {

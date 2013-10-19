@@ -1,10 +1,5 @@
 <?php
 
-// TODO : implement HEAD, PUT, DELETE etc methods arguments
-// TODO : multi connexion curl support
-// TODO : cookie support !
-// TODO check validy of key and value arguments, with a filters list ...
-
 namespace framework\network;
 
 use framework\Logger;
@@ -51,7 +46,6 @@ class Curl {
         if (Validate::isUrl($url, true)) {
             if (!$this->getAllowSsl())
                 throw new \Exception('SSL url cannot be used');
-            //TODO set most option for SSL parameter, cert, key etc etc ....
             $this->setCurlOpt(CURLOPT_SSL_VERIFYPEER, false);
             $this->setCurlOpt(CURLOPT_SSL_VERIFYHOST, 2);
         }
@@ -136,7 +130,8 @@ class Curl {
             foreach ($this->_posts as $k => $v)
                 $posts .= $k . '=' . $v . '&';
             return trim($posts, '&');
-        } else
+        }
+        else
             return $this->_posts;
     }
 
@@ -151,8 +146,6 @@ class Curl {
     }
 
     public function setProxy($host, $ident = false, $port = false) {
-        //TODO check validy: host, identification and port ...
-
         if (!$this->_getCurlInitialized())
             throw new \Exception('Curl must be initialized');
 
@@ -207,7 +200,6 @@ class Curl {
             if (self::getDebug()) {
                 $info = curl_getinfo($this->getCurl());
                 Logger::getInstance()->debug('Curl query took ' . $info['total_time'] . ' seconds to be sent to the url: "' . $info['url'] . '"');
-                //TODO list of curl options used ... and dump ?
             }
             return true;
         }
@@ -253,8 +245,6 @@ class Curl {
     }
 
     public function setUserAgent($agent) {
-        // TODO CHECK valid user agent with class user agent
-        // TODO simulate browser ?
         $this->_userAgent = $agent;
         $this->setCurlOpt(CURLOPT_USERAGENT, $this->getUserAgent());
     }
