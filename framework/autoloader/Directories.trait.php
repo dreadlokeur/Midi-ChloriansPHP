@@ -16,6 +16,7 @@ trait Directories {
             throw new \Exception('Directory : "' . $directoryPath . '" must be a valid directory');
         if (array_key_exists(md5($directoryPath), self::getDirectories()) && !$forceReplace)
             throw new \Exception('Directory : "' . $directoryPath . '" already registered');
+
         // Add Principal directory
         self::$_directories[md5($directoryPath)] = $directoryPath;
         // Add sub directories (with cache if it's possible)

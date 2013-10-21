@@ -1,12 +1,10 @@
 <?php
 
-// Pear/Phar/PECL loader, and  ClassMapLoader : class loader which uses a predefined map of classes and their paths. Provides greater performance at the cost of flexibility. // inspire by https://github.com/OPL/opl3-autoloader
-// Singleton ?
-
 namespace framework;
 
 use framework\Logger;
 use framework\Cache;
+use framework\Application;
 
 class Autoloader {
 
@@ -47,8 +45,10 @@ class Autoloader {
                     Logger::getInstance()->debug($log, 'autoloader');
 
                 Logger::getInstance()->debug(count(self::getAutoloaders()) . ' autoloader drivers, ' . count(self::getDirectories()) . ' directories and ' . count(self::getNamespaces()) . ' namespaces registered', 'autoloader');
-                Logger::getInstance()->debug('Loading ' . count(self::getClasses()) . ' classes (' . self::countGlobalizedClasses() . ' globalized classes)  in aproximately ' . round(self::getBenchmark('time') * 1000, 4) . ' milli-seconds', 'autoloader');
-                Logger::getInstance()->debug('Aproximately memory used  : ' . round(self::getBenchmark('memory') / 1024, 4) . ' kilo-octets', 'autoloader');
+                if (Application::getProfiler()) {
+                    Logger::getInstance()->debug('Loading ' . count(self::getClasses()) . ' classes (' . self::countGlobalizedClasses() . ' globalized classes)  in aproximately ' . round(self::getBenchmark('time') * 1000, 4) . ' milli-seconds', 'autoloader');
+                    Logger::getInstance()->debug('Aproximately memory used  : ' . round(self::getBenchmark('memory') / 1024, 4) . ' kilo-octets', 'autoloader');
+                }
                 // Avoid multi call
                 self::$_logs = array();
                 self::resetBenchmark();
