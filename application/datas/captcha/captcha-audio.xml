@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
     <option>
-        <name>refreshUrl</name><!-- url name for refresh (flush) captcha, optional : default is "captcha" -->
+        <name>refreshUrl</name><!-- url name for refresh (flush) captcha -->
         <value>captcha</value>
     </option>
     <option>
@@ -16,6 +16,10 @@
     <option>
         <name>audio</name><!-- true/false , optional : default is "false" -->
         <value>true</value>
+    </option>
+    <option>
+        <name>audioUrl</name><!-- url name for get audio -->
+        <value>captcha</value>
     </option>
     <option>
         <name>audioLangDirectory</name><!-- Language, need all charsList wav files, required -->

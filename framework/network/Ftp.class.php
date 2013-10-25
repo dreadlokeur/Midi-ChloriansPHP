@@ -6,8 +6,6 @@ use framework\Logger;
 
 class Ftp {
 
-    use \framework\debugger\Debug;
-
     protected $_host = null;
     protected $_port = 21;
     protected $_timeout = 90;
@@ -114,14 +112,11 @@ class Ftp {
             $this->_conn = ftp_ssl_connect($this->getHost(), $this->getPort(), $this->getTimeout());
 
         if (!$this->getConn()) {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Connection to the ftp server  "' . $this->getHost() . '" on port "' . $this->getPort() . '" failed');
-            else
-                throw new \Exception('Connection to the ftp server failed "' . $this->getHost() . '" on port "' . $this->getPort() . '"');
+            Logger::getInstance()->debug('Connection to the ftp server  "' . $this->getHost() . '" on port "' . $this->getPort() . '" failed');
+
             return false;
         } else {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Connected to the ftp server "' . $this->getHost() . '" on port "' . $this->getPort() . '"');
+            Logger::getInstance()->debug('Connected to the ftp server "' . $this->getHost() . '" on port "' . $this->getPort() . '"');
             return true;
         }
     }
@@ -141,14 +136,10 @@ class Ftp {
         ftp_raw($this->getConn(), 'USER ' . $this->getUsername());
         $logRep = ftp_raw($this->getConn(), 'PASS ' . $this->getPassword());
         if (strpos($logRep[0], '230') !== false) {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Login to the ftp server with username "' . $this->getUsername() . '" and password "' . $this->getPassword() . '" succefull');
+            Logger::getInstance()->debug('Login to the ftp server with username "' . $this->getUsername() . '" and password "' . $this->getPassword() . '" succefull');
             return true;
         } else {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Login to the ftp server with username "' . $this->getUsername() . '" and password "' . $this->getPassword() . '" failed');
-            else
-                throw new \Exception('Login to the ftp server failed :  username or password invalid');
+            Logger::getInstance()->debug('Login to the ftp server with username "' . $this->getUsername() . '" and password "' . $this->getPassword() . '" failed');
 
             return false;
         }

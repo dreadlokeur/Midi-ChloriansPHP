@@ -176,7 +176,7 @@ class Validate {
     }
 
     /**
-     * Permet de verifier si un fichier est de type voulut, depuis son extension dans son nom (.type)
+     * Permet de verifier si un fichier est d'une extension voulut, depuis son extension dans son nom (.type)
      *
      * @access public
      * @static
@@ -184,7 +184,7 @@ class Validate {
      * @param <string> $file: le nom du fichier
      * @return <bool>
      */
-    public static function isFileType($type, $file) {
+    public static function isFileExtension($type, $file) {
         return (str_replace('.', '', strrchr($file, '.')) != $type) ? false : true;
     }
 

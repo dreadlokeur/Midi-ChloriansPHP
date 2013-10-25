@@ -12,7 +12,7 @@ class Finder extends Autoloader implements IAutoloaders {
     }
 
     public function autoload($class) {
-        if (class_exists($class, false) || interface_exists($class, false))
+        if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false))
             return;
 
         if (self::getDebug()) {

@@ -11,7 +11,7 @@ trait Namespaces {
         if (!is_string($namespaceName))
             throw new \Exception('Namespace name parameter must be a string');
         if (!is_dir($namespacePath))
-            throw new \Exception('Namespace path must be a valid directory');
+            throw new \Exception('Namespace : "' . $namespaceName . '" path must be a valid directory');
 
         if (array_key_exists($namespaceName, self::$_namespaces) && !$forceReplace)
             throw new \Exception('Namespace directory "' . $namespacePath . '" already registered');

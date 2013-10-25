@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
     <option>
-        <name>refreshUrl</name><!-- url name for refresh (flush) captcha, optional : default is "captcha" -->
+        <name>refreshUrl</name><!-- url name for refresh (flush) captcha -->
         <value>captcha</value>
     </option>
     <option>
@@ -25,7 +25,7 @@
         <value>png</value>
     </option>
     <option>
-        <name>imageUrl</name><!-- url name for get image, optional : default is "captcha" -->
+        <name>imageUrl</name><!-- url name for get image -->
         <value>captcha</value>
     </option>
     <option>

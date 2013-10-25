@@ -4,28 +4,32 @@ namespace framework;
 
 use framework\database\Server;
 use framework\Logger;
+use framework\Application;
 
 class Database {
-
-    use debugger\Debug;
 
     protected static $_databases = array();
     protected $_name = '';
     protected $_type = null;
-    protected $_class = null;
+    protected $_engine = null;
+    protected $_engineName = '';
     protected $_masters = array();
     protected $_slaves = array();
     protected $_stats = array('time' => 0, 'ram' => 0); //Queries totals stats
+    protected $_queryCount = 0;
 
-    public static function getDatabase($name) {
+    public static function getDatabase($name, $returnEngine = false) {
         if (!is_string($name))
             throw new \Exception('Database name must be a string');
 
-        if (!array_key_exists($name, self::$_databases)) {
-            Logger::getInstance()->debug('Database ' . $name . ' is not setted');
+        if (!array_key_exists($name, self::$_databases))
             return false;
-        }
-        return self::$_databases[$name];
+
+        $db = self::$_databases[$name];
+        if ($returnEngine)
+            return $db->getEngine();
+
+        return $db;
     }
 
     public static function getDatabases() {
@@ -33,12 +37,8 @@ class Database {
     }
 
     public static function addDatabase($name, $conf, $forceReplace = false) {
-        if (array_key_exists($name, self::$_databases)) {
-            if ($forceReplace)
-                throw new \Exception('Database : "' . $name . '" already defined');
-
-            Logger::getInstance()->debug('Database : "' . $name . '" already defined, was overloaded');
-        }
+        if (array_key_exists($name, self::$_databases) && !$forceReplace)
+            throw new \Exception('Database : "' . $name . '" already defined');
         self::$_databases[$name] = $conf;
     }
 
@@ -51,33 +51,25 @@ class Database {
         $this->_stats['ram'] = $this->_stats['ram'] + $ram;
     }
 
-    public function __construct($name, $class, $debug = false) {
+    public function __construct($name, $engine) {
         $this->setName($name);
-        $this->setClass($class);
-        self::setDebug($debug);
+        $this->setEngine($engine);
+        Logger::getInstance()->addGroup($this->_name, 'Database ' . $this->_name . ' Benchmark and Informations', true, true);
     }
 
     public function __destruct() {
-        if (self::getDebug()) {
-            Logger::getInstance()->addGroup($this->_name, 'Database ' . $this->_name . ' Benchmark and Informations', true);
-            $class = $this->getClass();
-            $logs = $class->getLogs();
-            if (count($logs)) {
-                foreach ($logs as &$log) {
-                    Logger::getInstance()->debug($log, $this->_name);
-                }
-            }
+        Logger::getInstance()->debug('Engine : ' . $this->_engineName, $this->_name);
+        if (Application::getProfiler()) {
             $stats = $this->getStats();
-            Logger::getInstance()->debug('Queries : ' . count($logs) . ' (Aproximately memory used  : ' . $stats['ram'] . ' kilo-octets in aproximately ' . $stats['time'] . ' milli-seconds)', $this->_name);
+            Logger::getInstance()->debug('Queries : ' . (string) $this->_queryCount . ' (Aproximately memory used  : ' . $stats['ram'] . ' KB in aproximately ' . $stats['time'] . ' ms)', $this->_name);
             Logger::getInstance()->debug('Servers : ' . $this->countServers() . ' (Masters : ' . $this->countServers(Server::TYPE_MASTER) . '  Slaves : ' . $this->countServers(Server::TYPE_SLAVE) . ')', $this->_name);
-            self::setDebug(false);
         }
     }
 
     public function isValidDriver($driver) {
-        if (!$this->_class)
-            throw new \Exception('Please set class befor check driver supported');
-        return $this->_class->isValidDriver($driver);
+        if (!$this->_engine)
+            throw new \Exception('Please set engine before check driver supported');
+        return $this->_engine->isValidDriver($driver);
     }
 
     // Setters
@@ -85,19 +77,21 @@ class Database {
         $this->_name = $name;
     }
 
-    public function setClass($class) {
-        if (!is_string($class))
-            throw new \Exception('Class parameter must be a string');
+    public function setEngine($engine) {
+        if (!is_string($engine))
+            throw new \Exception('Engine parameter must be a string');
 
-        if (!class_exists('framework\database\drivers\\' . ucfirst($class)))
-            throw new \Exception('Database drivers invalid');
+        $class = 'framework\database\engines\\' . ucfirst($engine);
+        if (!class_exists($class))
+            throw new \Exception('Database engine invalid');
 
 
-        $inst = new \ReflectionClass('\framework\database\drivers\\' . ucfirst($class));
-        if (!in_array('framework\database\IDriver', $inst->getInterfaceNames()))// check interface
-            throw new \Exception('Database driver class must be implement framework\database\IDriver');
+        $inst = new \ReflectionClass($class);
+        if (!in_array('framework\database\IEngine', $inst->getInterfaceNames()))// check interface
+            throw new \Exception('Database engine class must be implement framework\database\IEngine');
 
-        $this->_class = $inst->newInstance($this->_name);
+        $this->_engine = $inst->newInstance($this->_name);
+        $this->_engineName = $class;
     }
 
     // Getters
@@ -105,8 +99,8 @@ class Database {
         return $this->_name;
     }
 
-    public function getClass() {
-        return $this->_class;
+    public function getEngine() {
+        return $this->_engine;
     }
 
     // Servers
@@ -193,6 +187,10 @@ class Database {
                 throw new \Exception('Server type ' . $type . ' don\'t exist !');
         }
         return false;
+    }
+
+    public function incrementQueryCount() {
+        $this->_queryCount++;
     }
 
 }

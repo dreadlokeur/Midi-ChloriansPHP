@@ -39,9 +39,6 @@ trait Classes {
         if (!is_string($path))
             throw new \Exception('Path must be a string');
 
-        if (array_key_exists($className, self::$_classes))
-            throw new \Exception('Infos class : "' . $className . '" already defined');
-
         self::$_classes[$className] = array(
             'sourceFilePath' => $path,
             'isCached' => $isCached,

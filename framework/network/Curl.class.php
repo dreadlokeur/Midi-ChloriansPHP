@@ -7,8 +7,6 @@ use framework\utility\Validate;
 
 class Curl {
 
-    use \framework\debugger\Debug;
-
     const POST = 'POST';
     const GET = 'GET';
 
@@ -191,16 +189,11 @@ class Curl {
 
         $this->_response = curl_exec($this->getCurl());
         if (!$this->getResponse()) {
-            if (self::getDebug())
-                Logger::getInstance()->error('Curl error message : "' . $this->getCurlErrorMsg() . '" and code : "' . $this->getCurlErrorCode() . '"');
-            else
-                throw new \Exception('Curl error messege : "' . $this->getCurlErrorMsg() . '" and code : "' . $this->getCurlErrorCode() . '"');
+            Logger::getInstance()->error('Curl error message : "' . $this->getCurlErrorMsg() . '" and code : "' . $this->getCurlErrorCode() . '"');
             return false;
         } else {
-            if (self::getDebug()) {
-                $info = curl_getinfo($this->getCurl());
-                Logger::getInstance()->debug('Curl query took ' . $info['total_time'] . ' seconds to be sent to the url: "' . $info['url'] . '"');
-            }
+            $info = curl_getinfo($this->getCurl());
+            Logger::getInstance()->debug('Curl query took ' . $info['total_time'] . ' seconds to be sent to the url: "' . $info['url'] . '"');
             return true;
         }
     }

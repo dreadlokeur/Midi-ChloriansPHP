@@ -18,8 +18,8 @@ FEATURES
  * Multi-language.
  * Asynchronous request (AJAX).
  //* Pipelining HTTP.
- * Configuration multi format (XML, INI, YAML).
- * Templating multi format (PHTML, TWIG, SMARTY) and multiple.
+ * Configuration multi format (XML, PHP, YAML).
+ * Templating multi format (PHP, TWIG, SMARTY) and multiple.
  * Security components.
  * Profiling and debug tools.
  * Logging system.

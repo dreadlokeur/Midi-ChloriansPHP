@@ -2,7 +2,7 @@
 
 namespace framework\mvc;
 
-use framework\Config;
+use framework\Database;
 
 abstract class Model {
 
@@ -165,7 +165,7 @@ abstract class Model {
     }
 
     public function getDb() {
-        return Config::getDatabase($this->_modelDBName);
+        return Database::getDatabase($this->_modelDBName);
     }
 
     public function setModelDBName($dbName) {

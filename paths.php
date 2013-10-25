@@ -27,13 +27,12 @@ define('PATH_CACHE', PATH_APP . 'cache' . DS);
 define('PATH_LOGS', PATH_APP . 'logs' . DS);
 define('PATH_LANGUAGE', PATH_DATA . 'langs' . DS);
 define('PATH_CONFIG', PATH_APP . 'config' . DS);
-// Check config default path
-if (!is_dir(PATH_CONFIG . 'default'))
-    throw new \Exception('CONFIG ERROR, please set default config path');
-define('PATH_CONFIG_DEFAULT', PATH_CONFIG . 'default' . DS);
-
 // Cache paths
 define('PATH_CACHE_CONFIG', PATH_CACHE . 'config' . DS);
 define('PATH_CACHE_CORE', PATH_CACHE . 'core' . DS);
 define('PATH_CACHE_DEFAULT', PATH_CACHE . 'default' . DS);
+
+//Templates
+define('PATH_TEMPLATE_DEFAULT', PATH_VIEWS . 'default' . DS);
+define('PATH_TEMPLATE_DEFAULT_ASSETS', PATH_TEMPLATE_DEFAULT . 'assets' . DS);
 ?>

@@ -2,7 +2,7 @@
 
 namespace framework\error\observers;
 
-use framework\mvc\Dispatcher;
+use framework\mvc\Router;
 
 class Display implements \SplObserver {
 
@@ -11,7 +11,7 @@ class Display implements \SplObserver {
     }
 
     public function update(\SplSubject $subject, $isException = false) {
-        Dispatcher::getInstance(PATH_CONTROLLERS)->showDebugger(false, $isException);
+        Router::getInstance()->showDebugger(false, $isException);
     }
 
 }

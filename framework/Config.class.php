@@ -2,103 +2,97 @@
 
 namespace framework;
 
-use framework\config\Constant;
-use framework\config\Url;
-use framework\Logger;
+use framework\config\Loader;
+use framework\config\Reader;
+use framework\config\loaders\Constant;
 use framework\utility\Tools;
 
 class Config {
 
-    use pattern\Singleton,
-        debugger\Debug;
+    use pattern\Singleton;
 
-    const XML = 'xml'; // format
-    const INI = 'ini';
-    // type
-    const CONSTANT = 'constant';
-    const URL = 'url';
-    const TEMPLATE = 'template';
-    const SECURITY = 'security';
-    const DATABASE = 'database';
-    const CACHE = 'cache';
+    const LOADER = 'loader';
+    const READER = 'reader';
 
-    protected static $_urls = null;
-    protected static $_constants = array();
+    protected static $_path = null;
+
+    public static function setPath($path) {
+        if (!is_dir($path))
+            throw new \Exception('Path "' . $path . '" do not exists');
+        if (!is_readable($path))
+            throw new \Exception('Directory "' . $path . '" is not readable');
+
+        self::$_path = realpath($path) . DS;
+    }
+
+    public static function getPath() {
+        return self::$_path;
+    }
 
     protected function __construct() {
-        $this->_loadDefaultFiles(PATH_CONFIG_DEFAULT);
+        if (!is_null(self::$_path)) {
+            // Check config default path
+            if (!is_dir(self::$_path . 'default'))
+                throw new \Exception('Config error, please set default config directory');
 
-        //load hostname config files (overload conf)
-        $hostname = gethostname();
-        if ($hostname && is_dir(PATH_CONFIG . $hostname))
-            $this->_loadDefaultFiles(PATH_CONFIG . $hostname . DS);
+            //load default config
+            $this->loadPath(self::$_path . 'default');
 
-        // Define default constants
-        Constant::defineCons();
-    }
+            //load by hostname
+            $hostname = gethostname();
+            if ($hostname && is_dir(self::$_path . $hostname))
+                $this->loadPath(self::$_path . $hostname);
 
-    protected function _loadDefaultFiles($path) {
-        if (file_exists($path . 'constants.xml'))
-            $this->load($path . 'constants.xml', Config::CONSTANT, Config::XML, false);
-        if (file_exists($path . 'urls.xml'))
-            $this->load($path . 'urls.xml', Config::URL, Config::XML);
-        // Optional config
-        if (file_exists($path . 'templates.xml'))
-            $this->load($path . 'templates.xml', Config::TEMPLATE, Config::XML);
-        if (file_exists($path . 'security.xml'))
-            $this->load($path . 'security.xml', Config::SECURITY, Config::XML);
-        if (file_exists($path . 'databases.xml'))
-            $this->load($path . 'databases.xml', Config::DATABASE, Config::XML);
-        if (file_exists($path . 'caches.xml'))
-            $this->load($path . 'caches.xml', Config::CACHE, Config::XML);
-    }
-
-    public function load($filename, $type, $format = self::XML, $loadArgs = null) {
-        $className = 'framework\config\\' . ucfirst($type);
-        if (!class_exists($className))
-            throw new \Exception('Invalid config type');
-
-        $conf = new $className($filename, $format);
-        $conf->load($loadArgs);
-    }
-
-    // Urls
-    public static function getUrl($urlName, $onlyValue = true, $params = array()) {
-        if (!property_exists(self::$_urls, $urlName)) {
-            Logger::getInstance()->debug('Url ' . $urlName . ' is not setted');
-            return null;
+            // Define default constants
+            Constant::defineCons();
         }
-
-        $urlInfos = self::$_urls->$urlName;
-        if ($onlyValue) {
-            $value = $urlInfos['value'];
-            //Generate url
-            if (is_null($value))
-                $value = Url::_generateUrlValue($urlInfos, $urlName);
-            $i = 1;
-            foreach ($params as &$param) {
-                if ($i == 1)
-                    $value = rtrim($value, '/');
-                $value .= ($urlInfos['rewrite'] || (defined('REWRITE_URLS') && REWRITE_URLS)) ? '/' . $param : '&amp;parameter' . $i . '=' . Tools::stringToUrl($param);
-                $i++;
-            }
-            return ($urlName != 'root') ? self::$_urls->root['value'] . $value : $value;
-        }
-        else
-            $urlInfos['params'] = $params;
-
-        return $urlInfos;
     }
 
-    public static function getUrls($onlyValue = false) {
-        if ($onlyValue) {
-            $urls = new \stdClass();
-            foreach (self::$_urls as $urlName => $urlDatas)
-                $urls->$urlName = self::getUrl($urlName);
-
-            return $urls;
+    public function loadPath($path) {
+        $dir = Tools::cleanScandir($path);
+        foreach ($dir as &$f) {
+            if (is_file($path . DS . $f))
+                $this->loadFile($path . DS . $f);
         }
-        return self::$_urls;
+    }
+
+    public function load(Loader $loader, Reader $reader) {
+        $loader->load($reader);
+    }
+
+    public function loadFile($filename, Loader $loader = null, Reader $reader = null) {
+        if (!file_exists($filename))
+            throw new \Exception('File : "' . $filename . '" not exists');
+
+        if ($loader === null && $reader === null)
+            $ext = Tools::getFileExtension($filename);
+
+        //get reader by name of file
+        if ($reader === null)
+            $reader = $this->_factory($ext, self::READER, $filename);
+
+        //get loader by name of file
+        if ($loader === null)
+            $loader = $this->_factory(basename($filename, '.' . $ext), self::LOADER);
+
+
+        if ($reader && $loader)
+            $this->load($loader, $reader);
+    }
+
+    protected function _factory($class, $type = self::READER, $filename = null) {
+        if ($type != self::READER && $type != self::LOADER)
+            throw new \Exception('Invalid type');
+        if (!is_string($class))
+            throw new \Exception('Class parameter must be a string');
+
+        $namespace = $type == self::READER ? 'framework\config\readers\\' : 'framework\config\loaders\\';
+        if (!class_exists($namespace . ucfirst($class)))
+            throw new \Exception('Invalid class :  "' . $class . '"');
+
+        $class = $namespace . ucfirst($class);
+        $inst = new \ReflectionClass($class);
+        return !is_null($filename) ? $inst->newInstance($filename) : $inst->newInstance();
     }
 
 }

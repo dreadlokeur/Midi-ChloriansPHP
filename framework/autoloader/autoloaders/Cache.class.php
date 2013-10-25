@@ -14,7 +14,7 @@ class Cache extends Autoloader implements IAutoloaders {
     public function autoload($class) {
         if (!self::getCache())
             return;
-        if (class_exists($class, false) || interface_exists($class, false))
+        if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false))
             return;
 
         if (self::getDebug()) {
@@ -28,8 +28,7 @@ class Cache extends Autoloader implements IAutoloaders {
                 self::_setClassInfo($class, $classInfos['sourceFilePath'], true, false);
             }
         }
-        if (self::getDebug())
-            self::_setBenchmark(microtime(true) - $benchTime, memory_get_usage() - $benchMemory);
+        self::_setBenchmark(microtime(true) - $benchTime, memory_get_usage() - $benchMemory);
     }
 
     public static function writeClassPath($class, $path) {

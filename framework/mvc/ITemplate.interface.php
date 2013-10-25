@@ -4,7 +4,7 @@ namespace framework\mvc;
 
 interface ITemplate {
 
-    public function __construct($config);
+    public function __construct($params);
 
     public function setName($name);
 
@@ -18,9 +18,15 @@ interface ITemplate {
 
     public function getCharset();
 
+    public function setAssets($assets);
+
+    public function getAssets();
+
+    public function initAssets();
+
     public function __get($name);
 
-    public function getVar($name); //alias
+    public function getVar($name, $default = null); //alias
 
     public function setVar($name, $value, $safeValue = false, $forceReplace = false);
 
@@ -40,11 +46,9 @@ interface ITemplate {
 
     public function display();
 
-    public function setSslUrlAssets($ssl = true);
+    public function getUrl($routeName, $vars = array(), $lang = null, $ssl = false);
 
-    public function getAsset($assetName, $assetType = self::ASSET_TYPE_PATH);
-
-    public function getAssetsRootUrl($rootDirectory = null);
+    public function getUrlAsset($type, $ssl = false);
 }
 
 ?>

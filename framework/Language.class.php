@@ -3,24 +3,22 @@
 namespace framework;
 
 use framework\utility\Validate;
-use framework\utility\Tools;
+use framework\Logger;
 
 class Language {
 
-    use pattern\Singleton,
-        debugger\Debug,
-        cache\Cache;
+    use pattern\Singleton;
 
-    protected $_acceptedList = array();
-    protected $_datasPath = null;
     protected $_language = null;
+    protected $_defaultLanguage = null;
+    protected static $_datasPath = null;
     protected static $_languageVars = null;
-    protected $_defaultLanguageVars = array();
+    protected static $_defaultLanguageVars = null;
 
-    public static function getVar($varName) {
+    public static function getVar($varName, $default = null) {
         if (!property_exists(self::$_languageVars, $varName)) {
             Logger::getInstance()->debug('Language var ' . $varName . ' is not setted');
-            return null;
+            return $default;
         }
         else
             return self::$_languageVars->$varName;
@@ -30,83 +28,90 @@ class Language {
         return self::$_languageVars;
     }
 
-    //langs list and path vars datas
-    public function setLangs($acceptedList, $datasPath, $defaultLanguage) {
-        if (!is_array($acceptedList) && !is_string($acceptedList))
-            throw new \Exception('acceptedList must be an array or a string');
-        if (is_string($acceptedList))
-            $acceptedList = explode(',', $acceptedList);
-        foreach ($acceptedList as $language) {
-            if (!Validate::isLanguage($language))
-                throw new \Exception('Invalid lang : "' . $language . '"');
-        }
-        $this->_acceptedList = $acceptedList;
+    public static function setVar($name, $value, $forceReplace = false) {
+        if (!Validate::isVariableName($name))
+            throw new \Exception('language var name must be a valid variable');
 
+        if (method_exists(self::$_languageVars, $name) && !$forceReplace)
+            throw new \Exception('language var already defined');
+
+        //put on vars
+        self::$_languageVars->$name = $value;
+    }
+
+    public function __set($name, $value) {
+        return self::setVar($name, $value);
+    }
+
+    public function __get($name) {
+        return self::getVar($name);
+    }
+
+    protected function __construct() {
+        Logger::getInstance()->addGroup('language', 'Language informations', false, true);
+    }
+
+    public function __destruct() {
+        Logger::getInstance()->debug('Language default is : "' . $this->_language . '"', 'language');
+        Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
+    }
+
+    public static function setDatasPath($datasPath) {
         if (!is_dir($datasPath))
             throw new \Exception('Directory "' . $datasPath . '" do not exists');
         if (!is_readable($datasPath))
             throw new \Exception('Directory "' . $datasPath . '" is not readable');
 
-        $this->_datasPath = realpath($datasPath) . DS;
-
-        $this->setLanguage($defaultLanguage, true, true);
+        self::$_datasPath = realpath($datasPath) . DS;
     }
 
     public function getAcceptedList() {
         return $this->_acceptedList;
     }
 
-    public function getDatasPath() {
-        return $this->_datasPath;
+    public static function getDatasPath() {
+        return self::$_datasPath;
     }
 
-    public function setLanguage($language, $loadVars = true, $isDefault = false) {
+    public function setLanguage($language, $setAsDefault = false) {
         if (!Validate::isLanguage($language))
             throw new \Exception('Invalid lang format');
-        //check if is accepted language
-        if (!in_array($language, $this->_acceptedList))
-            throw new \Exception('Invalid lang: "' . $language . '", is not accepted language');
-        $this->_language = $language;
 
-        // load vars
-        if ($loadVars)
-            $this->_loadVars($isDefault);
+        Logger::getInstance()->debug('Try load language : "' . $language . '"', 'language');
+        //check datas files
+        $file = self::getDatasPath() . $language . '.xml';
+        if (!file_exists($file))
+            throw new \Exception('Invalid lang : "' . $language . '", have not xml datas file');
+        self::$_languageVars = @simplexml_load_file($file);
+        if (self::$_languageVars === null || self::$_languageVars === false)
+            throw new \Exception('Invalid lang : "' . $language . '" invalid xml file');
+
+
+        $this->_language = $language;
+        if ($setAsDefault)
+            $this->_defaultLanguage = $this->_language;
+
+
+        //load datas
+        $isDefault = ($this->_defaultLanguage != $this->_language);
+        if (!$isDefault)//preserve defaults vars
+            self::$_defaultLanguageVars = self::$_languageVars;
+
+        //Check if alls vars defined
+        if (!$isDefault && self::$_defaultLanguageVars !== null) {
+            foreach (self::$_defaultLanguageVars as $name => $value) {
+                if (!property_exists(self::$_languageVars, $name)) {
+                    // Notify
+                    Logger::getInstance()->debug('Miss language var : "' . $name . '" on new language : "' . $language . '"');
+                    // And add default language var
+                    self::$_languageVars->$name = self::$_defaultLanguageVars->$name;
+                }
+            }
+        }
     }
 
     public function getLanguage() {
         return $this->_language;
-    }
-
-    protected function _loadVars($isLanguageDefault = false) {
-        $xml = @simplexml_load_file($this->getDatasPath() . $this->getLanguage() . '.xml');
-        if ($xml === null || $xml === false)
-            throw new \Exception('Invalid xml file');
-
-
-        if (!$isLanguageDefault)//preserve defaults vars
-            $this->_defaultLanguageVars = self::$_languageVars;
-        //reset vars
-        self::$_languageVars = new \stdClass();
-        foreach ($xml as $varName => $varValue) {
-            //cast value
-            $varValue = Tools::castValue((string) $varValue);
-            if (method_exists(self::$_languageVars, $varName))
-                throw new \Exception('language var already defined');
-
-            //put on vars
-            self::$_languageVars->$varName = $varValue;
-        }
-        //Check if alls vars defined
-        if (!$isLanguageDefault) {
-            foreach ($this->_defaultLanguageVars as $name => $value) {
-                if (!property_exists(self::$_languageVars, $name)) {
-                    // Notify
-                    Logger::getInstance()->debug('Miss language var : "' . $name . '" on new language file : "' . $this->_filename . '"');
-                    // And add default language var
-                    self::$_languageVars->$name = $this->_defaultLanguageVars->$name;
-                }
-            }
-        }
     }
 
 }

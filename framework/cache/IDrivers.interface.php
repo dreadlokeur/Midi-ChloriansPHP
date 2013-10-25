@@ -22,7 +22,7 @@ interface IDrivers {
 
     public function isExpired($key, $autoDelete = true);
 
-    public function getExpire($key);//time/request left
+    public function getExpire($key); //time/request left
 
     public function lock($key, $time = Cache::EXPIRE_INFINITE);
 
@@ -41,10 +41,6 @@ interface IDrivers {
     public function clearGroup($groupName);
 
     public function clearGroups();
-
-    public static function setDebug($bool);
-
-    public static function getDebug();
 }
 
 ?>

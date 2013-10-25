@@ -8,11 +8,11 @@ class SwiftMailer {
 
     use \framework\pattern\Singleton;
 
-    protected static $_pathTmp = PATH_TMP;
+    protected static $_pathTmp = PATH_CACHE;
 
     protected function __construct() {
         // Add Namespace, for autoloading class with name "Swift" ...
-        Autoloader::addNamespace('Swift', PATH_FRAMEWORK . DS . 'vendors' . DS . 'SwiftMailer' . DS);
+        Autoloader::addNamespace('Swift', PATH_VENDORS . DS . 'SwiftMailer' . DS);
 
         //Load in dependency maps
         $this->_loadDependencyMaps();

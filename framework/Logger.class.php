@@ -2,16 +2,13 @@
 
 namespace framework;
 
-use framework\mvc\Dispatcher;
 use framework\utility\Benchmark;
 use framework\Application;
-use framework\Database;
 use framework\Cache as CacheManager;
 
 class Logger implements \SplSubject {
 
     use pattern\Singleton,
-        debugger\Debug,
         cache\Cache;
 
     const EMERGENCY = 0;
@@ -32,50 +29,32 @@ class Logger implements \SplSubject {
 
     protected function __construct() {
         $this->_observers = new \SplObjectStorage();
+        Benchmark::getInstance('logger')->startTime()->startRam();
     }
 
     public function __destruct() {
-        if (self::getDebug() && self::getLevel() == self::DEBUG) {
-            // Logs databases
-            $dbs = Database::getDatabases();
-            foreach ($dbs as $db)
-                $db->__destruct();
-
-            $caches = CacheManager::getCaches();
-            foreach ($caches as $cache)
-                $cache->__destruct();
-
-
+        if (Application::getDebug() || self::getLevel() == self::DEBUG) {
             if (Application::getProfiler()) {
-                // Dispatcher benchmark
-                if (Dispatcher::getDebug()) {
-                    Logger::getInstance()->debug('Request dispatched in aproximately : ' . Benchmark::getInstance('dispatcher')->stopTime()->getStatsTime() . ' milli-seconds', 'dispatcher');
-                    Logger::getInstance()->debug('Aproximately memory used  : ' . Benchmark::getInstance('dispatcher')->stopRam()->getStatsRam() . ' kilo-octets', 'dispatcher');
-                }
                 // Logger debug informations and benchmark
                 $this->addGroup('logger', 'Logger Benchmark and Informations', true);
                 $this->debug($this->_observers->count() . ' observers registered', 'logger');
-                $this->debug(count($this->getGroups()) . ' groups and ' . ($this->countLogs() + 3) . ' logs logged in aproximately ' . Benchmark::getInstance('logger')->stopTime()->getStatsTime() . ' milli-seconds', 'logger');
-                $this->debug('Aproximately memory used  : ' . Benchmark::getInstance('logger')->stopRam()->getStatsRam() . ' kilo-octets', 'logger');
+                $this->debug(count($this->getGroups()) . ' groups and ' . ($this->countLogs() + 3) . ' logs logged in aproximately ' . Benchmark::getInstance('logger')->stopTime()->getStatsTime() . ' ms', 'logger');
+                $this->debug('Aproximately memory used  : ' . Benchmark::getInstance('logger')->stopRam()->getStatsRam() . ' KB', 'logger');
 
                 // Global informations && Benchmark
                 $this->addGroup('global', 'Global Benchmark and Informations', true);
                 // Benchmark
-                $this->debug('Page generated in aproximately : ' . Benchmark::getInstance('global')->stopTime()->getStatsTime() . ' milli-seconds', 'global');
-                $this->debug('Aproximately memory used  : ' . Benchmark::getInstance('global')->stopRam()->getStatsRam() . ' kilo-octets - Memory allocated : ' . memory_get_peak_usage(true) / 1024 . ' kilo-octets', 'global');
+                $this->debug('Page generated in aproximately : ' . Benchmark::getInstance('global')->stopTime()->getStatsTime() . ' ms', 'global');
+                $this->debug('Aproximately memory used  : ' . Benchmark::getInstance('global')->stopRam()->getStatsRam() . ' KB - Memory allocated : ' . memory_get_peak_usage(true) / 1024 . ' KB', 'global');
             }
         }
+        // call destructor of caches
+        $caches = CacheManager::getCaches();
+        foreach ($caches as $cache)
+            $cache->__destruct();
 
         // Notify observers and write logs
         $this->notify();
-    }
-
-    public static function setDebug($bool) {
-        if (!is_bool($bool))
-            throw new \Exception('debug parameter must be a boolean');
-        self::$_debug = $bool;
-        if ($bool)
-            Benchmark::getInstance('logger')->startTime(2)->startRam(2);
     }
 
     public static function setLevel($level) {
@@ -134,15 +113,15 @@ class Logger implements \SplSubject {
     public function purgeLogs($notify = false) {
         if ($notify)
             $this->notify();
-        else
-            $this->_logs = array();
+
+        $this->_logs = array();
     }
 
     public function purgeGroups($notify = false) {
         if ($notify)
             $this->notify();
-        else
-            $this->_groups = array();
+
+        $this->_groups = array();
     }
 
     public function attach(\SplObserver $observer, $observerName = false, $cloneObserver = false) {
@@ -195,6 +174,7 @@ class Logger implements \SplSubject {
 
             foreach ($this->_observers as $observer)
                 $observer->update($this, $logs, $this->getGroups());
+
             // avoid multicall
             if ($lastLogOnly) {
                 array_pop($this->_logs);
@@ -213,11 +193,11 @@ class Logger implements \SplSubject {
         return $this->_groups;
     }
 
-    public function addGroup($name, $label, $onBottom = false) {
+    public function addGroup($name, $label, $onBottom = false, $forceReplace = false) {
         // Check
         if (!is_string($label))
             throw new \Exception('Label of group must be a string');
-        if (array_key_exists((string) $name, $this->getGroups()))
+        if (array_key_exists((string) $name, $this->getGroups()) && !$forceReplace)
             throw new \Exception('Group : "' . $name . '" aleadry defined');
 
         $this->_logs[] = array();
@@ -228,6 +208,17 @@ class Logger implements \SplSubject {
         $group->onBottom = $onBottom;
         // Add group on groups
         $this->_groups[$name] = $group;
+    }
+
+    public function deleteGroup($name) {
+        if (!is_string($name))
+            throw new \Exception('Name of group must be a string');
+        $groups = $this->getGroups();
+        if (isset($groups[$name])) {
+            unset($groups[$name]);
+            if (isset($this->_logs[$name]))
+                unset($this->_logs[$name]);
+        }
     }
 
     public function fatal($message, $writingImmediately = true) {
@@ -271,18 +262,15 @@ class Logger implements \SplSubject {
     }
 
     protected function _addLog($message, $level, $groupName = false, $writingImmediately = false, $isBacktrace = false) {
-        if (($level <= $this->getLevel() || $this->getLevel() == self::DEBUG)) {
+        if (($level <= $this->getLevel() || $this->getLevel() == self::DEBUG || Application::getDebug())) {
+            //cache log
             if (self::getCache()) {
-                $debug = self::getCache()->getDebug();
-                self::getCache()->setDebug(false);
                 $hash = md5($message . $level);
                 $cache = self::getCache()->read($hash);
                 if (!$cache) {
-                    $cache = self::getCache();
-                    $cache->write($hash, $hash, true, $cache::EXPIRE_HOUR);
-                    //return;
+                    self::getCache()->write($hash, $hash, true, $cache::EXPIRE_HOUR);
+                    return;
                 }
-                self::getCache()->setDebug($debug);
             }
 
             // set log

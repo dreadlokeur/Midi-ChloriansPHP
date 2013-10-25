@@ -7,11 +7,11 @@ use framework\utility\Timer;
 class Benchmark {
 
     const TIME_SECOND = 1;
-    const TIME_MILLISECOND = 2;
+    const TIME_MS = 2;
     const TIME_MICROSECOND = 3;
-    const RAM_OCTET = 1;
-    const RAM_KOCTET = 2;
-    const RAM_MOCTET = 3;
+    const RAM_BYTE = 1;
+    const RAM_KB = 2;
+    const RAM_MB = 3;
 
     protected static $_instance = null;
     protected $_benchmark;
@@ -29,7 +29,7 @@ class Benchmark {
             $this->_benchmark->ramInfoStopped = false;
             $this->_benchmark->timeInfoStarted = false;
             $this->_benchmark->timeInfoStopped = false;
-            $this->_benchmark->ramMode = self::RAM_OCTET;
+            $this->_benchmark->ramMode = self::RAM_BYTE;
             $this->_benchmark->ramRoundResult = true;
             $this->_benchmark->ramRoundResultPrecision = 4;
             $this->_benchmark->ramRoundResultMode = PHP_ROUND_HALF_UP;
@@ -254,7 +254,7 @@ class Benchmark {
         }
     }
 
-    public function startTime($timeMode = self::TIME_SECOND, $startTime = null) {
+    public function startTime($timeMode = self::TIME_MS, $startTime = null) {
         if (!is_int($timeMode) || $timeMode < self::TIME_SECOND || $timeMode > self::TIME_MICROSECOND)
             throw new \Exception('time mode parameter must be an integer between 1 and 3');
         if ($this->_specificBenchmark !== null) {
@@ -280,8 +280,8 @@ class Benchmark {
         return $this;
     }
 
-    public function startRam($ramMode = self::RAM_OCTET, $startRam = null) {
-        if (!is_int($ramMode) || $ramMode < self::RAM_OCTET || $ramMode > self::RAM_MOCTET)
+    public function startRam($ramMode = self::RAM_MB, $startRam = null) {
+        if (!is_int($ramMode) || $ramMode < self::RAM_BYTE || $ramMode > self::RAM_MB)
             throw new \Exception('ram mode parameter must be an integer between 1 and 3');
 
 
@@ -375,7 +375,7 @@ class Benchmark {
         $this->_benchmark->{$benchMarkName}->ramInfoStopped = false;
         $this->_benchmark->{$benchMarkName}->timeInfoStarted = false;
         $this->_benchmark->{$benchMarkName}->timeInfoStopped = false;
-        $this->_benchmark->{$benchMarkName}->ramMode = self::RAM_OCTET;
+        $this->_benchmark->{$benchMarkName}->ramMode = self::RAM_BYTE;
         $this->_benchmark->{$benchMarkName}->ramRoundResult = true;
         $this->_benchmark->{$benchMarkName}->ramRoundResultPrecision = 4;
         $this->_benchmark->{$benchMarkName}->ramRoundResultMode = PHP_ROUND_HALF_UP;
@@ -389,13 +389,13 @@ class Benchmark {
     protected function _calculRamUsage($benginRam, $endRam) {
         $mode = ($this->_specificBenchmark !== null) ? $this->_benchmark->{$this->_specificBenchmark}->ramMode : $this->_benchmark->ramMode;
         switch ($mode) {
-            case self::RAM_OCTET:
+            case self::RAM_BYTE:
                 $ram = ($endRam - $benginRam);
                 break;
-            case self::RAM_KOCTET:
+            case self::RAM_KB:
                 $ram = ($endRam - $benginRam) / 1024;
                 break;
-            case self::RAM_MOCTET:
+            case self::RAM_MB:
                 $ram = ($endRam - $benginRam) / 1048576;
                 break;
             default:

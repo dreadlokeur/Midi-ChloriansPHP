@@ -94,15 +94,11 @@ class Bitly implements IShortener {
         if ($returnFullReponse)
             return $reponse;
         else {
-            if ($reponse->errorCode != 0) {
-                if (Shortener::getDebug())
-                    Logger::getInstance()->debug('Bit.Ly shorten url error, code : "' . $reponse->errorCode . '" and message : "' . $reponse->errorMessage . '"');
-                else
-                    throw new \Exception('Bit.Ly shorten url error, code : "' . $reponse->errorCode . '" and message : "' . $reponse->errorMessage . '"');
-            }
+            if ($reponse->errorCode != 0)
+                throw new \Exception('Bit.Ly shorten url error, code : "' . $reponse->errorCode . '" and message : "' . $reponse->errorMessage . '"');
+
             if ($reponse->statusCode == 'OK') {
-                if (Shortener::getDebug())
-                    Logger::getInstance()->debug('Bit.Ly shorten url : "' . $longUrl . '" result is : "' . $reponse->results->{$longUrl}->shortUrl . '"');
+                Logger::getInstance()->debug('Bit.Ly shorten url : "' . $longUrl . '" result is : "' . $reponse->results->{$longUrl}->shortUrl . '"');
                 return $reponse->results->{$longUrl}->shortUrl;
             }
             return false;
@@ -127,14 +123,11 @@ class Bitly implements IShortener {
             return $reponse;
         else {
             if ($reponse->errorCode != 0) {
-                if (Shortener::getDebug())
-                    Logger::getInstance()->debug('Bit.Ly expand url error, code : "' . $reponse->errorCode . '" and message : "' . $reponse->errorMessage . '"');
-                else
-                    throw new \Exception('Bit.Ly expand url error, code : "' . $reponse->errorCode . '" and message : "' . $reponse->errorMessage . '"');
+                Logger::getInstance()->debug('Bit.Ly expand url error, code : "' . $reponse->errorCode . '" and message : "' . $reponse->errorMessage . '"');
+                return false;
             }
             if ($reponse->statusCode == 'OK') {
-                if (Shortener::getDebug())
-                    Logger::getInstance()->debug('Bit.Ly expand url  : "http://bit.ly/' . $shortUrlHash . '" result is : "' . $reponse->results->{$shortUrlHash}->longUrl . '"');
+                Logger::getInstance()->debug('Bit.Ly expand url  : "http://bit.ly/' . $shortUrlHash . '" result is : "' . $reponse->results->{$shortUrlHash}->longUrl . '"');
                 return $reponse->results->{$shortUrlHash}->longUrl;
             }
             return false;
@@ -142,5 +135,4 @@ class Bitly implements IShortener {
     }
 
 }
-
 ?>

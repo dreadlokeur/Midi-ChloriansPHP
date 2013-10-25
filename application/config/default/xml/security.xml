@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <form>
+        <autorun>false</autorun>
+        <form>
+            <example>
+                <protection>
+                    <csrf>
+                        <urlReferer>root,captcha</urlReferer><!--url name, defined into urls.xml (multi url allowed) -->
+                        <timeValidity>60</timeValidity>
+                    </csrf>
+                    <captcha>
+                        <dataFile>[PATH_DATA]captcha[DS]captcha-full.xml</dataFile>
+                        <!--possible to override ooption value defined into dataFile-->
+                    </captcha>
+                </protection>
+            </example>
+        </form>
+    </form>
+    <sniffer>
+        <autorun>true</autorun>
+        <trapName>badbottrap</trapName>
+        <badCrawlerFile>[PATH_DATA]sniffer[DS]crawlerBad.xml</badCrawlerFile>
+        <goodCrawlerFile>[PATH_DATA]sniffer[DS]crawlerGood.xml</goodCrawlerFile>
+        <logBadCrawler>true</logBadCrawler>
+        <logGoodCrawler>true</logGoodCrawler>
+        <logUnknownCrawler>true</logUnknownCrawler>
+    </sniffer>
+</config>

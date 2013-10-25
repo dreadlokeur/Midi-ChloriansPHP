@@ -10,8 +10,6 @@ use framework\network\Http;
 
 class Session {
 
-    use \framework\debugger\Debug;
-
     protected static $_instance = false;
     protected static $_securise = true;
     protected static $_securityKeyName = 'securityHash';
@@ -45,16 +43,14 @@ class Session {
     protected function __construct() {
         if (!extension_loaded('session'))
             throw new \Exception('Session extension not loaded try change your PHP configuration');
-        if (self::getDebug()) {
-            Logger::getInstance()->debug('Session class has been instantiated', 'session');
-            if (Cli::isCli())
-                Logger::getInstance()->debug('Use session on cli', 'session');
-        }
+        Logger::getInstance()->addGroup('session', 'Session report', false, true);
+        Logger::getInstance()->debug('Session class has been instantiated', 'session');
+        if (Cli::isCli())
+            Logger::getInstance()->debug('Use session on cli', 'session');
         // Securise
         if (self::getSecurise()) {
             $this->add(self::getSecurityKeyName(), $this->_generateSecurity(), true, true);
-            if (self::getDebug())
-                Logger::getInstance()->debug('Session was securised', 'session');
+            Logger::getInstance()->debug('Session was securised', 'session');
         }
     }
 
@@ -62,23 +58,9 @@ class Session {
         
     }
 
-    public static function setDebug($bool) {
-        if (!is_bool($bool))
-            throw new \Exception('debug parameter must be a boolean');
-        self::$_debug = $bool;
-
-        if ($bool)
-            Logger::getInstance()->addGroup('session', 'Session report', true);
-    }
-
-    public static function getInstance($autoStart = true, $debug = false, $startOptions = array()) {
+    public static function getInstance($autoStart = true, $startOptions = array()) {
         if (!is_bool($autoStart))
             throw new \Exception('autoStart parameter must be a boolean');
-        if (!is_bool($debug))
-            throw new \Exception('debug parameter must be a boolean');
-        // Start debug
-        if ($debug)
-            self::setDebug($debug);
         // Start session
         if ($autoStart) {
             if (!is_array($startOptions))
@@ -126,8 +108,6 @@ class Session {
                 if (session_id() == '')
                     session_start();
                 self::$_state = true;
-                if (self::getDebug())
-                    Logger::getInstance()->debug('Session is started', 'session');
 
                 // set name and id
                 if (!is_null($id))
@@ -147,8 +127,7 @@ class Session {
             throw new \Exception('id parameter must be a valid string: [a-zA-Z0-9]');
 
         session_id($id);
-        if (self::getDebug())
-            Logger::getInstance()->debug('set session id', 'session');
+        Logger::getInstance()->debug('set session id', 'session');
     }
 
     public function getId() {
@@ -160,8 +139,7 @@ class Session {
             throw new \Exception('name parameter must be a string');
         session_name($name);
 
-        if (self::getDebug())
-            Logger::getInstance()->debug('Set session name', 'session');
+        Logger::getInstance()->debug('Set session name', 'session');
     }
 
     public function getName() {
@@ -173,8 +151,7 @@ class Session {
             self::start();
         else {
             session_regenerate_id();
-            if (self::getDebug())
-                Logger::getInstance()->debug('Regenerate session id', 'session');
+            Logger::getInstance()->debug('Regenerate session id', 'session');
         }
     }
 
@@ -205,8 +182,7 @@ class Session {
 
         $this->lock($key);
         $_SESSION[$key] = $value;
-        if (self::getDebug())
-            Logger::getInstance()->debug('New key registered into a session : "' . $key . '"', 'session');
+        Logger::getInstance()->debug('New key registered into a session : "' . $key . '"', 'session');
         if (!$stayLock)
             $this->unlock($key);
         return $this;
@@ -221,8 +197,7 @@ class Session {
                 else
                     throw new \Exception('Delete key : "' . $key . '" error, key is locked');
             }
-            if (self::getDebug())
-                Logger::getInstance()->debug('Delete key : "' . $key . '"', 'session');
+            Logger::getInstance()->debug('Delete key : "' . $key . '"', 'session');
             unset($_SESSION[$key]);
         }
         return $this;
@@ -230,15 +205,10 @@ class Session {
 
     public function get($key, $default = null) {
         self::_checkState();
-        if (!isset($_SESSION[$key])) {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Try getting an unregistered key into session : "' . $key . '"', 'session');
+        if (!isset($_SESSION[$key]))
             return $default;
-        }else {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Getting key : "' . $key, 'session');
+        else
             return $_SESSION[$key];
-        }
     }
 
     public function isLocked($key) {
@@ -265,8 +235,7 @@ class Session {
     public function write() {
         self::_checkState();
         session_write_close();
-        if (self::getDebug())
-            Logger::getInstance()->debug('Session has been written', 'session');
+        Logger::getInstance()->debug('Session has been written', 'session');
     }
 
     public function destroy() {
@@ -275,20 +244,17 @@ class Session {
         if (!session_destroy())
             throw new \Exception('Error during destroy session');
 
-        if (self::getDebug())
-            Logger::getInstance()->debug('Session has been destroyed', 'session');
+        Logger::getInstance()->debug('Session has been destroyed', 'session');
     }
 
     public function increment($key, $offset = 1, $startValue = 1) {
         $this->_crement($key, $offset, true, $startValue);
-        if (self::getDebug())
-            Logger::getInstance()->debug('Increment : "' . $key . '"', 'session');
+        Logger::getInstance()->debug('Increment : "' . $key . '"', 'session');
     }
 
     public function decrement($key, $offset = 1, $startValue = 1) {
         $this->_crement($key, $offset, false, $startValue);
-        if (self::getDebug())
-            Logger::getInstance()->debug('Decrement : "' . $key . '"', 'session');
+        Logger::getInstance()->debug('Decrement : "' . $key . '"', 'session');
     }
 
     protected function _crement($key, $offset = 1, $increment = true, $startValue = 1) {

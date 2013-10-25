@@ -11,10 +11,24 @@ use framework\network\Http;
 class Index extends Controller {
 
     public function __construct() {
-        $this->tpl->setTemplateFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
+        //var_dump($this->tpl->getUrlAsset('img'));
+        $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
+    }
+
+    public function test($int) {
+        //var_dump($int);
+    }
+
+    public function test2($int, $string) {
+        //var_dump($int);
+        //var_dump($string);
     }
 
     public function action() {
+        //$db = \framework\Database::getDatabase('sql', true);
+        //var_dump($db);
+        //$db->set('SELECT * FROM test');
+        //$db->execute();
         //$cache = \framework\Cache::getCache('default');
         //$cache->write('test', '1fff', true, 10, $cache::TYPE_NUMBER);
         //$cache->write('test', '1fff');
@@ -34,6 +48,10 @@ class Index extends Controller {
         //$cache->purge();
     }
 
+    public function action2() {
+        
+    }
+
     public function language() {
         if (Http::isAjaxRequest()) {
             $this->setAjaxController();
@@ -44,30 +62,27 @@ class Index extends Controller {
             $this->addAjaxDatas('updated', $updated);
         }
         else
-            $this->dispatcher->show404(true);
+            $this->router->show404(true);
     }
 
-    public function captcha() {
-        if (is_null(Http::getQuery('parameter')) || is_null(Http::getQuery('parameter2')))
-            $this->dispatcher->show404(true);
-
-        $captcha = Security::getApi(Api::TYPE_FORM)->getProtection(Http::getQuery('parameter'), Form::PROTECTION_CAPTCHA);
+    public function captcha($formName, $type) {
+        $captcha = Security::getApi(Api::TYPE_FORM)->getProtection(Http::getQuery($formName), Form::PROTECTION_CAPTCHA);
         if (!$captcha)
-            $this->dispatcher->show404(true);
+            $this->router->show404(true);
 
-        if (Http::getQuery('parameter2') == 'refresh') {
+        if (Http::getQuery($type) == 'refresh') {
             $this->setAjaxController();
             $captcha->flush();
             $this->addAjaxDatas('imageUrl', $captcha->get('image', true));
             $this->addAjaxDatas('audioUrl', $captcha->get('audio', true));
         } else {
-            if (Http::getQuery('parameter2') == 'image') {
+            if (Http::getQuery($type) == 'image') {
                 if (!$captcha->getImage())
-                    $this->dispatcher->show404(true);
+                    $this->router->show404(true);
                 $captcha->get('image');
-            } elseif (Http::getQuery('parameter2') == 'audio') {
+            } elseif (Http::getQuery($type) == 'audio') {
                 if (!$captcha->getAudio())
-                    $this->dispatcher->show404(true);
+                    $this->router->show404(true);
                 $captcha->get('audio');
             }
             $this->setAutoCallDisplay(false);

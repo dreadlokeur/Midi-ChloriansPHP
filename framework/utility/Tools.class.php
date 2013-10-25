@@ -5,6 +5,7 @@ namespace framework\utility;
 use framework\utility\Validate;
 use framework\network\Http;
 use framework\utility\Superglobals;
+use framework\config\loaders\Constant;
 
 class Tools {
 
@@ -235,7 +236,7 @@ class Tools {
             }
         }
         ob_start();
-        require $filename;
+        include $filename;
         $contents = ob_get_contents();
         ob_end_clean();
         return $contents;
@@ -321,15 +322,33 @@ class Tools {
             if ($value == 'false' || $value == 'FALSE' || $value == '0')
                 return false;
         } elseif (Validate::isString($value)) {
+            //check cons pattern [CONS_NAME]
             $pattern = "#\[([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\]#";
             $callback = function ($item) {
-                        return defined($item[1]) ? constant($item[1]) : $item[1];
+                        //Is defined, return value
+                        if (defined($item[1]))
+                            return constant($item[1]);
+                        else {
+                            //check if is loaded into config loader
+                            $cons = Constant::getCons();
+                            if (array_key_exists($item[1], $cons))
+                                return $cons[$item[1]];
+
+                            return $item[1];
+                        }
                     };
 
             return preg_replace_callback($pattern, $callback, $value);
         }
         else
             return $value;
+    }
+
+    public static function getFileExtension($file) {
+        if (!file_exists($file))
+            throw new \Exception('File : "' . $file . '" not exists');
+
+        return str_replace('.', '', strrchr($file, '.'));
     }
 
 }

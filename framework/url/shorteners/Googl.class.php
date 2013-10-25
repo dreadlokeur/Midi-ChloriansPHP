@@ -67,14 +67,10 @@ class Googl implements IShortener {
             return $reponse;
         else {
             if (isset($reponse->error)) {
-                if (Shortener::getDebug())
-                    Logger::getInstance()->debug('Goo.gl shorten url error, code : "' . $reponse->error->code . '" and message : "' . $reponse->error->message . '"');
-                else
-                    throw new \Exception('Goo.gl shorten url error, code : "' . $reponse->error->code . '" and message : "' . $reponse->error->message . '"');
+                Logger::getInstance()->debug('Goo.gl shorten url error, code : "' . $reponse->error->code . '" and message : "' . $reponse->error->message . '"');
                 return false;
             } else {
-                if (Shortener::getDebug())
-                    Logger::getInstance()->debug('Goo.gl shorten url : "' . $longUrl . '" result is : "' . $reponse->id . '"');
+                Logger::getInstance()->debug('Goo.gl shorten url : "' . $longUrl . '" result is : "' . $reponse->id . '"');
                 return $reponse->id;
             }
         }
@@ -96,16 +92,12 @@ class Googl implements IShortener {
             return $reponse;
         else {
             if (isset($reponse->error)) {
-                if (Shortener::getDebug())
-                    Logger::getInstance()->debug('Goo.gl expand url error, code : "' . $reponse->error->code . '" and message : "' . $reponse->error->message . '"');
-                else
-                    throw new \Exception('Goo.gl expand url error, code : "' . $reponse->error->code . '" and message : "' . $reponse->error->message . '"');
+                Logger::getInstance()->debug('Goo.gl expand url error, code : "' . $reponse->error->code . '" and message : "' . $reponse->error->message . '"');
                 return false;
             }
 
             if ($reponse->status == 'OK') {
-                if (Shortener::getDebug())
-                    Logger::getInstance()->debug('Goo.gl expand url  : "http://goo.gl/' . $shortUrlHash . '" result is : "' . $reponse->longUrl . '"');
+                Logger::getInstance()->debug('Goo.gl expand url  : "http://goo.gl/' . $shortUrlHash . '" result is : "' . $reponse->longUrl . '"');
                 return $reponse->longUrl;
             }
             return false;

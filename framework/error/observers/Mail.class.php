@@ -4,7 +4,7 @@ namespace framework\error\observers;
 
 use framework\mail\SwiftMailer;
 use framework\utility\Validate;
-use framework\Config;
+use framework\Language;
 
 class Mail implements \SplObserver {
 
@@ -62,10 +62,10 @@ class Mail implements \SplObserver {
 
         if (!$isException) {
             $error = $subject->getError();
-            $mail->addPart(Config::getLanguageVar('site_name') . ' vient de generer une erreur PHP <br /> <b>' . $error->type . '</b> : ' . $error->message . ' in <b>' . $error->file . '</b> on line <b>' . $error->line . '</b>', 'text/html');
+            $mail->addPart(Language::getVar('site_name') . ' vient de generer une erreur PHP <br /> <b>' . $error->type . '</b> : ' . $error->message . ' in <b>' . $error->file . '</b> on line <b>' . $error->line . '</b>', 'text/html');
         } else {
             $exception = $subject->getException();
-            $mail->addPart(Config::getLanguageVar('site_name') . ' vient de generer une exception PHP <br /> <b> ' . $exception->type . ' </b> : "' . $exception->message . '" in <b>' . $exception->file . '</b> on line <b>' . $exception->line . '</b> with trace : <br />' . $exception->trace, 'text/html');
+            $mail->addPart(Language::getVar('site_name') . ' vient de generer une exception PHP <br /> <b> ' . $exception->type . ' </b> : "' . $exception->message . '" in <b>' . $exception->file . '</b> on line <b>' . $exception->line . '</b> with trace : <br />' . $exception->trace, 'text/html');
         }
         $transport = defined('SMTP_SERVER') && !is_null(SMTP_SERVER) && SMTP_SERVER != '' ? \Swift_SmtpTransport::newInstance(SMTP_SERVER, 25) : \Swift_MailTransport::newInstance();
         $mailer = \Swift_Mailer::newInstance($transport);

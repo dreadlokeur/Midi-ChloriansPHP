@@ -94,13 +94,9 @@ class BruteForce {
 
     public function start() {
         $this->_bruteForcing($this->getMaxLengh(), $this->getProcess(), '', $this->getCharsetList(), strlen($this->getCharsetList()));
-        if (!$this->getChecked()) {
-            if (self::getDebug())
-                Logger::getInstance()->debug('BruteForcing echec, unfound value with ' . $this->getProcess() . ' process');
-            else
-                throw new \Exception('BruteForcing echec, unfound value with ' . $this->getProcess() . ' process');
-        } else
-        if (self::getDebug())
+        if (!$this->getChecked())
+            Logger::getInstance()->debug('BruteForcing echec, unfound value with ' . $this->getProcess() . ' process');
+        else
             Logger::getInstance()->debug('BruteForcing succefull, found value : "' . $this->getFoundValue() . '" in ' . $this->getProcess() . ' process');
     }
 
@@ -128,12 +124,8 @@ class BruteForce {
                     $this->_ftp->setDebug(true);
                     if (!$this->_ftp->connect()) {
                         $this->_ftp = false;
-                        if (self::getDebug()) {
-                            Logger::getInstance()->debug('BruteForce error: connection on ftp server failed');
-                            exit;
-                        }
-                        else
-                            throw new \Exception('BruteForce error: connection on ftp server failed');
+                        Logger::getInstance()->debug('BruteForce error: connection on ftp server failed');
+                        exit;
                     }
                 }
                 if ($this->_ftp->login($this->_bruteTypeOptions['username'], $generateValue)) {
@@ -147,7 +139,6 @@ class BruteForce {
             case self::WEB:
                 if (!$this->_curl) {
                     $this->_curl = new Curl($this->_bruteTypeOptions['url']);
-                    $this->_curl->setDebug(self::getDebug());
                     if (isset($this->_bruteTypeOptions['userAgent']))
                         $this->_curl->setUserAgent($this->_bruteTypeOptions['url']);
 
@@ -178,8 +169,7 @@ class BruteForce {
                 if (!$stringPresent) {
                     $this->_setChecked(true);
                     $this->_setFoundValue($generateValue);
-                    if (self::getDebug())
-                        Logger::getInstance()->debug('BruteForcing OK, found value : "' . $generateValue . '" with ' . $this->getProcess() . ' process');
+                    Logger::getInstance()->debug('BruteForcing OK, found value : "' . $generateValue . '" with ' . $this->getProcess() . ' process');
                     /* $file = new \SplFileObject('foundvalue.txt', 'w+');
                       if ($file->flock(LOCK_EX)) {
                       $file->fwrite($generateValue);
@@ -187,8 +177,7 @@ class BruteForce {
                       } */
                     return true;
                 } else {
-                    if (self::getDebug())
-                        Logger::getInstance()->debug('BruteForcing echec, unfound value : "' . $generateValue . '" with ' . $this->getProcess() . ' process');
+                    Logger::getInstance()->debug('BruteForcing echec, unfound value : "' . $generateValue . '" with ' . $this->getProcess() . ' process');
 
                     return false;
                 }

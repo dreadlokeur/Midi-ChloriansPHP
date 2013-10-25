@@ -1,13 +1,12 @@
 #Errors document
-ErrorDocument 400 /Midi-ChloriansPHP/index.php?controller=error&action=badRequest
-ErrorDocument 401 /Midi-ChloriansPHP/index.php?controller=error&action=unauthorized
-ErrorDocument 403 /Midi-ChloriansPHP/index.php?controller=error&action=forbidden
-ErrorDocument 404 /Midi-ChloriansPHP/index.php?controller=error&action=notFound
-ErrorDocument 404 /Midi-ChloriansPHP/index.php?controller=error&action=notFound
-ErrorDocument 405 /Midi-ChloriansPHP/index.php?controller=error&action=methodNotAllowed
-ErrorDocument 500 /Midi-ChloriansPHP/index.php?controller=error&action=internalServerError
-ErrorDocument 502 /Midi-ChloriansPHP/index.php?controller=error&action=badGateway
-ErrorDocument 503 /Midi-ChloriansPHP/index.php?controller=error&action=serviceUnavailable
+ErrorDocument 400 /Midi-ChloriansPHP/index.php?controller=error/badRequest
+ErrorDocument 401 /Midi-ChloriansPHP/index.php?controller=error/unauthorized
+ErrorDocument 403 /Midi-ChloriansPHP/index.php?controller=error/forbidden
+ErrorDocument 404 /Midi-ChloriansPHP/index.php?controller=error/notFound
+ErrorDocument 405 /Midi-ChloriansPHP/index.php?controller=error/methodNotAllowed
+ErrorDocument 500 /Midi-ChloriansPHP/index.php?controller=error/internalServerError
+ErrorDocument 502 /Midi-ChloriansPHP/index.php?controller=error/badGateway
+ErrorDocument 503 /Midi-ChloriansPHP/index.php?controller=error/serviceUnavailable
 
 
 #Rewrite rules
@@ -23,16 +22,8 @@ RewriteBase /Midi-ChloriansPHP/
 	Deny From All
 </Files>
 
-# Allow any files or directories that exist to be displayed directly
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-
-#Controller's rules
-RewriteRule ^([A-Za-z0-9_]+)$ index.php?controller=$1  [L,QSA]
-RewriteRule ^([A-Za-z0-9_]+)/([A-Za-z0-9_]+)$ index.php?controller=$1&action=$2  [L,QSA]
-RewriteRule ^([A-Za-z0-9_]+)/([A-Za-z0-9_]+)/([A-Za-z0-9_]+)$ index.php?controller=$1&action=$2&parameter=$3  [L,QSA]
-RewriteRule ^([A-Za-z0-9_]+)/([A-Za-z0-9_]+)/([A-Za-z0-9_]+)/([A-Za-z0-9_]+)$ index.php?controller=$1&action=$2&parameter=$3&parameter2=$4  [L,QSA]
-RewriteRule ^([A-Za-z0-9_]+)/([A-Za-z0-9_]+)/([A-Za-z0-9_]+)/([A-Za-z0-9_]+)/([A-Za-z0-9_]+)$ index.php?controller=$1&action=$2&parameter=$3&parameter2=$4&parameter3=$5  [L,QSA]
 </IfModule>
 
 # Caching mod_headers + mod_expires

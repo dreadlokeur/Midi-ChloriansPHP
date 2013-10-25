@@ -46,8 +46,8 @@ class Autoloader {
 
                 Logger::getInstance()->debug(count(self::getAutoloaders()) . ' autoloader drivers, ' . count(self::getDirectories()) . ' directories and ' . count(self::getNamespaces()) . ' namespaces registered', 'autoloader');
                 if (Application::getProfiler()) {
-                    Logger::getInstance()->debug('Loading ' . count(self::getClasses()) . ' classes (' . self::countGlobalizedClasses() . ' globalized classes)  in aproximately ' . round(self::getBenchmark('time') * 1000, 4) . ' milli-seconds', 'autoloader');
-                    Logger::getInstance()->debug('Aproximately memory used  : ' . round(self::getBenchmark('memory') / 1024, 4) . ' kilo-octets', 'autoloader');
+                    Logger::getInstance()->debug('Loading ' . count(self::getClasses()) . ' classes (' . self::countGlobalizedClasses() . ' globalized classes)  in aproximately ' . round(self::getBenchmark('time') * 1000, 4) . ' ms', 'autoloader');
+                    Logger::getInstance()->debug('Aproximately memory used  : ' . round(self::getBenchmark('memory') / 1024, 4) . ' KB', 'autoloader');
                 }
                 // Avoid multi call
                 self::$_logs = array();

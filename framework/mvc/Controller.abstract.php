@@ -5,9 +5,11 @@ namespace framework\mvc;
 use framework\mvc\Template;
 use framework\Config;
 use framework\Logger;
-use framework\mvc\Dispatcher;
+use framework\mvc\Router;
 use framework\network\http\Header;
 use framework\Session;
+use framework\Language;
+use framework\network\Http;
 
 abstract class Controller {
 
@@ -23,10 +25,6 @@ abstract class Controller {
     protected $_ajaxDatasType = self::JSON;
     protected $_ajaxDatasCache = false;
 
-    public function getDebug() {
-        return Dispatcher::getDebug();
-    }
-
     public function isTemplateInitialized() {
         return $this->_templateInitialized;
     }
@@ -36,13 +34,20 @@ abstract class Controller {
             return;
 
         $tpl = Template::getTemplate();
+        //no template
         if (!$tpl)
-            return;
+            return false;
 
-        $this->_template = new Template($tpl);
+
+        $this->_template = $tpl;
+        // Set langs/urls vars into tpl
+        $this->_template->setVar('urls', Router::getUrls(Language::getInstance()->getLanguage(), Http::isHttps()), false, true);
+        $this->_template->setVar('langs', Language::getVars(), false, true);
+        $this->_template->setVar('lang', Language::getInstance()->getLanguage(), false, true);
+        //init assets
+        $this->_template->initAssets();
         $this->_templateInitialized = true;
-        if (self::getDebug())
-            Logger::getInstance()->debug('Root controller class initialize template', 'dispatcher');
+        Logger::getInstance()->debug('Initialize template', 'router');
     }
 
     public function __get($name) {
@@ -52,8 +57,8 @@ abstract class Controller {
 
             return $this->_template;
         }
-        if ($name == 'dispatcher')
-            return Dispatcher::getInstance();
+        if ($name == 'router')
+            return Router::getInstance();
         if ($name == 'session')
             return Session::getInstance();
         if ($name == 'config')
@@ -92,11 +97,8 @@ abstract class Controller {
                 $this->initTemplate();
 
             if ($this->_templateInitialized) {
-                $display = $this->_template->displayTemplate();
-                if (self::getDebug() && $display)
-                    Logger::getInstance()->debug('Display template file : "' . $this->_template->getTemplateFile() . '"', 'dispatcher');
-                elseif (self::getDebug() && !$display)
-                    Logger::getInstance()->debug('Trying display template file, but no template setted', 'dispatcher');
+                if ($this->_template->display())
+                    Logger::getInstance()->debug('Display template file : "' . $this->_template->getFile() . '"', 'router');
             }
         }
     }

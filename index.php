@@ -50,7 +50,7 @@
  */
 
 use framework\Application;
-use framework\mvc\Dispatcher;
+use framework\mvc\Router;
 
 ini_set('display_errors', 1);
 ini_set('output_buffering', 1);
@@ -60,10 +60,10 @@ ob_start('ob_gzhandler');
 
 try {
     // autoloader
-    require_once 'loader.php';
-
+    require 'loader.php';
+    
     // Run app
-    Application::getInstance()->run();
+    Application::getInstance(PATH_APP . 'bootstrap.php')->run();
 } catch (\Exception $e) {
     // Erase buffer    
     ob_end_clean();
@@ -71,7 +71,7 @@ try {
     if (defined('APP_INIT')) {
         // Display
         if (!Application::getDebug())
-            Dispatcher::getInstance(PATH_CONTROLLERS)->show500();
+            Router::getInstance()->show500();
 
         throw $e;
     }

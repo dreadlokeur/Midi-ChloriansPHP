@@ -2,6 +2,8 @@
 
 namespace framework\utility;
 
+use framework\utility\Benchmark;
+
 class Timer {
 
     protected $_begin = 0;
@@ -52,7 +54,7 @@ class Timer {
     }
 
     public function setMode($mode) {
-        if (!is_int($mode) || $mode < 1 || $mode > 3)
+        if (!is_int($mode) || $mode < Benchmark::TIME_SECOND || $mode > Benchmark::TIME_MICROSECOND)
             throw new \Exception('Mode parameter must be an integer between 1 and 3');
         $this->_mode = $mode;
     }
@@ -79,15 +81,15 @@ class Timer {
     public function getInterval() {
         switch ($this->_mode) {
             //second
-            case 1:
+            case Benchmark::TIME_SECOND:
                 $time = ($this->_end - $this->_begin);
                 break;
             //millisecond
-            case 2:
+            case Benchmark::TIME_MS:
                 $time = ($this->_end - $this->_begin) * 1000;
                 break;
             //microsecond
-            case 3:
+            case Benchmark::TIME_MICROSECOND:
                 $time = ($this->_end - $this->_begin) * 1000000;
                 break;
             default:

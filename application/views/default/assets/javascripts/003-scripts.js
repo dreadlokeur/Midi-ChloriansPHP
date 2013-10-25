@@ -1,4 +1,3 @@
-//alert($);
 (function($) {
     $.extend({
         refreshCaptcha: function() {

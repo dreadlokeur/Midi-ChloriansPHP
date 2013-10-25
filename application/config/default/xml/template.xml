@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <default>
+        <path>[PATH_TEMPLATE_DEFAULT]</path><!-- repertoire du template -->
+        <charset>UTF-8</charset>
+        <class>php</class>
+        <assets>
+            <img>
+                <directory>assets/images</directory>
+            </img>
+            <sound>
+                <directory>assets/sounds</directory>
+            </sound>
+            <font>
+                <directory>assets/fonts</directory>
+            </font>
+            <module>
+                <directory>assets/modules</directory>
+            </module>
+            <css>
+                <directory>assets/css</directory>
+                <cache>
+                    <compress>true</compress>
+                    <name>core</name>
+                </cache>
+            </css>
+            <js>
+                <directory>assets/javascripts</directory>
+                <loadUrls>true</loadUrls>
+                <loadLangs>true</loadLangs>
+                <cache>
+                    <compress>true</compress>
+                    <name>core</name>
+                </cache>
+            </js>
+        </assets>
+    </default>
+</config>

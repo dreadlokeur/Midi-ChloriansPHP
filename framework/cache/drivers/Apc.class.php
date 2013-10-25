@@ -37,18 +37,16 @@ class Apc extends Cache implements IDrivers {
             //override
             if (!$forceReplace)
                 throw new \Exception('Write key : "' . $key . '" fail, already defined');
-            if (self::getDebug())
-                Logger::getInstance()->debug('Write key : "' . $key . '" already exist, override', 'cache' . $this->_name);
+
+            Logger::getInstance()->debug('Write key : "' . $key . '" already exist, override', 'cache' . $this->_name);
             if ($this->isLocked($key)) {
-                if (self::getDebug())
-                    Logger::getInstance()->debug('Write key : "' . $key . '" fail, is locked', 'cache' . $this->_name);
+                Logger::getInstance()->debug('Write key : "' . $key . '" fail, is locked', 'cache' . $this->_name);
                 return;
             }
         }
         $ttl = $type == self::TYPE_NUMBER ? 0 : $expire;
         apc_store($this->_prefix . $this->_prefixGroups . md5($key), serialize(array($expire, $key, $data, $type)), $ttl);
-        if (self::getDebug())
-            Logger::getInstance()->debug('Key : "' . $key . '" written', 'cache' . $this->_name);
+        Logger::getInstance()->debug('Key : "' . $key . '" written', 'cache' . $this->_name);
     }
 
     public function read($key, $default = null, $lockTime = false, $onlyExpireTime = false) {
@@ -57,8 +55,7 @@ class Apc extends Cache implements IDrivers {
 
         if ($this->exist($key)) {
             if ($this->isLocked($key)) {
-                if (self::getDebug())
-                    Logger::getInstance()->debug('Read key :  "' . $key . '" fail, is locked', 'cache' . $this->_name);
+                Logger::getInstance()->debug('Read key :  "' . $key . '" fail, is locked', 'cache' . $this->_name);
                 return $default;
             }
 
@@ -69,23 +66,20 @@ class Apc extends Cache implements IDrivers {
                 $data = unserialize(apc_fetch($this->_prefix . $this->_prefixGroups . md5($key)));
                 // decrease expire value
                 if ($data[3] == self::TYPE_NUMBER && $data[0] > 0) {
-                    if (self::getDebug())
-                        Logger::getInstance()->debug('Read key :  "' . $key . '"', 'cache' . $this->_name);
+                    Logger::getInstance()->debug('Read key :  "' . $key . '"', 'cache' . $this->_name);
                     $this->write($key, $data[2], true, $data[0] - 1, $data[3]);
                 }
 
                 // lock and return cache datas
                 $this->lock($key, $lockTime);
 
-                if (self::getDebug())
-                    Logger::getInstance()->debug('Read key :  "' . $key . '"', 'cache' . $this->_name);
+                Logger::getInstance()->debug('Read key :  "' . $key . '"', 'cache' . $this->_name);
                 if ($onlyExpireTime)//return expiress time
                     return $data[0];
                 return $data[2];
             }
         } else {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Read key :  "' . $key . '" fail, not exists', 'cache' . $this->_name);
+            Logger::getInstance()->debug('Read key :  "' . $key . '" fail, not exists', 'cache' . $this->_name);
 
             return $default;
         }
@@ -97,18 +91,15 @@ class Apc extends Cache implements IDrivers {
 
     public function delete($key, $forceUnlock = true) {
         if (!$this->exist($key)) {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Undeletable key : "' . $key . '" because not exists', 'cache' . $this->_name);
+            Logger::getInstance()->debug('Undeletable key : "' . $key . '" because not exists', 'cache' . $this->_name);
             return;
         }
 
         if ($this->isLocked($key)) {
             if ($forceUnlock)
                 $this->_delete($key);
-            else {
-                if (self::getDebug())
-                    Logger::getInstance()->debug('Undeletable key : "' . $key . '" because is locked', 'cache' . $this->_name);
-            }
+            else
+                Logger::getInstance()->debug('Undeletable key : "' . $key . '" because is locked', 'cache' . $this->_name);
         }
         else
             $this->_delete($key, false);
@@ -116,8 +107,7 @@ class Apc extends Cache implements IDrivers {
 
     protected function _delete($key) {
         apc_delete($this->_prefix . $this->_prefixGroups . md5($key));
-        if (self::getDebug())
-            Logger::getInstance()->debug('Delete key : "' . $key . '"', 'cache' . $this->_name);
+        Logger::getInstance()->debug('Delete key : "' . $key . '"', 'cache' . $this->_name);
 
         if (apc_exists($this->_prefix . $this->_prefixGroups . md5($key) . $this->_lockName))
             apc_delete($this->_prefix . $this->_prefixGroups . md5($key) . $this->_lockName);
@@ -125,20 +115,17 @@ class Apc extends Cache implements IDrivers {
 
     public function isExpired($key, $autoDelete = true) {
         if (!$this->exist($key)) {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Key : "' . $key . '" expired', 'cache' . $this->_name);
+            Logger::getInstance()->debug('Key : "' . $key . '" expired', 'cache' . $this->_name);
             return true;
         } else {
             $data = unserialize(apc_fetch($this->_prefix . $this->_prefixGroups . md5($key)));
             if (!is_array($data) || count($data) < 4) {
-                if (self::getDebug())
-                    Logger::getInstance()->debug('Key : "' . $key . '" have not valid cache data', 'cache' . $this->_name);
+                Logger::getInstance()->debug('Key : "' . $key . '" have not valid cache data', 'cache' . $this->_name);
                 return true;
             }
             if ($data[3] == self::TYPE_NUMBER) {
                 if ($data[0] <= 0) {
-                    if (self::getDebug())
-                        Logger::getInstance()->debug('Key : "' . $key . '" expired', 'cache' . $this->_name);
+                    Logger::getInstance()->debug('Key : "' . $key . '" expired', 'cache' . $this->_name);
                     if ($autoDelete)
                         $this->delete($key);
 
@@ -158,16 +145,14 @@ class Apc extends Cache implements IDrivers {
         if ($time === false)
             return;
         if ($this->exist($key) && !$this->_isLock($key) && $time >= 0) {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Lock key : "' . $key . '"', 'cache' . $this->_name);
+            Logger::getInstance()->debug('Lock key : "' . $key . '"', 'cache' . $this->_name);
             $this->write('lock' . $key, '', true, $time);
         }
     }
 
     public function unlock($key) {
         if (!$this->isLocked($key)) {
-            if (self::getDebug())
-                Logger::getInstance()->debug('Try unlock key : "' . $key . '" fail, key not locked', 'cache' . $this->_name);
+            Logger::getInstance()->debug('Try unlock key : "' . $key . '" fail, key not locked', 'cache' . $this->_name);
             return;
         }
 
@@ -183,8 +168,7 @@ class Apc extends Cache implements IDrivers {
             $this->write($key, $startValue);
         if (!$this->isExpired($key) && !$this->isLocked($key)) {
             apc_inc($key, $offset);
-            if (self::getDebug())
-                Logger::getInstance()->debug('Increment : "' . $key . '"', 'cache' . $this->_name);
+            Logger::getInstance()->debug('Increment : "' . $key . '"', 'cache' . $this->_name);
         }
     }
 
@@ -193,14 +177,12 @@ class Apc extends Cache implements IDrivers {
             $this->write($key, $startValue);
         if (!$this->isExpired($key) && !$this->isLocked($key)) {
             apc_dec($key, $offset);
-            if (self::getDebug())
-                Logger::getInstance()->debug('Decrement : "' . $key . '"', 'cache' . $this->_name);
+            Logger::getInstance()->debug('Decrement : "' . $key . '"', 'cache' . $this->_name);
         }
     }
 
     public function clear() {
-        if (self::getDebug())
-            Logger::getInstance()->notice('Clear cache useless on APC', 'cache' . $this->_name);
+        Logger::getInstance()->notice('Clear cache useless on APC', 'cache' . $this->_name);
     }
 
     public function purge($groupName = false) {
@@ -218,14 +200,12 @@ class Apc extends Cache implements IDrivers {
                 $this->delete($key);
             }
         }
-        if ($groupName == false && self::getDebug())
-            Logger::getInstance()->debug('Cache purged', 'cache' . $this->_name);
+        Logger::getInstance()->debug('Cache purged', 'cache' . $this->_name);
     }
 
     public function clearGroup($groupName) {
         $this->purge($groupName);
-        if (self::getDebug())
-            Logger::getInstance()->debug('Cache cleared group : "' . $groupName . '"', 'cache' . $this->_name);
+        Logger::getInstance()->debug('Cache cleared group : "' . $groupName . '"', 'cache' . $this->_name);
     }
 
 }

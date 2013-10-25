@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urls>
-    <rootUrl>
-        <value>http://nemesis/Midi-ChloriansPHP/</value>
-        <controller>index</controller>
-    </rootUrl>
-</urls>

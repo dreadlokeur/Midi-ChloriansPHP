@@ -100,10 +100,6 @@ class Url {
         if (!is_array($shortenerOpstions))
             throw new \Exception('Options parameter must be an array');
 
-        if (isset($shortenerOpstions['debug']) && $shortenerOpstions['debug'])
-            Shortener::setDebug($shortenerOpstions['debug']);
-
-
         $identifiers = array();
         if (isset($shortenerOpstions['apiKey']))
             $identifiers['key'] = $shortenerOpstions['apiKey'];
@@ -117,9 +113,6 @@ class Url {
     public static function getExpandedUrl($shortUrl, $shortenerName, $shortenerOpstions) {
         if (!is_array($shortenerOpstions))
             throw new \Exception('Options parameter must be an array');
-
-        if (isset($shortenerOpstions['debug']) && $shortenerOpstions['debug'])
-            Shortener::setDebug($shortenerOpstions['debug']);
 
         if (!isset($shortenerOpstions['apiKey']))
             throw new \Exception('apiKey parameter must be defined');

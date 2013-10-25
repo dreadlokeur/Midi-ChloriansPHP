@@ -2,12 +2,12 @@
 
 namespace framework\error;
 
-use framework\mvc\Dispatcher;
+use framework\mvc\Router;
+use framework\Application;
 
 class ErrorManager implements \SplSubject {
 
-    use \framework\pattern\Singleton,
-        \framework\debugger\Debug;
+    use \framework\pattern\Singleton;
 
     protected $_observers; //object SplObjectStorage
     protected $_error = false;
@@ -19,7 +19,7 @@ class ErrorManager implements \SplSubject {
         $this->_observers = new \SplObjectStorage();
     }
 
-    public function start($catchFatal = true, $displayErrors = true, $debug = false) {
+    public function start($catchFatal = true, $displayErrors = true) {
         if (!is_bool($catchFatal))
             throw new \Exception('catchFatal parameter must be a boolean');
         if (!is_bool($displayErrors))
@@ -31,8 +31,6 @@ class ErrorManager implements \SplSubject {
         ini_set('display_errors', (int) $displayErrors);
         set_error_handler(array($this, 'errorHandler'));
 
-        if ($debug)
-            self::setDebug($debug);
         return $this;
     }
 
@@ -69,8 +67,8 @@ class ErrorManager implements \SplSubject {
             unset($this->_error);
 
         // Show internal server error (500)
-        if (!self::getDebug())
-            Dispatcher::getInstance()->show500();
+        if (!Application::getDebug())
+            Router::getInstance()->show500();
 
         // Exit script
         exit();

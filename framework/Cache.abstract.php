@@ -8,8 +8,6 @@ use framework\Logger;
 
 abstract class Cache {
 
-    use debugger\Debug;
-
     const EXPIRE_SECOND = Date::SECOND;
     const EXPIRE_MINUTE = Date::MINUTE;
     const EXPIRE_HOUR = Date::HOUR;
@@ -36,10 +34,8 @@ abstract class Cache {
     public static function getCache($name) {
         if (!is_string($name))
             throw new \Exception('Cache name must be a string');
-        if (!array_key_exists($name, self::$_caches)) {
-            Logger::getInstance()->debug('Cache ' . $name . ' is not setted');
+        if (!array_key_exists($name, self::$_caches))
             return false;
-        }
 
         return self::$_caches[$name];
     }
@@ -49,17 +45,32 @@ abstract class Cache {
     }
 
     public function addCache($name, $conf, $forceReplace = false) {
-        if (array_key_exists($name, self::$_caches)) {
-            if ($forceReplace)
-                throw new \Exception('Cache : "' . $name . '" already defined');
-
-            Logger::getInstance()->debug('Cache : "' . $name . '" already defined, was overloaded');
-        }
+        if (array_key_exists($name, self::$_caches) && !$forceReplace)
+            throw new \Exception('Cache : "' . $name . '" already defined');
         self::$_caches[$name] = $conf;
     }
 
     public function __destruct() {
-        
+        // Garbage collection, remove all expired cached datas
+        if ($this->_gcType) {
+            $gc = $this->read($this->_gcName, null);
+            // no exist
+            if (is_null($gc))
+                $this->_writeGc($gc); // set gc state
+            else {
+                //check
+                if ($this->_needGc($gc)) {
+                    $this->clear(); //Delete expired datas
+                    $this->delete($this->_gcName);
+                } else {
+                    if ($this->_gcType == self::TYPE_NUMBER)
+                        $this->_writeGc($gc); // increment gc state
+                }
+            }
+
+            // one call
+            $this->_gcType = false;
+        }
     }
 
     public function init($params) {
@@ -74,11 +85,8 @@ abstract class Cache {
                 throw new \Exception('Must be a valid string');
             $this->_prefix = $params['prefix'];
         }
-        if (isset($params['debug'])) {
-            $this->setDebug($params['debug']);
-            if (self::getDebug())
-                Logger::getInstance()->addGroup('cache' . $this->_name, 'Cache ' . $this->_name, true);
-        }
+
+        Logger::getInstance()->addGroup('cache' . $this->_name, 'Cache ' . $this->_name, true);
 
         //garbage collector setting
         $gcType = isset($params['gc']) ? $params['gc'] : false;
@@ -106,14 +114,12 @@ abstract class Cache {
 
     public function increment($key, $offset = 1, $startValue = 1) {
         $this->_crement($key, $offset, true, $startValue);
-        if (self::getDebug())
-            Logger::getInstance()->debug('Increment : "' . $key . '"', 'cache' . $this->_name);
+        Logger::getInstance()->debug('Increment : "' . $key . '"', 'cache' . $this->_name);
     }
 
     public function decrement($key, $offset = 1, $startValue = 1) {
         $this->_crement($key, $offset, false, $startValue);
-        if (self::getDebug())
-            Logger::getInstance()->debug('Decrement : "' . $key . '"', 'cache' . $this->_name);
+        Logger::getInstance()->debug('Decrement : "' . $key . '"', 'cache' . $this->_name);
     }
 
     protected function _crement($key, $offset = 1, $increment = true, $startValue = 1) {
@@ -139,8 +145,8 @@ abstract class Cache {
         return $this->read($key, null, false, true);
     }
 
-    public static function factory($cacheClass, $cacheOptions = array()) {
-        $class = class_exists('framework\cache\drivers\\' . ucfirst($cacheClass)) ? 'framework\cache\drivers\\' . ucfirst($cacheClass) : $cacheClass;
+    public static function factory($cacheDriver, $cacheOptions = array()) {
+        $class = class_exists('framework\cache\drivers\\' . ucfirst($cacheDriver)) ? 'framework\cache\drivers\\' . ucfirst($cacheDriver) : $cacheClass;
         $inst = new \ReflectionClass($class);
         if (!in_array('framework\\cache\\IDrivers', $inst->getInterfaceNames()))
             throw new \Exception('Cache class must be implement framework\cache\IDrivers');
@@ -185,8 +191,8 @@ abstract class Cache {
     public function clearGroups() {
         foreach ($this->_groups as &$group)
             $this->clearGroup($group);
-        if (static::getDebug())
-            Logger::getInstance()->debug('Cache cleared groups', 'cache' . $this->_name);
+
+        Logger::getInstance()->debug('Cache cleared groups', 'cache' . $this->_name);
     }
 
     protected function _isLock($key) {

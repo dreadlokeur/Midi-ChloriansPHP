@@ -4,8 +4,6 @@ namespace framework\url;
 
 class Shortener {
 
-    use \framework\debugger\Debug;
-
     public static function factory($shortener, $identifiers = array()) {
         if (!is_string($shortener))
             throw new \Exception('Shortener parameter must be a string');
