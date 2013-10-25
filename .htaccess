@@ -10,14 +10,14 @@ RewriteRule . /Midi-ChloriansPHP/index.php [L]
 </IfModule>
 
 #Errors document
-ErrorDocument 400 /Midi-ChloriansPHP/error/badRequest
-ErrorDocument 401 /Midi-ChloriansPHP/error/unauthorized
-ErrorDocument 403 /Midi-ChloriansPHP/error/forbidden
-ErrorDocument 404 /Midi-ChloriansPHP/error/notFound
-ErrorDocument 405 /Midi-ChloriansPHP/error/methodNotAllowed
-ErrorDocument 500 /Midi-ChloriansPHP/error/internalServerError
-ErrorDocument 502 /Midi-ChloriansPHP/error/badGateway
-ErrorDocument 503 /Midi-ChloriansPHP/error/serviceUnavailable
+ErrorDocument 400 /Midi-ChloriansPHP/error/400
+ErrorDocument 401 /Midi-ChloriansPHP/error/401
+ErrorDocument 403 /Midi-ChloriansPHP/error/403
+ErrorDocument 404 /Midi-ChloriansPHP/error/404
+ErrorDocument 405 /Midi-ChloriansPHP/error/405
+ErrorDocument 500 /Midi-ChloriansPHP/error/500
+ErrorDocument 502 /Midi-ChloriansPHP/error/502
+ErrorDocument 503 /Midi-ChloriansPHP/error/503
 
 # Protect hidden files from being viewed
 <Files .*>
