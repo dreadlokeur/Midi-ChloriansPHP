@@ -11,7 +11,7 @@ class Display implements \SplObserver {
     }
 
     public function update(\SplSubject $subject, $isException = false) {
-        Router::getInstance()->showDebugger(false, $isException);
+        Router::getInstance()->showDebugger($isException);
     }
 
 }

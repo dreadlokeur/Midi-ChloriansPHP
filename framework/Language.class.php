@@ -52,7 +52,8 @@ class Language {
     }
 
     public function __destruct() {
-        Logger::getInstance()->debug('Language default is : "' . $this->_language . '"', 'language');
+        if ($this->_defaultLanguage)
+            Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
         Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
     }
 
@@ -63,10 +64,6 @@ class Language {
             throw new \Exception('Directory "' . $datasPath . '" is not readable');
 
         self::$_datasPath = realpath($datasPath) . DS;
-    }
-
-    public function getAcceptedList() {
-        return $this->_acceptedList;
     }
 
     public static function getDatasPath() {
@@ -86,6 +83,7 @@ class Language {
         if (self::$_languageVars === null || self::$_languageVars === false)
             throw new \Exception('Invalid lang : "' . $language . '" invalid xml file');
 
+        Logger::getInstance()->debug('Loaded datas file : "' . $file . '"', 'language');
 
         $this->_language = $language;
         if ($setAsDefault)
@@ -108,6 +106,8 @@ class Language {
                 }
             }
         }
+
+        Logger::getInstance()->debug('Current language is : "' . $this->_language . '"', 'language');
     }
 
     public function getLanguage() {

@@ -30,9 +30,8 @@ jQuery(document).ready(function($) {
         if (language === $('meta[http-equiv=content-language]').attr("content"))
             return;
         $.ajax({
-            type: 'POST',
-            url: urls['language'],
-            data: {language: language},
+            type: 'GET',
+            url: urls['language'] + language,
             dataType: 'json',
             success: function(datas) {
                 if (datas.updated === true)

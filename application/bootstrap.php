@@ -109,7 +109,8 @@ if (defined(LOG_WRITE) && LOG_WRITE)
 
 // Setting
 Date::setDateDefaultTimezone(TIMEZONE);
-if (!is_null(Session::getInstance()->get('language')))
+$lang = Session::getInstance()->get('language');
+if (!is_null($lang) && $lang != Language::getInstance()->getLanguage())
     $language->setLanguage(Session::getInstance()->get('language'));
 
 if (defined('HOSTNAME'))

@@ -5,6 +5,7 @@ namespace framework\utility;
 use framework\Cache;
 use framework\utility\Tools;
 use framework\utility\Validate;
+use JavaScriptPacker;
 
 class Minify {
 
@@ -86,7 +87,7 @@ class Minify {
     public function minify($returnContent = true, $forceCacheUpdate = false) {
         // autoloading files
         foreach (Tools::cleanScandir($this->getPath()) as $file) {
-            if (Validate::isFileExtension('css', $file))
+            if (Validate::isFileExtension($this->_type, $file))
                 $this->addFile($this->getPath() . $file);
         }
 
@@ -150,7 +151,7 @@ class Minify {
                 $js = file_get_contents($file['name']);
                 if ($this->_compress && !$file['alreadyCompressed']) {
                     // Compress file with Javascript Packer plugin
-                    $packer = new \JavaScriptPacker($js);
+                    $packer = new JavaScriptPacker($js);
                     $notCompressed .= trim($packer->pack());
                 }
                 else

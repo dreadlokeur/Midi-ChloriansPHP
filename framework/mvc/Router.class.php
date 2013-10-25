@@ -273,12 +273,12 @@ class Router {
 
     public function show400($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_BAD_REQUEST, true);
-        $this->runRoute('error400', array(), $die);
+        $this->runRoute('error', array(1 => '400'), $die);
     }
 
     public function show401($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_UNAUTHORIZED, true);
-        $this->runRoute('error401', array(), $die);
+        $this->runRoute('error', array(1 => '401'), $die);
     }
 
     public function show403($die = false) {
@@ -287,7 +287,7 @@ class Router {
         // If use Http 1.1 protocol, header connection is keep-alive, else is close
         Header::setResponseStatusCode(ResponseCode::CODE_FORBIDDEN, true, true, Http::PROTOCOL_VERSION_1_0);
 
-        $this->runRoute('error403', array(), $die);
+        $this->runRoute('error', array(1 => '403'), $die);
     }
 
     public function show404($die = false) {
@@ -297,22 +297,22 @@ class Router {
         // If use Http 1.1 protocol, header connection is keep-alive, else is close
         Header::setResponseStatusCode(ResponseCode::CODE_NOT_FOUND, true, true, Http::PROTOCOL_VERSION_1_0);
 
-        $this->runRoute('error404', array(), $die);
+        $this->runRoute('error', array(1 => '404'), $die);
     }
 
     public function show500($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_INTERNAL_SERVER_ERROR, true);
-        $this->runRoute('error500', array(), $die);
+        $this->runRoute('error', array(1 => '500'), $die);
     }
 
     public function show503($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_SERVICE_UNAVAILABLE, true);
 
-        $this->runRoute('error503', array(), $die);
+        $this->runRoute('error', array(1 => '503'), $die);
     }
 
-    public function showDebugger($die = false) {
-        $this->runRoute('debugger', array(), $die);
+    public function showDebugger($isException, $die = false) {
+        $this->runRoute('debugger', array(1 => $isException), $die);
     }
 
     protected function setCurrentRoute($currentRoute) {

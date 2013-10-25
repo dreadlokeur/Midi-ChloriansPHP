@@ -7,62 +7,21 @@ use framework\Security;
 use framework\security\Api;
 use framework\security\api\Form;
 use framework\network\Http;
+use framework\Language;
 
 class Index extends Controller {
 
     public function __construct() {
-        //var_dump($this->tpl->getUrlAsset('img'));
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
     }
 
-    public function test($int) {
-        //var_dump($int);
-    }
-
-    public function test2($int, $string) {
-        //var_dump($int);
-        //var_dump($string);
-    }
-
-    public function action() {
-        //$db = \framework\Database::getDatabase('sql', true);
-        //var_dump($db);
-        //$db->set('SELECT * FROM test');
-        //$db->execute();
-        //$cache = \framework\Cache::getCache('default');
-        //$cache->write('test', '1fff', true, 10, $cache::TYPE_NUMBER);
-        //$cache->write('test', '1fff');
-        //$cache->delete('test');
-        //$cache->lock('test', 10);
-        //$cache->unlock('test');
-        //$cache = \framework\Cache::getCache('default2');
-        //$cache->write('test', 1, 100);
-        //$cache->increment('test', 1);
-        //$cache->clearGroup('group1');
-        //$cache->clearGroup('group2');
-        //$cache::clearGroupsAllCaches(false, false);
-        //var_dump($cache->read('test'));
-        //var_dump($cache->getExpireTime('test'));
-        //var_dump($cache);
-        //$cache->clear();
-        //$cache->purge();
-    }
-
-    public function action2() {
-        
-    }
-
-    public function language() {
-        if (Http::isAjaxRequest()) {
-            $this->setAjaxController();
-            $language = Http::getPost('language');
-            $updated = in_array($language, $this->config->getLanguageList());
-            if ($updated)
-                $this->session->add('language', $language, true, false);
-            $this->addAjaxDatas('updated', $updated);
-        }
-        else
+    public function language($language) {
+        if (!is_string($language) || ($language == Language::getInstance()->getLanguage()) || !Http::isAjaxRequest())
             $this->router->show404(true);
+
+        $this->setAjaxController();
+        $this->session->add('language', $language, true, false);
+        $this->addAjaxDatas('updated', true);
     }
 
     public function captcha($formName, $type) {

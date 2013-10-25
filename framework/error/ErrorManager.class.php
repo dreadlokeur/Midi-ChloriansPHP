@@ -68,19 +68,17 @@ class ErrorManager implements \SplSubject {
 
         // Show internal server error (500)
         if (!Application::getDebug())
-            Router::getInstance()->show500();
+            Router::getInstance()->show500(true);
 
         // Exit script
         exit();
     }
 
     public function errorHandler($code, $message, $file, $line) {
-        //if (($level <= $this->getLevel() || $this->getLevel() == self::DEBUG)) {
         $this->_setError($code, $message, $file, $line);
         $this->notify();
         // Do not execute the PHP error handler
         return true;
-        //}
     }
 
     public function fatalErrorHandler() {

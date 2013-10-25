@@ -1,30 +1,29 @@
-#Errors document
-ErrorDocument 400 /Midi-ChloriansPHP/index.php?controller=error/badRequest
-ErrorDocument 401 /Midi-ChloriansPHP/index.php?controller=error/unauthorized
-ErrorDocument 403 /Midi-ChloriansPHP/index.php?controller=error/forbidden
-ErrorDocument 404 /Midi-ChloriansPHP/index.php?controller=error/notFound
-ErrorDocument 405 /Midi-ChloriansPHP/index.php?controller=error/methodNotAllowed
-ErrorDocument 500 /Midi-ChloriansPHP/index.php?controller=error/internalServerError
-ErrorDocument 502 /Midi-ChloriansPHP/index.php?controller=error/badGateway
-ErrorDocument 503 /Midi-ChloriansPHP/index.php?controller=error/serviceUnavailable
-
-
 #Rewrite rules
 <IfModule mod_rewrite.c>
 RewriteEngine on
 Options -Multiviews
 Options +FollowSymlinks +SymLinksIfOwnerMatch
-RewriteBase /Midi-ChloriansPHP/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /Midi-ChloriansPHP/index.php [L]
+</IfModule>
+
+#Errors document
+ErrorDocument 400 /Midi-ChloriansPHP/error/badRequest
+ErrorDocument 401 /Midi-ChloriansPHP/error/unauthorized
+ErrorDocument 403 /Midi-ChloriansPHP/error/forbidden
+ErrorDocument 404 /Midi-ChloriansPHP/error/notFound
+ErrorDocument 405 /Midi-ChloriansPHP/error/methodNotAllowed
+ErrorDocument 500 /Midi-ChloriansPHP/error/internalServerError
+ErrorDocument 502 /Midi-ChloriansPHP/error/badGateway
+ErrorDocument 503 /Midi-ChloriansPHP/error/serviceUnavailable
 
 # Protect hidden files from being viewed
 <Files .*>
 	Order Deny,Allow
 	Deny From All
 </Files>
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-</IfModule>
 
 # Caching mod_headers + mod_expires
 <ifModule mod_expires.c>
