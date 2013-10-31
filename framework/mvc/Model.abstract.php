@@ -27,6 +27,43 @@ abstract class Model {
     const ORDER_BY_DESC = 'DESC';
     const ORDER_BY_ASC = 'ASC';
 
+    public static function factoryManager($name, $datas) {
+        // Factory model
+        if (!is_string($name))
+            throw new \Exception('Model name must be a string');
+
+        if (\class_exists('models\\' . $name))
+            $modelClass = 'models\\' . $name;
+        else
+            $modelClass = $name;
+
+        $inst = new \ReflectionClass($modelClass);
+        if (!in_array('framework\\mvc\\IModelManager', $inst->getInterfaceNames()))
+            throw new \Exception('Model class must be implement framework\mvc\IModelManager');
+
+        if (is_array($datas))
+            return $inst->newInstanceArgs($datas);
+
+        return $inst->newInstance($datas);
+    }
+
+    public static function factoryObject($name, $datas) {
+        // Factory model
+        if (!is_string($name))
+            throw new \Exception('Model name must be a string');
+
+        if (\class_exists('models\\' . $name))
+            $modelClass = 'models\\' . $name;
+        else
+            $modelClass = $name;
+
+        $inst = new \ReflectionClass($modelClass);
+        if (!in_array('framework\\mvc\\IModelObject', $inst->getInterfaceNames()))
+            throw new \Exception('Model class must be implement framework\mvc\IModelObject');
+
+        return $inst->newInstance($datas);
+    }
+
     public static function isValidFindType($findType) {
         return ($findType == self::FIND_LIKE || $findType == self::FIND_EQUAL || $findType == self::FIND_LT || $findType == self::FIND_LTE || $findType == self::FIND_GT || $findType == self::FIND_GTE);
     }
@@ -79,11 +116,11 @@ abstract class Model {
         }
     }
 
-    public static function isValidType($columnName, $value) {
+    public static function isValidType($columnName, $type) {
         if (!self::existsColumn($columnName))
             return false;
 
-        if (!is_null($value) && self::getValueParamType($value) !== self::getColumnType($columnName))
+        if (!is_null($type) && self::getValueParamType($type) !== self::getColumnType($columnName))
             return false;
 
         return true;
@@ -110,43 +147,6 @@ abstract class Model {
                 return false;
                 break;
         }
-    }
-
-    public static function factoryManager($name, $datas) {
-        // Factory model
-        if (!is_string($name))
-            throw new \Exception('Model name must be a string');
-
-        if (\class_exists('models\\' . $name))
-            $modelClass = 'models\\' . $name;
-        else
-            $modelClass = $name;
-
-        $inst = new \ReflectionClass($modelClass);
-        if (!in_array('framework\\mvc\\IModelManager', $inst->getInterfaceNames()))
-            throw new \Exception('Model class must be implement framework\mvc\IModelManager');
-
-        if (is_array($datas))
-            return $inst->newInstanceArgs($datas);
-        else
-            return $inst->newInstance($datas);
-    }
-
-    public static function factoryObject($name, $datas) {
-        // Factory model
-        if (!is_string($name))
-            throw new \Exception('Model name must be a string');
-
-        if (\class_exists('models\\' . $name))
-            $modelClass = 'models\\' . $name;
-        else
-            $modelClass = $name;
-
-        $inst = new \ReflectionClass($modelClass);
-        if (!in_array('framework\\mvc\\IModelObject', $inst->getInterfaceNames()))
-            throw new \Exception('Model class must be implement framework\mvc\IModelObject');
-
-        return $inst->newInstance($datas);
     }
 
     public function __construct($dbName, $dbTable) {
