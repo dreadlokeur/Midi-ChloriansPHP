@@ -1,18 +1,19 @@
 <?php
 
 $config = array(
+    // optionType => array(options)
     'form' => array(
         'autorun' => false,
         'form' => array(
-            'example' => array(
+            'formName' => array(
                 'protection' => array(
                     'csrf' => array(
-                        'urlReferer' => 'root,captcha',
+                        'urlReferer' => 'index,captcha',//routes name
                         'timeValidity' => 60
                     ),
                     'captcha' => array(
                         'dataFile' => '[PATH_DATA]captcha[DS]captcha-full.xml'
-                    //possible to override ooption value defined into dataFile
+                    //possible to override option value defined into dataFile
                     )
                 ),
             ),

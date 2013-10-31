@@ -6,17 +6,21 @@ use framework\config\Loader;
 use framework\config\Reader;
 use framework\utility\Tools;
 use framework\mvc\Template as TemplateManager;
+use framework\utility\Validate;
 
 class Template extends Loader {
 
     public function load(Reader $reader) {
         $templates = $reader->read();
         foreach ($templates as $name => $datas) {
+            if (!Validate::isVariableName($name))
+                throw new \Exception('Name of template must be a valid variable name');
+
             //check required keys
             if (!isset($datas['path']))
                 throw new \Exception('Miss path config param for template : "' . $name . '"');
-            if (!isset($datas['class']))
-                throw new \Exception('Miss class config param for template : "' . $name . '"');
+            if (!isset($datas['driver']))
+                throw new \Exception('Miss driver config param for template : "' . $name . '"');
 
 
             // Cast global setting
@@ -64,7 +68,7 @@ class Template extends Loader {
             }
 
             // Add
-            TemplateManager::addTemplate($name, TemplateManager::factory($datas['class'], $params));
+            TemplateManager::addTemplate($name, TemplateManager::factory($datas['driver'], $params));
         }
     }
 

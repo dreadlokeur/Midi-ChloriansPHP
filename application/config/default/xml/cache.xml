@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <core>
-        <class>file</class>
-        <debug>true</debug>
-        <prefix>_</prefix><!-- prefix string for stored datas -->
-        <path>[PATH_CACHE_CORE]</path>
-        <gc>time</gc><!-- time/number => toutes les x secondes, ou toutes les x requests -->
+        <driver>file</driver><!-- file/apc -->
+        <prefix>_</prefix><!-- prefix string -->
+        <path>[PATH_CACHE_CORE]</path><!-- option (only for file driver) -->
+        <gc>time</gc><!-- Garbage collection : time/number => toutes les x secondes, ou toutes les x requests -->
         <gcOption>86400</gcOption><!-- seconds/request -->
         <groups>autoloader,logger</groups><!-- group list separated by , -->
     </core>
-    
     <default>
         <name>default</name>
-        <class>file</class><!-- file/apc -->
-        <debug>true</debug><!-- true/false -->
-        <prefix>_</prefix><!-- prefix string for stored datas -->
+        <driver>file</driver>
+        <prefix>_</prefix>
         <path>[PATH_CACHE_DEFAULT]</path>
-        <gc>time</gc><!-- time/number => toutes les x secondes, ou toutes les x requests -->
-        <gcOption>86400</gcOption><!-- seconds/request -->
-        <groups>group1,group2</groups><!-- group list separated by , -->
+        <gc>time</gc>
+        <gcOption>86400</gcOption>
     </default>
 </config>

@@ -13,25 +13,32 @@ class Cache extends Loader {
     public function load(Reader $reader) {
         $caches = $reader->read();
         foreach ($caches as $cacheName => $cacheValue) {
-            if (empty($cacheName) || !is_string($cacheName))
-                throw new \Exception('Name of cache must be as non empty string');
+            // Check name
             if (!Validate::isVariableName($cacheName))
                 throw new \Exception('Name of cache must be a valid variable name');
 
-            $values = (object) $cacheValue;
+            // Check options
             $params = array();
-            foreach ($values as $name => $value) {
+            foreach ($cacheValue as $name => $value) {
+                // no use comment (for xml file)
                 if ($name == 'comment')
                     continue;
 
+                // cast
                 if (is_string($value))
                     $value = Tools::castValue($value);
-                $params[(string) $name] = $value;
-            }
 
+                // add value into cache parameters
+                $params[$name] = $value;
+            }
+            // check driver
             if (!isset($params['driver']))
                 throw new \Exception('Miss driver parameter for cache : "' . $cacheName . '"');
+
+            // Add param name
             $params['name'] = $cacheName;
+
+            // Add cache
             CacheManager::addCache($cacheName, CacheManager::factory($params['driver'], $params), true);
         }
     }

@@ -19,7 +19,7 @@ FEATURES
  * Asynchronous request (AJAX).
  //* Pipelining HTTP.
  * Configuration multi format (XML, PHP, YAML).
- * Templating multi format (PHP, TWIG, SMARTY) and multiple.
+ * Templating multi format and multiple.
  * Security components.
  * Profiling and debug tools.
  * Logging system.

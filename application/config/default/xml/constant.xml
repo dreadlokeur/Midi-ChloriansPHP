@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <config>
-    <ENVIRONNEMENT>debug</ENVIRONNEMENT>
-    <SITE_MAINTENANCE>false</SITE_MAINTENANCE>
-    <ADMIN_NAME>dreadlokeur</ADMIN_NAME>
+    <!-- <NAME>value</NAME> -->
+    <!-- required -->
+    <ENVIRONNEMENT>dev</ENVIRONNEMENT><!-- dev/test/prod -->
+    <HOSTNAME>localhost/Midi-ChloriansPHP</HOSTNAME><!-- your hostname> -->
+    <ADMIN_NAME>your admin name</ADMIN_NAME><!-- administrator name -->
+    <ADMIN_EMAIL>your admin email</ADMIN_EMAIL><!-- administrator email -->
+    <LANGUAGE_DEFAULT>fr_FR</LANGUAGE_DEFAULT>
+    <!-- Optional -->
+    <SITE_MAINTENANCE>false</SITE_MAINTENANCE><!-- true/false (if true, running route "error" with param : "503") -->
+    <SMTP_SERVER></SMTP_SERVER>
+    <TIMEZONE>Europe/Paris</TIMEZONE>
+    <LOG_LEVEL>4</LOG_LEVEL> <!-- EMERGENCY = 0,  ALERT = 1, CRITICAL = 2, ERROR = 3, WARNING = 4, NOTICE = 5, INFO = 6, DEBUG = 7 -->
+    <LOG_BACKTRACE>false</LOG_BACKTRACE>
+    <LOG_DISPLAY>display,firebug,chrome</LOG_DISPLAY>
+    <MAIL_LOG>false</MAIL_LOG>
+    <LOG_MAIL_TO_NAME>[ADMIN_NAME]</LOG_MAIL_TO_NAME>
+    <LOG_MAIL_TO_EMAIL>[ADMIN_EMAIL]</LOG_MAIL_TO_EMAIL> 
+    <LOG_WRITE>false</LOG_WRITE>
+    <TEMPLATE_DEFAULT>default</TEMPLATE_DEFAULT>
+    <AUTOLOADER_CACHE>core</AUTOLOADER_CACHE> 
+    <LOGGER_CACHE>core</LOGGER_CACHE>
+    <AUTOLOADER_GLOBALIZER>true</AUTOLOADER_GLOBALIZER>
+    <GOOGLE_VERIFICATION></GOOGLE_VERIFICATION>
+    <GOOGLE_UA></GOOGLE_UA>
 </config>

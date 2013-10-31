@@ -44,9 +44,18 @@ abstract class Cache {
         return self::$_caches;
     }
 
-    public function addCache($name, $conf, $forceReplace = false) {
-        if (array_key_exists($name, self::$_caches) && !$forceReplace)
-            throw new \Exception('Cache : "' . $name . '" already defined');
+    public static function addCache($name, $conf, $forceReplace = false) {
+        if (!is_string($name) && !is_int($name))
+            throw new \Exception('Cache name must be string or integer');
+
+
+        if (array_key_exists($name, self::$_caches)) {
+            if (!$forceReplace)
+                throw new \Exception('Cache : "' . $name . '" already defined');
+
+            Logger::getInstance()->debug('Cache : "' . $name . '" already defined, was overloaded');
+        }
+
         self::$_caches[$name] = $conf;
     }
 

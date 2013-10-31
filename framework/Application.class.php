@@ -61,18 +61,6 @@ class Application {
     }
 
     protected function __construct($boostrapFile) {
-        $this->_init($boostrapFile);
-    }
-
-    public function __destruct() {
-        // Stop managers
-        if ($this->_isInit) {
-            ExceptionManager::getInstance()->stop();
-            ErrorManager::getInstance()->stop();
-        }
-    }
-
-    protected function _init($boostrapFile) {
         if (!file_exists($boostrapFile))
             throw new \Exception('Invalid bootstrap file');
 
@@ -83,12 +71,26 @@ class Application {
         $this->_isInit = true;
     }
 
+    public function __destruct() {
+        // Stop managers
+        if ($this->_isInit) {
+            ExceptionManager::getInstance()->stop();
+            ErrorManager::getInstance()->stop();
+        }
+    }
+
     public function run() {
         if ($this->_isRun)
             throw new \Exception('Application already runned');
+        //Cli
         if (Cli::isCli())
             throw new \Exception('CLI not yet');
 
+        // Check maitenance mode activated => show503
+        if (defined('SITE_MAINTENANCE') && SITE_MAINTENANCE)
+            Router::getInstance()->show503(true);
+
+        // Run router
         Router::getInstance()->run();
         $this->_isRun = true;
     }

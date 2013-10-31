@@ -1,6 +1,7 @@
 <?php
 
 $config = array(
+    // route name => array(options)
     'index' => array(
         'controller' => 'index',
     ),

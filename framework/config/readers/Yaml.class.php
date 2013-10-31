@@ -1,17 +1,35 @@
+
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+//TODO must be completed
 
-/**
- * Description of Yaml
- *
- * @author dreadlokeur
- */
-class Yaml {
-    //put your code here
+namespace framework\config\readers;
+
+use framework\config\Reader;
+use framework\utility\Validate;
+
+class Yaml extends Reader {
+
+    protected $_filename;
+    protected $_datas;
+
+    public function __construct($filename) {
+        throw new \Exception('Not yet');
+
+        if (!file_exists($filename))
+            throw new \Exception('File : "' . $filename . '" not exists');
+        if (!is_readable($filename))
+            throw new \Exception('File : "' . $filename . '" is not readable');
+        if (!Validate::isFileMimeType('xml', $filename))
+            throw new \Exception('File : "' . $filename . '" is not a xml file');
+
+        $this->_filename = $filename;
+    }
+
+    public function read() {
+        
+    }
+
 }
 
 ?>

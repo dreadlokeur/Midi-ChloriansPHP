@@ -52,9 +52,10 @@ class Language {
     }
 
     public function __destruct() {
-        if ($this->_defaultLanguage)
-            Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
-        Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
+        //if ($this->_defaultLanguage)
+        //    Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
+
+        //Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
     }
 
     public static function setDatasPath($datasPath) {
@@ -83,7 +84,7 @@ class Language {
         if (self::$_languageVars === null || self::$_languageVars === false)
             throw new \Exception('Invalid lang : "' . $language . '" invalid xml file');
 
-        Logger::getInstance()->debug('Loaded datas file : "' . $file . '"', 'language');
+        Logger::getInstance()->debug('Load datas file : "' . $file . '"', 'language');
 
         $this->_language = $language;
         if ($setAsDefault)

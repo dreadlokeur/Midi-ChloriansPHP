@@ -18,6 +18,7 @@ use framework\Language;
 use framework\mvc\Template;
 use framework\mvc\Router;
 
+// Start benchmark
 $bench = array('time' => microtime(true), 'ram' => memory_get_usage());
 
 // Load config
@@ -26,20 +27,6 @@ Config::getInstance();
 
 if (defined('ENVIRONNEMENT'))
     static::setEnv(ENVIRONNEMENT);
-
-// Set language
-if (!defined('LANGUAGE_DEFAULT'))
-    throw new \Exception('Miss language default');
-$language = Language::getInstance();
-$language->setDatasPath(PATH_LANGUAGE);
-if (!defined('PATH_LANGUAGE'))
-    throw new \Exception('Miss constant PATH_LANGUAGE');
-$language->setLanguage(LANGUAGE_DEFAULT, true, true);
-
-// Set default tpl
-if (defined('TEMPLATE_DEFAULT'))
-    Template::setTemplate(TEMPLATE_DEFAULT);
-
 
 // Autoloader cache
 if (defined('AUTOLOADER_CACHE') && !static::getDebug())
@@ -52,6 +39,20 @@ if (defined('AUTOLOADER_GLOBALIZER') && AUTOLOADER_GLOBALIZER && !static::getDeb
     $globalizer = new Globalizer(static::getGlobalizeClassList(), true);
     $globalizer->loadGlobalizedClass();
 }
+
+// Set language
+if (!defined('PATH_LANGUAGE'))
+    throw new \Exception('Miss language path datas');
+Language::setDatasPath(PATH_LANGUAGE);
+$language = Language::getInstance();
+if (!defined('LANGUAGE_DEFAULT'))
+    throw new \Exception('Miss language default');
+$language->setLanguage(LANGUAGE_DEFAULT, true, true);
+
+// Set default template
+if (defined('TEMPLATE_DEFAULT'))
+    Template::setTemplate(TEMPLATE_DEFAULT);
+
 
 // Exception, Error and Logger management
 $exc = ExceptionManager::getInstance()->start();
@@ -107,15 +108,26 @@ if (defined(LOG_WRITE) && LOG_WRITE)
     $log->attach(new Writer(PATH_LOGS), 'writer');
 
 
+// Config router host
+if (!defined('HOSTNAME'))
+    throw new \Exception('Miss hostname constant');
+Router::setHost(HOSTNAME);
+
 // Setting
-Date::setDateDefaultTimezone(TIMEZONE);
+if (defined(TIMEZONE))
+    Date::setDateDefaultTimezone(TIMEZONE);
+
+// Auto set language, by session
 $lang = Session::getInstance()->get('language');
 if (!is_null($lang) && $lang != Language::getInstance()->getLanguage())
     $language->setLanguage(Session::getInstance()->get('language'));
 
-if (defined('HOSTNAME'))
-    Router::setHost(HOSTNAME);
 
-//Security
+
+// Security
 Security::autorun();
+
+
+// Clean
+unset($bench, $globalizer, $language, $exc, $err, $log);
 ?>

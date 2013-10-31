@@ -33,12 +33,19 @@ class Logger implements \SplSubject {
     }
 
     public function __destruct() {
+        // call destructor of caches
+        $caches = CacheManager::getCaches();
+        foreach ($caches as $cache)
+            $cache->__destruct();
+
+
         if (Application::getDebug() || self::getLevel() == self::DEBUG) {
             if (Application::getProfiler()) {
                 // Logger debug informations and benchmark
                 $this->addGroup('logger', 'Logger Benchmark and Informations', true);
                 $this->debug($this->_observers->count() . ' observers registered', 'logger');
-                $this->debug(count($this->getGroups()) . ' groups and ' . ($this->countLogs() + 3) . ' logs logged in aproximately ' . Benchmark::getInstance('logger')->stopTime()->getStatsTime() . ' ms', 'logger');
+                $this->debug(count($this->getGroups()) . ' groups and ' . ($this->countLogs() + 3) . ' logs', 'logger');
+                $this->debug('In aproximately ' . Benchmark::getInstance('logger')->stopTime()->getStatsTime() . ' ms', 'logger');
                 $this->debug('Aproximately memory used  : ' . Benchmark::getInstance('logger')->stopRam()->getStatsRam() . ' KB', 'logger');
 
                 // Global informations && Benchmark
@@ -48,12 +55,8 @@ class Logger implements \SplSubject {
                 $this->debug('Aproximately memory used  : ' . Benchmark::getInstance('global')->stopRam()->getStatsRam() . ' KB - Memory allocated : ' . memory_get_peak_usage(true) / 1024 . ' KB', 'global');
             }
         }
-        // call destructor of caches
-        $caches = CacheManager::getCaches();
-        foreach ($caches as $cache)
-            $cache->__destruct();
 
-        // Notify observers and write logs
+        // Notify observers for writting logs
         $this->notify();
     }
 
@@ -166,7 +169,7 @@ class Logger implements \SplSubject {
         return null;
     }
 
-    public function notify($lastLogOnly = false) {
+    public function notify($lastLogOnly = false, $reset = true) {
         if ($this->_observers->count() && $this->countLogs() > 0) {
             $logs = $this->getLogs();
             if ($lastLogOnly)
@@ -175,12 +178,16 @@ class Logger implements \SplSubject {
             foreach ($this->_observers as $observer)
                 $observer->update($this, $logs, $this->getGroups());
 
-            // avoid multicall
+
             if ($lastLogOnly) {
                 array_pop($this->_logs);
             } else {
-                $this->_groups = array();
-                $this->_logs = array();
+                // avoid multicall
+                if ($reset) {
+                    $this->_groups = array();
+                    $this->_logs = array();
+                    $this->_observers = new \SplObjectStorage();
+                }
             }
         }
     }

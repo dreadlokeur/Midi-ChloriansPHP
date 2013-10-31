@@ -4,7 +4,7 @@ $config = array(
     'default' => array(
         'path' => '[PATH_TEMPLATE_DEFAULT]',
         'charset' => 'UTF-8',
-        'class' => 'php', //php,smarty,twig
+        'driver' => 'php',
         'assets' => array(
             'img' => array(
                 'directory' => '[PATH_TEMPLATE_DEFAULT_ASSETS]images[DS]'
@@ -22,7 +22,7 @@ $config = array(
                 'directory' => '[PATH_TEMPLATE_DEFAULT_ASSETS]css[DS]',
                 'cache' => array(
                     'compress' => true,
-                    'name' => 'core'//cache config name
+                    'name' => 'core'//cache name
                 )
             ),
             'js' => array(

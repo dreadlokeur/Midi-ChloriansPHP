@@ -17,8 +17,12 @@ class Security {
         if (!self::isValid($type))
             throw new \Exception('Invalid security type : "' . $type . '"');
 
-        if (self::exist($type) && !$forceReplace)
-            throw new \Exception('Trying register security : "' . $type . '" already registered');
+        if (self::exist($type)) {
+            if (!$forceReplace)
+                throw new \Exception('Trying register security : "' . $type . '" already registered');
+
+            Logger::getInstance()->debug('Trying register security : "' . $type . '" already registered, was overloaded');
+        }
 
         self::$_security[$type] = self::_factory($type, $options);
         if (isset($options['autorun']) && $options['autorun'])

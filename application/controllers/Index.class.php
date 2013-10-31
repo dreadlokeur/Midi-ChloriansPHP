@@ -4,8 +4,7 @@ namespace controllers;
 
 use framework\mvc\Controller;
 use framework\Security;
-use framework\security\Api;
-use framework\security\api\Form;
+use framework\security\Form;
 use framework\network\Http;
 use framework\Language;
 
@@ -25,7 +24,7 @@ class Index extends Controller {
     }
 
     public function captcha($formName, $type) {
-        $captcha = Security::getApi(Api::TYPE_FORM)->getProtection(Http::getQuery($formName), Form::PROTECTION_CAPTCHA);
+        $captcha = Security::getSecurity(Security::TYPE_FORM)->getProtection(Http::getQuery($formName), Form::PROTECTION_CAPTCHA);
         if (!$captcha)
             $this->router->show404(true);
 

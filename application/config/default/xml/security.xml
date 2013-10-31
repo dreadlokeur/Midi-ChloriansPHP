@@ -3,10 +3,10 @@
     <form>
         <autorun>false</autorun>
         <form>
-            <example>
+            <formName>
                 <protection>
                     <csrf>
-                        <urlReferer>root,captcha</urlReferer><!--url name, defined into urls.xml (multi url allowed) -->
+                        <urlReferer>root,captcha</urlReferer><!--routes name -->
                         <timeValidity>60</timeValidity>
                     </csrf>
                     <captcha>
@@ -14,7 +14,7 @@
                         <!--possible to override ooption value defined into dataFile-->
                     </captcha>
                 </protection>
-            </example>
+            </formName>
         </form>
     </form>
     <sniffer>

@@ -6,6 +6,7 @@ use framework\config\Loader;
 use framework\config\Reader;
 use framework\utility\Tools;
 use framework\Security as SecurityManager;
+use framework\utility\Validate;
 
 class Security extends Loader {
 

@@ -15,22 +15,24 @@ class Constant extends Loader {
     public function load(Reader $reader) {
         $constants = $reader->read();
         foreach ($constants as $name => $value) {
-            if (empty($name) || !is_string($name))
-                throw new \Exception('Name of constant must be as non empty string');
+            // Check name
             if (!Validate::isVariableName($name))
                 throw new \Exception('Name of constant must be a valid variable name');
 
+            // Check if is already loaded
             if (array_key_exists($name, self::$_constants)) {
+                // If is already defined => next
                 if (defined($name)) {
                     Logger::getInstance()->debug('Constant : "' . $name . '" already defined');
                     continue;
                 }
                 Logger::getInstance()->debug('Constant : "' . $name . '" already load, was overloaded');
             }
-            // casting
+            // Cast value
             if (is_string($value))
                 $value = Tools::castValue($value);
 
+            // Add
             self::$_constants[$name] = $value;
         }
     }

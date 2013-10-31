@@ -38,8 +38,16 @@ class Router {
     }
 
     public static function addRoute($name, $controller, $rules = array(), $methods = array(), $forceSsl = false, $regex = false, $forceReplace = false) {
-        if (array_key_exists($name, self::$_routes) && !$forceReplace)
-            throw new \Exception('Route : "' . $name . '" already defined');
+        if (!is_string($name) && !is_int($name))
+            throw new \Exception('Route name must be string or integer');
+
+
+        if (array_key_exists($name, self::$_routes)) {
+            if (!$forceReplace)
+                throw new \Exception('Route : "' . $name . '" already defined');
+
+            Logger::getInstance()->debug('Route : "' . $name . '" already defined, was overloaded');
+        }
 
         self::$_routes[$name] = new \stdClass();
         self::$_routes[$name]->name = $name;
@@ -172,7 +180,7 @@ class Router {
         //get http request URI (delete hostname)
         if (!$this->_urlParameterKey)
             $request = str_replace(self::getHost(), '', Http::getServer('HTTP_HOST') . Http::getServer('REQUEST_URI'));
-        else
+        else//Or get url key parameter
             $request = Http::getQuery($this->urlParameterKey, '');
 
         Logger::getInstance()->debug('Run router for request : "' . $request . '"', 'router');

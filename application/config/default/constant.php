@@ -1,29 +1,29 @@
 <?php
 
 $config = array(
-    'ENVIRONNEMENT' => 'dev',
-    'SITE_MAINTENANCE' => false,
-    'HOSTNAME' => 'localhost/Midi-ChloriansPHP',
-    'ADMIN_NAME' => 'dreadlokeur',
-    'ADMIN_EMAIL' => 'dreadlokeur@gmail.com',
-    'ADMIN_PASSWORD' => 'd033e22ae348aeb5660fc2140aec35850c4da997',
-    'SMTP_SERVER' => 'smtp.orange.fr',
+    //NAME => VALUE
+    //required
+    'ENVIRONNEMENT' => 'dev', //dev/test/prod
+    'HOSTNAME' => 'localhost/Midi-ChloriansPHP', // your hostname
+    'ADMIN_NAME' => 'your admin name', // administrator name
+    'ADMIN_EMAIL' => 'your admin email', // administrator email
+    'LANGUAGE_DEFAULT' => 'fr_FR',
+    //Optional
+    'SITE_MAINTENANCE' => false, // true/false (if true, running route "error" with param : "503")
+    'SMTP_SERVER' => '',
     'TIMEZONE' => 'Europe/Paris',
-    'CHARSET' => 'utf-8',
-    'LOG_LEVEL' => 4,
+    'LOG_LEVEL' => 4, // EMERGENCY = 0,  ALERT = 1, CRITICAL = 2, ERROR = 3, WARNING = 4, NOTICE = 5, INFO = 6, DEBUG = 7
     'LOG_BACKTRACE' => false,
     'LOG_DISPLAY' => 'display,firebug,chrome',
     'MAIL_LOG' => false,
-    'LOG_MAIL_TO_EMAIL' => '[ADMIN_EMAIL]',
     'LOG_MAIL_TO_NAME' => '[ADMIN_NAME]',
+    'LOG_MAIL_TO_EMAIL' => '[ADMIN_EMAIL]',
     'LOG_WRITE' => false,
-    'GOOGLE_VERIFICATION' => 'vulTOWigwPWjKsa_CM_UgVsiRjv7JvJhVOhxx0XzS2c',
-    'GOOGLE_UA' => 'UA-39980015-1',
-    'LANGUAGE_DEFAULT' => 'fr_FR',
-    'TEMPLATE_DEFAULT' => 'default',
-    'REWRITE_URLS' => true,
-    'AUTOLOADER_CACHE' => 'core',
-    'LOGGER_CACHE' => 'core',
+    'TEMPLATE_DEFAULT' => 'default', //template name
+    'AUTOLOADER_CACHE' => 'core', //cache name
+    'LOGGER_CACHE' => 'core', //cache name
     'AUTOLOADER_GLOBALIZER' => true,
+    'GOOGLE_VERIFICATION' => '',
+    'GOOGLE_UA' => '',
 );
 ?>

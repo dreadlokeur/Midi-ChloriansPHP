@@ -4,52 +4,52 @@
         <controller>index</controller>
     </index>
     <captcha>
+        <regex>true</regex>
         <rules>
-            <rule>captcha</rule>
+            <rule>captcha/([0-9]+)/([a-z]+)</rule>
         </rules>
         <controller>index</controller>
         <methods>
-            <captcha></captcha>
+            <captcha>
+                <parameter>[[1]]</parameter>
+                <parameter>[[2]]</parameter>
+            </captcha>
         </methods>
     </captcha>
     <language>
+        <regex>true</regex>
         <rules>
-            <rule>language</rule>
+            <rule>language/([A-Za-z0-9_]+)</rule>
         </rules>
         <controller>index</controller>
         <methods>
-            <language></language>
+            <language>
+                <parameter>[[1]]</parameter>
+            </language>
         </methods>
     </language>
-    <error404>
+    <error>
+        <regex>true</regex>
         <rules>
-            <rule>error/notFound</rule>
+            <rule>error/([0-9]+)</rule>
         </rules>
         <controller>error</controller>
         <methods>
-            <notFound></notFound>
+            <show>
+                <parameter>[[1]]</parameter>
+            </show>
         </methods>
-    </error404>
-    <test>
+    </error>
+    <debugger>
         <regex>true</regex>
         <rules>
-            <rule>test/([0-9]+)</rule>
-            <rule>test/([0-9]+)</rule>
+            <rule>error/debugger/([a-z]+)</rule>
         </rules>
-        <controller>index</controller>
+        <controller>error</controller>
         <methods>
-            <test>
+            <debugger>
                 <parameter>[[1]]</parameter>
-            </test>
+            </debugger>
         </methods>
-    </test>
-    <test3>
-        <rules>
-            <rule>test/action</rule>
-        </rules>
-        <controller>index</controller>
-        <methods>
-            <action></action>
-        </methods>
-    </test3>
+    </debugger>
 </config>

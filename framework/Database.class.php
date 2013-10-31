@@ -36,10 +36,19 @@ class Database {
         return self::$_databases;
     }
 
-    public static function addDatabase($name, $conf, $forceReplace = false) {
-        if (array_key_exists($name, self::$_databases) && !$forceReplace)
-            throw new \Exception('Database : "' . $name . '" already defined');
-        self::$_databases[$name] = $conf;
+    public static function addDatabase($name, Database $instance, $forceReplace = false) {
+        if (!is_string($name) && !is_int($name))
+            throw new \Exception('Database name must be string or integer');
+
+
+        if (array_key_exists($name, self::$_databases)) {
+            if (!$forceReplace)
+                throw new \Exception('Database : "' . $name . '" already defined');
+
+            Logger::getInstance()->debug('Database : "' . $name . '" already defined, was overloaded');
+        }
+
+        self::$_databases[$name] = $instance;
     }
 
     public function getStats() {

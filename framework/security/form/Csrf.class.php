@@ -6,7 +6,7 @@ use framework\security\IForm;
 use framework\Session;
 use framework\network\Http;
 use framework\Logger;
-use framework\Config;
+use framework\mvc\Router;
 
 class Csrf implements IForm {
 
@@ -22,10 +22,10 @@ class Csrf implements IForm {
         if (isset($options['urlReferer'])) {
             if (is_array($options['urlReferer'])) {
                 foreach ($options['urlReferer'] as &$url)
-                    $this->_urlsReferer[] = Config::getUrl($url);
+                    $this->_urlsReferer[] = Router::getUrl($url);
             }
             else
-                $this->_urlsReferer[] = Config::getUrl($options['urlReferer']);
+                $this->_urlsReferer[] = Router::getUrl($options['urlReferer']);
         }
     }
 
@@ -43,7 +43,7 @@ class Csrf implements IForm {
 
     public function set() {
         if (is_null($this->_token)) {
-            Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" tryint set uncreated token', 'security');
+            Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" trying set uncreated token', 'security');
             return;
         }
 
@@ -85,8 +85,6 @@ class Csrf implements IForm {
                     $this->addAttempt('Url referer : "' . Http::getServer('HTTP_REFERER') . '" invalid');
                 return false;
             }
-            //if (!in_array(Http::getServer('HTTP_REFERER'), $this->_urlsReferer)) {
-            //}
         }
         if ($tokenRealValue != $checkingValue) {
             if ($addAttempt)

@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <default>
-        <path>[PATH_TEMPLATE_DEFAULT]</path><!-- repertoire du template -->
+        <path>[PATH_TEMPLATE_DEFAULT]</path>
         <charset>UTF-8</charset>
-        <class>php</class>
+        <driver>php</driver>
         <assets>
             <img>
-                <directory>assets/images</directory>
+                <directory>[PATH_TEMPLATE_DEFAULT_ASSETS]images[DS]</directory>
             </img>
             <sound>
-                <directory>assets/sounds</directory>
+                <directory>[PATH_TEMPLATE_DEFAULT_ASSETS]sounds[DS]</directory>
             </sound>
             <font>
-                <directory>assets/fonts</directory>
+                <directory>[PATH_TEMPLATE_DEFAULT_ASSETS]fonts[DS]</directory>
             </font>
             <module>
-                <directory>assets/modules</directory>
+                <directory>[PATH_TEMPLATE_DEFAULT_ASSETS]modules[DS]</directory>
             </module>
             <css>
-                <directory>assets/css</directory>
+                <directory>[PATH_TEMPLATE_DEFAULT_ASSETS]css[DS]</directory>
                 <cache>
                     <compress>true</compress>
-                    <name>core</name>
+                    <name>core</name> <!-- cache name -->
                 </cache>
             </css>
             <js>
-                <directory>assets/javascripts</directory>
+                <directory>[PATH_TEMPLATE_DEFAULT_ASSETS]javascripts[DS]</directory>
                 <loadUrls>true</loadUrls>
                 <loadLangs>true</loadLangs>
                 <cache>
                     <compress>true</compress>
-                    <name>core</name>
+                    <name>core</name><!-- cache name -->
                 </cache>
             </js>
         </assets>

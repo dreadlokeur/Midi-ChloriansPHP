@@ -52,8 +52,10 @@
 use framework\Application;
 use framework\mvc\Router;
 
+// Init
 ini_set('display_errors', 1);
 ini_set('output_buffering', 1);
+ini_set('error_reporting', E_ALL);
 
 // Start Buffer
 ob_start('ob_gzhandler');

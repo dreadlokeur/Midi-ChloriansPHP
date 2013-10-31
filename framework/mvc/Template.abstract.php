@@ -30,6 +30,9 @@ abstract class Template {
     protected $_js = '';
 
     public static function addTemplate($name, ITemplate $template, $forceReplace = false) {
+        if (!is_string($name) && !is_int($name))
+            throw new \Exception('Template name must be string or integer');
+
         if (array_key_exists($name, Template::getTemplates()) && !$forceReplace)
             throw new \Exception('Template : "' . $name . '" already defined');
 
@@ -59,17 +62,17 @@ abstract class Template {
         self::$_template = $templateName;
     }
 
-    public static function factory($class, $params = array()) {
-        if (!is_string($class))
-            throw new \Exception('Class of template parameter must be a string');
+    public static function factory($driverName, $params = array()) {
+        if (!is_string($driverName))
+            throw new \Exception('Driver name of template parameter must be a string');
 
-        if (!class_exists('\framework\mvc\templates\\' . ucfirst($class)))
+        if (!class_exists('\framework\mvc\templates\\' . ucfirst($driverName)))
             throw new \Exception('Template drivers invalid');
 
 
-        $inst = new \ReflectionClass('\framework\mvc\templates\\' . ucfirst($class));
+        $inst = new \ReflectionClass('\framework\mvc\templates\\' . ucfirst($driverName));
         if (!in_array('framework\mvc\ITemplate', $inst->getInterfaceNames()))// check interface
-            throw new \Exception('Class of template must be implement framework\mvc\ITemplate');
+            throw new \Exception('Driver of template must be implement framework\mvc\ITemplate');
 
         return $inst->newInstance($params);
     }
