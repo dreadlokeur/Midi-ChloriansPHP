@@ -28,7 +28,8 @@ class Cache extends Autoloader implements IAutoloaders {
                 self::_setClassInfo($class, $classInfos['sourceFilePath'], true, false);
             }
         }
-        self::_setBenchmark(microtime(true) - $benchTime, memory_get_usage() - $benchMemory);
+        if (self::getDebug())
+            self::_setBenchmark(microtime(true) - $benchTime, memory_get_usage() - $benchMemory);
     }
 
     public static function writeClassPath($class, $path) {

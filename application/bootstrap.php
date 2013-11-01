@@ -25,6 +25,7 @@ $bench = array('time' => microtime(true), 'ram' => memory_get_usage());
 Config::setPath(PATH_CONFIG);
 Config::getInstance();
 
+
 if (defined('ENVIRONNEMENT'))
     static::setEnv(ENVIRONNEMENT);
 
@@ -59,7 +60,7 @@ $exc = ExceptionManager::getInstance()->start();
 $err = ErrorManager::getInstance()->start(true, static::getDebug());
 $log = Logger::getInstance();
 if (LOGGER_CACHE && !static::getDebug())
-    $this->_log->setCache(LOGGER_CACHE);
+    $log->setCache(LOGGER_CACHE);
 
 
 //Enable debug tools

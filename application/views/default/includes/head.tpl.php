@@ -5,7 +5,7 @@
     <?php if (defined('GOOGLE_VERIFICATION')) { ?>
         <meta name="google-site-verification" content="<?php echo GOOGLE_VERIFICATION; ?>" />
     <?php } ?>
-    <meta name="Author" content="Dreadlokeur" />
+    <meta name="Author" content="<?php echo ADMIN_NAME; ?>" />
     <meta name="Description" content="<?php if ($this->desc) echo $this->desc;else echo $this->langs->site_desc; ?>" />
     <meta name="keywords" content="<?php if ($this->keywords) echo $this->keywords;else $this->langs->site_keywords; ?>" />
     <meta http-equiv="Expires" content="24Oct 2018 23:59:59 GMT">

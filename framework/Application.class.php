@@ -22,8 +22,8 @@ class Application {
     protected $_isRun = false;
     protected static $_globalizeClassList = array(
         'framework\Config',
-        'framework\config\Url',
-        'framework\config\Constant',
+        'framework\config\Reader',
+        'framework\config\Loader',
         'framework\mvc\Controller',
         'framework\Logger',
         'framework\mvc\Router',
