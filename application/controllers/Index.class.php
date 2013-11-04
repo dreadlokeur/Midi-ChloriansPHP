@@ -11,9 +11,6 @@ use framework\Language;
 class Index extends Controller {
 
     public function __construct() {
-        //echo $v;
-        //throw new \Exception('test exception');
-        echo $_POST['truc'];
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
     }
 
