@@ -50,10 +50,10 @@
  */
 
 use framework\Application;
-use framework\mvc\Router;
 
 // Init
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', true);
 ini_set('output_buffering', 1);
 ini_set('error_reporting', E_ALL);
 
@@ -67,18 +67,8 @@ try {
     // Run app
     Application::getInstance(PATH_APP . 'bootstrap.php')->run();
 } catch (\Exception $e) {
-    // Erase buffer    
-    ob_end_clean();
-
-    if (defined('APP_INIT')) {
-        // Display
-        if (!Application::getDebug())
-            Router::getInstance()->show500();
-
-        throw $e;
-    }
-    else
-        echo $e;
+    // throw new exeception for manage
+    throw $e;
 }
 
 // Send buffer

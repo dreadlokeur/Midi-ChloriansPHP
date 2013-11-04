@@ -36,7 +36,7 @@ class Php extends Template implements ITemplate {
 
 
         $this->_vars = new \stdClass();
-        Logger::getInstance()->addGroup($this->_name, 'Template ' . $this->_name . ' report', false, true);
+        Logger::getInstance()->addGroup($this->_name, 'Template ' . $this->_name . ' report', true, true);
     }
 
     public function __get($name) {

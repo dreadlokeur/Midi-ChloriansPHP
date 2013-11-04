@@ -3,6 +3,7 @@
 namespace framework;
 
 use framework\utility\Validate;
+use framework\utility\Tools;
 use framework\Logger;
 
 class Language {
@@ -21,7 +22,7 @@ class Language {
             return $default;
         }
         else
-            return self::$_languageVars->$varName;
+            return Tools::castValue((string) self::$_languageVars->$varName);
     }
 
     public static function getVars() {
@@ -48,13 +49,12 @@ class Language {
     }
 
     protected function __construct() {
-        Logger::getInstance()->addGroup('language', 'Language informations', false, true);
+        Logger::getInstance()->addGroup('language', 'Language informations', true, true);
     }
 
     public function __destruct() {
         //if ($this->_defaultLanguage)
         //    Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
-
         //Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
     }
 

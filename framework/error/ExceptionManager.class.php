@@ -2,29 +2,19 @@
 
 namespace framework\error;
 
+use framework\Application;
+use framework\mvc\Router;
+
 class ExceptionManager implements \SplSubject {
 
     use \framework\pattern\Singleton;
 
     protected $_observers; //object SplObjectStorage
     protected $_exception = false;
-    protected $_initializedException = false;
     protected $_clearExceptionAfterSending = true;
 
     protected function __construct() {
         $this->_observers = new \SplObjectStorage();
-    }
-
-    protected function _setException($message, $file, $line, $trace, $type) {
-        $exception = new \stdClass();
-        $exception->message = nl2br($message);
-        $exception->file = $file;
-        $exception->line = $line;
-        $exception->trace = nl2br($trace);
-        $exception->type = $type;
-
-        $this->_exception = $exception;
-        $this->_initializedException = true;
     }
 
     public function start() {
@@ -51,20 +41,37 @@ class ExceptionManager implements \SplSubject {
     }
 
     public function notify() {
+        // Erase buffer
+        $buffer = ob_get_status();
+        if (!empty($buffer))
+            ob_end_clean();
+
+        // Notify observers
         if ($this->_observers->count()) {
             foreach ($this->_observers as $observer)
                 $observer->update($this, true);
         }
+
         // Clear exception for avoid multiple call
         if ($this->_clearExceptionAfterSending)
-            unset($this->_exception);
+            $this->_exception = false;
+
+        // Show internal server error (500)
+        if (!Application::getDebug())
+            Router::getInstance()->show500();
 
         // Exit
         exit();
     }
 
     public function exceptionHandler($ex) {
-        $this->_setException($ex->getMessage(), $ex->getFile(), $ex->getLine(), $ex->getTraceAsString(), 'Exception');
+        $exception = new \stdClass();
+        $exception->message = $ex->getMessage();
+        $exception->file = $ex->getFile();
+        $exception->line = $ex->getLine();
+        $exception->trace = $ex->getTraceAsString();
+
+        $this->_exception = $exception;
         $this->notify();
     }
 

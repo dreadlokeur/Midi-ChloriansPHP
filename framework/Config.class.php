@@ -6,6 +6,7 @@ use framework\config\Loader;
 use framework\config\Reader;
 use framework\config\loaders\Constant;
 use framework\utility\Tools;
+use framework\network\Http;
 
 class Config {
 
@@ -38,8 +39,8 @@ class Config {
             //load default config
             $this->loadPath(self::$_path . 'default');
 
-            //load by hostname
-            $hostname = gethostname();
+            //load by host
+            $hostname = Http::getServer('HTTP_HOST');
             if ($hostname && is_dir(self::$_path . $hostname))
                 $this->loadPath(self::$_path . $hostname);
 

@@ -1,22 +1,22 @@
 <?php
 
 use framework\Autoloader;
-use framework\autoloader\Globalizer;
 use framework\Config;
-use framework\utility\Benchmark;
+use framework\Session;
+use framework\Security;
 use framework\Logger;
+use framework\Language;
+use framework\autoloader\Globalizer;
 use framework\error\ErrorManager;
 use framework\error\ExceptionManager;
 use framework\error\observers\Display;
 use framework\error\observers\Log;
-use framework\error\observers\Mail;
-use framework\utility\Date;
-use framework\logger\observers\Writer;
-use framework\Session;
-use framework\Security;
-use framework\Language;
+use framework\logger\observers\Write;
+use framework\logger\observers\Mail;
 use framework\mvc\Template;
 use framework\mvc\Router;
+use framework\utility\Date;
+use framework\utility\Benchmark;
 
 // Start benchmark
 $bench = array('time' => microtime(true), 'ram' => memory_get_usage());
@@ -41,6 +41,18 @@ if (defined('AUTOLOADER_GLOBALIZER') && AUTOLOADER_GLOBALIZER && !static::getDeb
     $globalizer->loadGlobalizedClass();
 }
 
+// Start benchmark
+if (static::getProfiler()) {
+    Benchmark::getInstance('global')
+            ->startTime(Benchmark::TIME_MS, $bench['time'])
+            ->startRam(Benchmark::RAM_MB, $bench['ram']);
+}
+
+// Exception, Error and Logger management
+$exc = ExceptionManager::getInstance()->start();
+$err = ErrorManager::getInstance()->start(true, static::getDebug(), static::getDebug());
+$log = Logger::getInstance();
+
 // Set language
 if (!defined('PATH_LANGUAGE'))
     throw new \Exception('Miss language path datas');
@@ -54,60 +66,48 @@ $language->setLanguage(LANGUAGE_DEFAULT, true, true);
 if (defined('TEMPLATE_DEFAULT'))
     Template::setTemplate(TEMPLATE_DEFAULT);
 
-
-// Exception, Error and Logger management
-$exc = ExceptionManager::getInstance()->start();
-$err = ErrorManager::getInstance()->start(true, static::getDebug());
-$log = Logger::getInstance();
-if (LOGGER_CACHE && !static::getDebug())
-    $log->setCache(LOGGER_CACHE);
-
-
 //Enable debug tools
-if (static::getDebug() || static::getEnv() == static::ENV_DEV) {
+if (static::getDebug()) {
     $log->setLevel(Logger::DEBUG);
     Autoloader::setDebug(true);
-
-    // Attach observers error and exception manager for display et log erros and exceptions
-    $exc->attach(new Display())->attach(new Log());
-    $err->attach(new Display())->attach(new Log());
+    //Debug error and exeception
+    $exc->attach(new Display());
+    $err->attach(new Display());
 }
 
-// Start benchmark
-if (static::getProfiler()) {
-    Benchmark::getInstance('global')
-            ->startTime(Benchmark::TIME_MS, $bench['time'])
-            ->startRam(Benchmark::RAM_MB, $bench['ram']);
-}
 
 // Logger parameters
-if (defined('LOG_LEVEL') && !static::getDebug())
-    $log->setLevel(LOG_LEVEL);
-if (defined('LOG_BACKTRACE') && LOG_BACKTRACE)
-    $log->setLogBackTrace(LOG_BACKTRACE);
-// Add observers loggers, example: firebug, display, chrome
-if (defined('LOG_DISPLAY') && LOG_DISPLAY && is_string(LOG_DISPLAY)) {
-    $observers = explode(',', LOG_DISPLAY);
-    foreach ($observers as $observer) {
+if (defined('LOGGER_CACHE') && LOGGER_CACHE && !static::getDebug())
+    $log->setCache(LOGGER_CACHE);
+if (defined('LOGGER_LEVEL') && !static::getDebug())
+    $log->setLevel(LOGGER_LEVEL);
+if (defined('LOGGER_BACKTRACE') && LOGGER_BACKTRACE)
+    $log->setLogBackTrace(LOGGER_BACKTRACE);
+if (defined('LOGGER_WRITE') && LOGGER_WRITE && !static::getDebug())
+    $log->attach(new Write(PATH_LOGS), 'writer');
+// firebug, display, chrome...
+if (defined('LOGGER_DISPLAY') && LOGGER_DISPLAY && static::getDebug()) {
+    $observers = is_string(LOGGER_DISPLAY) ? explode(',', LOGGER_DISPLAY) : LOGGER_DISPLAY;
+    foreach ($observers as &$observer) {
         $name = '\framework\logger\observers\\' . ucfirst($observer);
         if (class_exists($name))
             $log->attach(new $name(), $observer);
     }
 }
-
-if (defined(MAIL_LOG) && MAIL_LOG && defined(LOG_MAIL_TO_EMAIL) && defined(LOG_MAIL_TO_NAME)) {
+if (defined('LOGGER_MAIL') && LOGGER_MAIL && defined('LOGGER_MAIL_TO_EMAIL') && defined('LOGGER_MAIL_TO_NAME') && !static::getDebug()) {
     $mailConfig = array(
         'fromEmail' => ADMIN_EMAIL,
         'fromName' => $language->getVar('site_name'),
-        'toEmail' => LOG_MAIL_TO_EMAIL, 'toName' => LOG_MAIL_TO_NAME,
-        'mailSubject' => $language->getVar('site_name') . '  log'
+        'toEmail' => LOGGER_MAIL_TO_EMAIL, 'toName' => LOGGER_MAIL_TO_NAME,
+        'mailSubject' => $language->getVar('site_name') . '  logs'
     );
-    $exc->attach(new Log())->attach(new Mail($mailConfig, ADMIN_EMAIL));
-    $err->attach(new Log())->attach(new Mail($mailConfig, ADMIN_EMAIL));
+    $log->attach(new Mail($mailConfig, ADMIN_EMAIL));
 }
-if (defined(LOG_WRITE) && LOG_WRITE)
-    $log->attach(new Writer(PATH_LOGS), 'writer');
 
+if (defined('LOGGER_ERROR') && LOGGER_ERROR) {
+    $exc->attach(new Log());
+    $err->attach(new Log());
+}
 
 // Config router host
 if (!defined('HOSTNAME'))
@@ -115,7 +115,7 @@ if (!defined('HOSTNAME'))
 Router::setHost(HOSTNAME);
 
 // Setting
-if (defined(TIMEZONE))
+if (defined('TIMEZONE'))
     Date::setDateDefaultTimezone(TIMEZONE);
 
 // Auto set language, by session
@@ -123,11 +123,8 @@ $lang = Session::getInstance()->get('language');
 if (!is_null($lang) && $lang != Language::getInstance()->getLanguage())
     $language->setLanguage(Session::getInstance()->get('language'));
 
-
-
 // Security
 Security::autorun();
-
 
 // Clean
 unset($bench, $globalizer, $language, $exc, $err, $log);

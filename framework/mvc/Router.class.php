@@ -310,6 +310,7 @@ class Router {
 
     public function show500($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_INTERNAL_SERVER_ERROR, true);
+        
         $this->runRoute('error', array(1 => '500'), $die);
     }
 
@@ -320,6 +321,8 @@ class Router {
     }
 
     public function showDebugger($isException, $die = false) {
+        Header::setResponseStatusCode(ResponseCode::CODE_INTERNAL_SERVER_ERROR, true);
+        
         $this->runRoute('debugger', array(1 => $isException), $die);
     }
 

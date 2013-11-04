@@ -3,14 +3,14 @@
 $config = array(
     //NAME => VALUE
     //required
-    'ENVIRONNEMENT' => 'dev', //dev/test/prod
-    'HOSTNAME' => 'localhost/Midi-ChloriansPHP', // your hostname
+    'ENVIRONNEMENT' => 'prod', //dev/test/prod
+    'HOSTNAME' => 'nemesis/Midi-ChloriansPHP', // your hostname
     'ADMIN_NAME' => 'your admin name', // administrator name
-    'ADMIN_EMAIL' => 'your admin email', // administrator email
+    'ADMIN_EMAIL' => 'dreadlokeur@gmail.com', // administrator email
     'LANGUAGE_DEFAULT' => 'fr_FR',
     //Optional
     'SITE_MAINTENANCE' => false, // true/false (if true, running route "error" with param : "503")
-    'SMTP_SERVER' => '',
+    'SMTP_SERVER' => 'smtp.orange.fr',
     'TIMEZONE' => 'Europe/Paris',
     'TEMPLATE_DEFAULT' => 'default', //template name
     'AUTOLOADER_CACHE' => 'core', //cache name

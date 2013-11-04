@@ -5,10 +5,9 @@ namespace framework\logger\observers;
 use framework\Logger;
 use framework\utility\Tools;
 
-class Writer implements \SplObserver {
+class Write implements \SplObserver {
 
     protected static $_logDir;
-    protected static $_logFileName = 'exf';
     protected static $_logExt = 'log';
     protected $_logs = '';
 
@@ -31,16 +30,6 @@ class Writer implements \SplObserver {
 
     public static function getLogDir() {
         return self::$_logDir;
-    }
-
-    public static function setLogFileName($logFileName) {
-        if (!is_string($logFileName))
-            throw new \Exception('The filename must be a string');
-        self::$_logFileName = $logFileName;
-    }
-
-    public static function getLogFileName() {
-        return self::$_logFileName;
     }
 
     public static function setLogExt($ext) {
@@ -83,14 +72,14 @@ class Writer implements \SplObserver {
                     } else {
                         $this->_addGroupTop($log[0]->date, $groups[$log[0]->group]->label);
                         foreach ($log as &$l)
-                            $this->_addLog($l->message, $l->level, $l->date, true, $l->writingImmediately, $l->isTrace);
+                            $this->_addLog($l->message, $l->level, $l->date, $l->isTrace);
 
                         $this->_addGroupBottom($l->date);
                     }
                 }
             }
             else
-                $this->_addLog($log->message, $log->level, $log->date, false, $log->writingImmediately, $log->isTrace);
+                $this->_addLog($log->message, $log->level, $log->date, $log->isTrace);
         }
         if (count($bottomLogs) > 0)
             $this->update($subject, $bottomLogs, $groups);
@@ -98,12 +87,10 @@ class Writer implements \SplObserver {
         $this->_writeLogs();
     }
 
-    protected function _addLog($message, $level, $date, $writingImmediately = false, $isTrace = false) {
+    protected function _addLog($message, $level, $date, $isTrace = false) {
         $name = $isTrace ? 'TRACE' : Logger::getLevelName($level);
         $head = '[' . $date . '][' . $name . '] ';
         $this->_logs .= $head . $message . chr(10);
-        if ($writingImmediately)
-            $this->_writeLogs();
     }
 
     protected function _addGroupTop($date, $label) {
@@ -115,9 +102,9 @@ class Writer implements \SplObserver {
     }
 
     protected function _writeLogs() {
-        $file = new \SplFileObject($this->_selectLogDir() . date('d') . '-' . self::$_logFileName . '.' . self::$_logExt, 'a+');
+        $file = new \SplFileObject($this->_selectLogDir() . date('d') . '.' . self::$_logExt, 'a+');
         if ($file->flock(LOCK_EX)) {
-            $file->fwrite(str_replace('<br />', '', $this->_logs));
+            $file->fwrite($this->_logs);
             $file->flock(LOCK_UN);
         }
         $this->_logs = '';

@@ -2,10 +2,11 @@
 
 namespace framework\utility;
 
-use framework\utility\Validate;
-use framework\network\Http;
-use framework\utility\Superglobals;
+use framework\Language;
 use framework\config\loaders\Constant;
+use framework\network\Http;
+use framework\utility\Validate;
+use framework\utility\Superglobals;
 
 class Tools {
 
@@ -322,8 +323,8 @@ class Tools {
             if ($value == 'false' || $value == 'FALSE' || $value == '0')
                 return false;
         } elseif (Validate::isString($value)) {
-            //check cons pattern [CONS_NAME]
-            $pattern = "#\[([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\]#";
+            //check cons pattern [CONS_NAME] or lang var {var_name}
+            $pattern = array("#\[([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\]#", "#\{([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\}#");
             $callback = function ($item) {
                         //Is defined, return value
                         if (defined($item[1]))
@@ -334,6 +335,11 @@ class Tools {
                             if (array_key_exists($item[1], $cons))
                                 return $cons[$item[1]];
 
+                            $varLang = Language::getInstance()->getVar($item[1]);
+
+                            if (!is_null($varLang))
+                                return $varLang;
+                            // no find cons, or var lang
                             return $item[1];
                         }
                     };

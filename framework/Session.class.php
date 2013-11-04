@@ -43,7 +43,8 @@ class Session {
     protected function __construct() {
         if (!extension_loaded('session'))
             throw new \Exception('Session extension not loaded try change your PHP configuration');
-        Logger::getInstance()->addGroup('session', 'Session report', false, true);
+
+        Logger::getInstance()->addGroup('session', 'Session report', true, true);
         Logger::getInstance()->debug('Session class has been instantiated', 'session');
         if (Cli::isCli())
             Logger::getInstance()->debug('Use session on cli', 'session');

@@ -41,9 +41,8 @@ class Application {
 
         if ($env == self::ENV_DEV)
             self::setDebug(true);
-        if ($env == self::ENV_DEV || $env == self::ENV_TEST) {
+        if ($env == self::ENV_DEV || $env == self::ENV_TEST)
             self::setProfiler(true);
-        }
 
         self::$_env = $env;
     }
@@ -66,8 +65,6 @@ class Application {
 
         require $boostrapFile;
 
-        if (!defined('APP_INIT'))
-            define('APP_INIT', true);
         $this->_isInit = true;
     }
 

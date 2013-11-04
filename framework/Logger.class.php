@@ -169,25 +169,19 @@ class Logger implements \SplSubject {
         return null;
     }
 
-    public function notify($lastLogOnly = false, $reset = true) {
+    public function notify($reset = true) {
         if ($this->_observers->count() && $this->countLogs() > 0) {
             $logs = $this->getLogs();
-            if ($lastLogOnly)
-                $logs = array(end($logs));
 
             foreach ($this->_observers as $observer)
                 $observer->update($this, $logs, $this->getGroups());
 
 
-            if ($lastLogOnly) {
-                array_pop($this->_logs);
-            } else {
-                // avoid multicall
-                if ($reset) {
-                    $this->_groups = array();
-                    $this->_logs = array();
-                    $this->_observers = new \SplObjectStorage();
-                }
+            // avoid multicall
+            if ($reset) {
+                $this->_groups = array();
+                $this->_logs = array();
+                $this->_observers = new \SplObjectStorage();
             }
         }
     }
@@ -228,56 +222,57 @@ class Logger implements \SplSubject {
         }
     }
 
-    public function fatal($message, $writingImmediately = true) {
-        $this->_addLog($message, self::EMERGENCY, false, $writingImmediately);
+    public function fatal($message, $groupName = false) {
+        $this->_addLog($message, self::EMERGENCY, $groupName);
     }
 
-    public function emergency($message, $groupName = false, $writingImmediately = false) {
-        $this->_addLog($message, self::EMERGENCY, $groupName, $writingImmediately);
+    public function emergency($message, $groupName = false) {
+        $this->_addLog($message, self::EMERGENCY, $groupName);
     }
 
-    public function alert($message, $groupName = false, $writingImmediately = false) {
-        $this->_addLog($message, self::ALERT, $groupName, $writingImmediately);
+    public function alert($message, $groupName = false) {
+        $this->_addLog($message, self::ALERT, $groupName);
     }
 
-    public function critical($message, $groupName = false, $writingImmediately = false) {
-        $this->_addLog($message, self::CRITICAL, $groupName, $writingImmediately);
+    public function critical($message, $groupName = false) {
+        $this->_addLog($message, self::CRITICAL, $groupName);
     }
 
-    public function error($message, $groupName = false, $writingImmediately = false) {
-        $this->_addLog($message, self::ERROR, $groupName, $writingImmediately);
+    public function error($message, $groupName = false) {
+        $this->_addLog($message, self::ERROR, $groupName);
     }
 
-    public function warning($message, $groupName = false, $writingImmediately = false) {
-        $this->_addLog($message, self::WARNING, $groupName, $writingImmediately);
+    public function warning($message, $groupName = false) {
+        $this->_addLog($message, self::WARNING, $groupName);
     }
 
-    public function notice($message, $groupName = false, $writingImmediately = false) {
-        $this->_addLog($message, self::NOTICE, $groupName, $writingImmediately);
+    public function notice($message, $groupName = false) {
+        $this->_addLog($message, self::NOTICE, $groupName);
     }
 
-    public function info($message, $groupName = false, $writingImmediately = false) {
-        $this->_addLog($message, self::INFO, $groupName, $writingImmediately);
+    public function info($message, $groupName = false) {
+        $this->_addLog($message, self::INFO, $groupName);
     }
 
-    public function debug($message, $groupName = false, $writingImmediately = false) {
-        $this->_addLog($message, self::DEBUG, $groupName, $writingImmediately);
+    public function debug($message, $groupName = false) {
+        $this->_addLog($message, self::DEBUG, $groupName);
     }
 
     public function countLogs() {
         return $this->_countLogs;
     }
 
-    protected function _addLog($message, $level, $groupName = false, $writingImmediately = false, $isBacktrace = false) {
+    protected function _addLog($message, $level, $groupName = false, $isBacktrace = false) {
         if (($level <= $this->getLevel() || $this->getLevel() == self::DEBUG || Application::getDebug())) {
-            //cache log
-            if (self::getCache()) {
+            // cache log
+            if (self::getCache() && $level >= self::NOTICE && !Application::getDebug()) {
                 $hash = md5($message . $level);
                 $cache = self::getCache()->read($hash);
-                if (!$cache) {
+                // no exists, or epiress => write
+                if (!$cache)
                     self::getCache()->write($hash, $hash, true, $cache::EXPIRE_HOUR);
-                    return;
-                }
+                else
+                    return; // no need log, because already exists in cache
             }
 
             // set log
@@ -287,7 +282,6 @@ class Logger implements \SplSubject {
             $log->level = $level;
             $log->group = $groupName;
             $log->date = $date->format('Y-m-d H:i:s');
-            $log->writingImmediately = $writingImmediately;
             $log->isTrace = $isBacktrace;
 
 
@@ -297,9 +291,6 @@ class Logger implements \SplSubject {
                 $this->_addLogOnGroup($groupName, $log);
             else
                 $this->_logs[] = $log;
-
-            if ($writingImmediately)
-                $this->notify(true);
 
             $this->_countLogs++;
 
@@ -323,7 +314,7 @@ class Logger implements \SplSubject {
                 $log .= $trace['file'] . ':' . $trace['line'];
             if (array_key_exists('class', $trace) && array_key_exists('function', $trace))
                 $log .= (!empty($log) ? ' - ' : '') . $trace['class'] . '::' . $trace['function'];
-            $this->_addLog($log, self::DEBUG, false, false, true);
+            $this->_addLog($log, self::DEBUG, false, true);
             if ($level > $size - 3)
                 break;
         }

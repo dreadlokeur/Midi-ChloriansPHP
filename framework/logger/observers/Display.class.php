@@ -57,7 +57,7 @@ class Display implements \SplObserver {
     private function _displayLog($message, $level, $date, $isTrace = false) {
         $name = $isTrace ? 'TRACE' : Logger::getLevelName($level);
         $head = '[' . $date . '][' . $name . '] ';
-        echo $head . str_replace('<br />', '', $message) . chr(10);
+        echo $head . $message . chr(10);
     }
 
     private function _displayGroupTop($date, $label) {

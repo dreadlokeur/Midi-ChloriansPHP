@@ -79,7 +79,7 @@ class Security {
         if ($classInstance->isInterface())
             throw new \Exception('Security class must be not interface');
 
-        Logger::getInstance()->addGroup('security', 'Security report', false, true);
+        Logger::getInstance()->addGroup('security', 'Security report', true, true);
         return $classInstance->newInstance($options);
     }
 

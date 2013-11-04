@@ -1,0 +1,15 @@
+[2013-11-04 15:49:35][GROUP] -----------------------------------------------Exception and Error report-----------------------------------------------
+[2013-11-04 15:49:35][ERROR] note : Undefined index: truc in /home/dreadlokeur/Dev/Projets/Midi-ChloriansPHP/application/controllers/Index.class.php on line 16
+[2013-11-04 15:49:35][GROUP] ------------------------------------------------------------------------------------------------------------------------
+[2013-11-04 15:50:30][GROUP] -----------------------------------------------Exception and Error report-----------------------------------------------
+[2013-11-04 15:50:30][ERROR] note : Undefined index: truc in /home/dreadlokeur/Dev/Projets/Midi-ChloriansPHP/application/controllers/Index.class.php on line 16
+[2013-11-04 15:50:30][GROUP] ------------------------------------------------------------------------------------------------------------------------
+[2013-11-04 15:51:21][GROUP] -----------------------------------------------Exception and Error report-----------------------------------------------
+[2013-11-04 15:51:21][ERROR] note : Undefined index: truc in /home/dreadlokeur/Dev/Projets/Midi-ChloriansPHP/application/controllers/Index.class.php on line 16
+[2013-11-04 15:51:21][GROUP] ------------------------------------------------------------------------------------------------------------------------
+[2013-11-04 15:51:55][GROUP] -----------------------------------------------Exception and Error report-----------------------------------------------
+[2013-11-04 15:51:55][ERROR] note : Undefined index: truc in /home/dreadlokeur/Dev/Projets/Midi-ChloriansPHP/application/controllers/Index.class.php on line 16
+[2013-11-04 15:51:55][GROUP] ------------------------------------------------------------------------------------------------------------------------
+[2013-11-04 15:53:09][GROUP] -----------------------------------------------Exception and Error report-----------------------------------------------
+[2013-11-04 15:53:09][ERROR] Note : Undefined index: truc in /home/dreadlokeur/Dev/Projets/Midi-ChloriansPHP/application/controllers/Index.class.php on line 16
+[2013-11-04 15:53:09][GROUP] ------------------------------------------------------------------------------------------------------------------------

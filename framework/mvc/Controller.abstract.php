@@ -65,6 +65,8 @@ abstract class Controller {
             return Config::getInstance();
         if ($name == 'log')
             return Logger::getInstance();
+        if ($name == 'language')
+            return Language::getInstance();
     }
 
     public function display() {

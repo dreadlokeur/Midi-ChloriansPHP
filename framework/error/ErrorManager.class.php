@@ -4,31 +4,53 @@ namespace framework\error;
 
 use framework\mvc\Router;
 use framework\Application;
+use framework\Language;
 
 class ErrorManager implements \SplSubject {
 
     use \framework\pattern\Singleton;
 
+    /* const ERROR = E_ERROR;
+      const WARNING = E_WARNING;
+      const PARSE = E_PARSE;
+      const NOTICE = E_NOTICE;
+      const CORE_ERROR = E_CORE_ERROR;
+      const CORE_WARNING = E_CORE_WARNING;
+      const COMPILE_ERROR = E_COMPILE_ERROR;
+      const COMPILE_WARNING = E_COMPILE_WARNING;
+      const USER_ERROR = E_USER_ERROR;
+      const USER_WARNING = E_USER_WARNING;
+      const STRICT = E_STRICT;
+      const RECOVERABLE_ERROR = E_RECOVERABLE_ERROR;
+      const DEPRECATED = E_DEPRECATED;
+      const USER_DEPRECATED = E_USER_DEPRECATED;
+      const ALL = E_ALL; */
+
     protected $_observers; //object SplObjectStorage
     protected $_error = false;
-    protected $_initializedError = false;
     protected $_clearErrorAfterSending = true;
     protected $_catchFatal = true;
+
+    //protected $_errorLevel = self::WARNING;
 
     protected function __construct() {
         $this->_observers = new \SplObjectStorage();
     }
 
-    public function start($catchFatal = true, $displayErrors = true) {
+    public function start($catchFatal = true, $displayErrors = true, $displayStartupErrors = true) {
         if (!is_bool($catchFatal))
             throw new \Exception('catchFatal parameter must be a boolean');
-        if (!is_bool($displayErrors))
-            throw new \Exception('displayErrors parameter must be a boolean');
+        if (!is_bool($displayErrors) && !is_int($displayErrors))
+            throw new \Exception('displayErrors parameter must be an int or bool');
+        if (!is_bool($displayStartupErrors))
+            throw new \Exception('displayStartupErrors parameter must be a boolean');
         if ($catchFatal) {
             register_shutdown_function(array($this, 'fatalErrorHandler'));
             $this->_catchFatal = true;
         }
+
         ini_set('display_errors', (int) $displayErrors);
+        ini_set('display_startup_errors', $displayStartupErrors);
         set_error_handler(array($this, 'errorHandler'));
 
         return $this;
@@ -64,11 +86,13 @@ class ErrorManager implements \SplSubject {
         }
         // Clear error for avoid multiple call
         if ($this->_clearErrorAfterSending)
-            unset($this->_error);
+            $this->_error = false;
 
+
+        ////ERROR, CORE_ERROR, CORE_WARNING, COMPILE_ERROR, USER_ERROR, USER_WARNING , RECOVERABLE_ERROR, ALL
         // Show internal server error (500)
         if (!Application::getDebug())
-            Router::getInstance()->show500(true);
+            Router::getInstance()->show500();
 
         // Exit script
         exit();
@@ -113,64 +137,46 @@ class ErrorManager implements \SplSubject {
         $error->line = $line;
 
         $this->_error = $error;
-        $this->_initializedError = true;
     }
 
     protected function _getErrorType($errCode) {
+        $language = Language::getInstance();
         switch ($errCode) {
             case 'E_FATAL':
-                $type = 'Fatal erreur';
-                break;
+                return $language->getVar('e_fatal');
             case E_ERROR:
-                $type = 'Erreur';
-                break;
+                return $language->getVar('e_error');
             case E_WARNING:
-                $type = 'Alerte';
-                break;
+                return $language->getVar('e_warning');
             case E_PARSE:
-                $type = 'Erreur d\'analyse';
-                break;
+                return $language->getVar('e_parse');
             case E_NOTICE:
-                $type = 'Note';
-                break;
+                return $language->getVar('e_notice');
             case E_CORE_ERROR:
-                $type = 'Core Error';
-                break;
+                return $language->getVar('e_core_error');
             case E_CORE_WARNING:
-                $type = 'Core Warning';
-                break;
+                return $language->getVar('e_core_warning');
             case E_COMPILE_ERROR:
-                $type = 'Compile Error';
-                break;
+                return $language->getVar('e_compile_error');
             case E_COMPILE_WARNING:
-                $type = 'Compile Warning';
-                break;
+                return $language->getVar('e_compile_warning');
             case E_USER_ERROR:
-                $type = 'Erreur spécifique';
-                break;
+                return $language->getVar('e_user_error');
             case E_USER_WARNING:
-                $type = 'Alerte spécifique';
-                break;
+                return $language->getVar('e_user_warning');
             case E_USER_NOTICE:
-                $type = 'Note spécifique';
-                break;
+                return $language->getVar('e_user_notice');
             case E_STRICT:
-                $type = 'Runtime Notice';
-                break;
+                return $language->getVar('e_strict');
             case E_RECOVERABLE_ERROR:
-                $type = 'Catchable Fatal Error';
-                break;
+                return $language->getVar('e_recoverable_error');
             case E_DEPRECATED:
-                $type = 'Deprecated error';
-                break;
+                return $language->getVar('e_deprecated');
             case E_USER_DEPRECATED:
-                $type = 'Deprecated error spécifique';
-                break;
+                return $language->getVar('e_user_deprecated');
             default:
-                $type = 'Type d\'erreur inconnue';
-                break;
+                return $language->getVar('e_unknown');
         }
-        return $type;
     }
 
 }
