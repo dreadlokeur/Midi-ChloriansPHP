@@ -3,6 +3,7 @@
 namespace framework\utility;
 
 use framework\Cache;
+use framework\mvc\Template;
 use framework\utility\Tools;
 use framework\utility\Validate;
 use JavaScriptPacker;
@@ -41,7 +42,7 @@ class Minify {
     }
 
     public function setType($type) {
-        if ($type != self::TYPE_CSS && $type != self::TYPE_JS)
+        if ($type != Template::ASSET_JS && $type != Template::ASSET_CSS)
             throw new \Exception('Invalid minifier type');
         $this->_type = $type;
     }
@@ -133,8 +134,7 @@ class Minify {
     }
 
     protected function _getContent() {
-        //TODO rework better clean...
-        if ($this->_type == self::TYPE_CSS) {
+        if ($this->_type == Template::ASSET_CSS) {
             $content = '';
             foreach ($this->_files as $file) {
                 $f = file_get_contents($file['name']);
@@ -145,7 +145,7 @@ class Minify {
                 $content .= $f;
             }
             return $content;
-        } elseif ($this->_type == self::TYPE_JS) {
+        } elseif ($this->_type == Template::ASSET_JS) {
             $notCompressed = $content = '';
             foreach ($this->_files as $file) {
                 $js = file_get_contents($file['name']);

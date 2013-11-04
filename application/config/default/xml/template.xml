@@ -30,7 +30,7 @@
                 <loadLangs>true</loadLangs>
                 <cache>
                     <compress>true</compress>
-                    <name>core</name><!-- cache name -->
+                    <name>default</name><!-- cache name -->
                 </cache>
             </js>
         </assets>

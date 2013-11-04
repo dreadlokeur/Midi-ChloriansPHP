@@ -31,7 +31,7 @@ $config = array(
                 'loadLangs' => true,
                 'cache' => array(
                     'compress' => true,
-                    'name' => 'core'//cache config name
+                    'name' => 'default'//cache config name
                 )
             )
         )

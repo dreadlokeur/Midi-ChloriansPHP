@@ -10,28 +10,10 @@ class ErrorManager implements \SplSubject {
 
     use \framework\pattern\Singleton;
 
-    /* const ERROR = E_ERROR;
-      const WARNING = E_WARNING;
-      const PARSE = E_PARSE;
-      const NOTICE = E_NOTICE;
-      const CORE_ERROR = E_CORE_ERROR;
-      const CORE_WARNING = E_CORE_WARNING;
-      const COMPILE_ERROR = E_COMPILE_ERROR;
-      const COMPILE_WARNING = E_COMPILE_WARNING;
-      const USER_ERROR = E_USER_ERROR;
-      const USER_WARNING = E_USER_WARNING;
-      const STRICT = E_STRICT;
-      const RECOVERABLE_ERROR = E_RECOVERABLE_ERROR;
-      const DEPRECATED = E_DEPRECATED;
-      const USER_DEPRECATED = E_USER_DEPRECATED;
-      const ALL = E_ALL; */
-
     protected $_observers; //object SplObjectStorage
     protected $_error = false;
     protected $_clearErrorAfterSending = true;
     protected $_catchFatal = true;
-
-    //protected $_errorLevel = self::WARNING;
 
     protected function __construct() {
         $this->_observers = new \SplObjectStorage();
@@ -88,8 +70,6 @@ class ErrorManager implements \SplSubject {
         if ($this->_clearErrorAfterSending)
             $this->_error = false;
 
-
-        ////ERROR, CORE_ERROR, CORE_WARNING, COMPILE_ERROR, USER_ERROR, USER_WARNING , RECOVERABLE_ERROR, ALL
         // Show internal server error (500)
         if (!Application::getDebug())
             Router::getInstance()->show500();
