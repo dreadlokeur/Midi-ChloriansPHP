@@ -4,6 +4,7 @@
     <site_slogan>MidichloriansPHP site slogan</site_slogan>
     <site_desc>MidichloriansPHP site desc</site_desc>
     <site_keywords>MidichloriansPHP site keywords</site_keywords>
+    <!-- errors -->
     <e_fatal>fatal</e_fatal>
     <e_error>erreur</e_error>
     <e_warning>alerte</e_warning>
@@ -22,6 +23,7 @@
     <e_user_deprecated>alerte d'exécution utilisateur</e_user_deprecated>
     <e_unknown>erreur inconnue</e_unknown>
     <e_exception>exception</e_exception>
+    <!-- debugger template -->
     <debugger_title>oupsss</debugger_title>
     <debugger_header>une erreur s'est produite</debugger_header>
     <debugger_section>debug</debugger_section>

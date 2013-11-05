@@ -112,25 +112,25 @@ abstract class Template {
                 if (isset($assetDatas['loadUrls'])) {
                     $this->_js .= 'var urls = {};';
                     foreach ($this->_vars->urls as $urlName => $urlValue)
-                        $this->_js .= 'urls[\'' . $urlName . '\'] = \'' . $urlValue . '\';';
+                        $this->_js .= 'urls["' . $urlName . '"] = "' . $urlValue . '";';
 
                     //add img, css, js .. urls
                     if ($img = $this->getUrlAsset(self::ASSET_IMG, Http::isHttps()))
-                        $this->_js .= 'urls[\'' . self::ASSET_IMG . '\'] = \'' . $img . '\';';
+                        $this->_js .= 'urls["' . self::ASSET_IMG . '"] = "' . $img . '";';
                     if ($css = $this->getUrlAsset(self::ASSET_CSS, Http::isHttps()))
-                        $this->_js .= 'urls[\'' . self::ASSET_CSS . '\'] = \'' . $css . '\';';
+                        $this->_js .= 'urls["' . self::ASSET_CSS . '"] = "' . $css . '";';
                     if ($js = $this->getUrlAsset(self::ASSET_JS, Http::isHttps()))
-                        $this->_js .= 'urls[\'' . self::ASSET_JS . '\'] = \'' . $js . '\';';
+                        $this->_js .= 'urls["' . self::ASSET_JS . '"] = "' . $js . '";';
                     if ($font = $this->getUrlAsset(self::ASSET_FONT, Http::isHttps()))
-                        $this->_js .= 'urls[\'' . self::ASSET_FONT . '\'] = \'' . $font . '\';';
+                        $this->_js .= 'urls["' . self::ASSET_FONT . '"] = "' . $font . '";';
                     if ($sound = $this->getUrlAsset(self::ASSET_SOUND, Http::isHttps()))
-                        $this->_js .= 'urls[\'' . self::ASSET_SOUND . '\'] = \'' . $sound . '\';';
+                        $this->_js .= 'urls["' . self::ASSET_SOUND . '"] = "' . $sound . '";';
                 }
 
                 if (isset($assetDatas['loadLangs'])) {
                     $this->_js .= 'var langs = {};';
                     foreach ($this->_vars->langs as $langName => $langValue)
-                        $this->_js .= 'langs[\'' . $langName . '\'] = \'' . $langValue . '\';';
+                        $this->_js .= 'langs["' . $langName . '"] = "' . $langValue . '";';
                 }
             }
             //add asset
@@ -140,5 +140,3 @@ abstract class Template {
 
 }
 ?>
-
-

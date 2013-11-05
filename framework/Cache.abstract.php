@@ -95,7 +95,7 @@ abstract class Cache {
             $this->_prefix = $params['prefix'];
         }
 
-        Logger::getInstance()->addGroup('cache' . $this->_name, 'Cache ' . $this->_name, true);
+        Logger::getInstance()->addGroup('cache' . $this->_name, 'Cache ' . $this->_name, true, true);
 
         //garbage collector setting
         $gcType = isset($params['gc']) ? $params['gc'] : false;

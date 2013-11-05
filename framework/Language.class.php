@@ -80,29 +80,28 @@ class Language {
         $file = self::getDatasPath() . $language . '.xml';
         if (!file_exists($file))
             throw new \Exception('Invalid lang : "' . $language . '", have not xml datas file');
-        self::$_languageVars = @simplexml_load_file($file);
-        if (self::$_languageVars === null || self::$_languageVars === false)
+        $xml = @simplexml_load_file($file);
+        if ($xml === null || $xml === false)
             throw new \Exception('Invalid lang : "' . $language . '" invalid xml file');
-
         Logger::getInstance()->debug('Load datas file : "' . $file . '"', 'language');
+        //delete comment
+        unset($xml->comment);
 
+        // set language
+        self::$_languageVars = $xml;
         $this->_language = $language;
-        if ($setAsDefault)
+        if ($setAsDefault) {
             $this->_defaultLanguage = $this->_language;
-
-
-        //load datas
-        $isDefault = ($this->_defaultLanguage != $this->_language);
-        if (!$isDefault)//preserve defaults vars
             self::$_defaultLanguageVars = self::$_languageVars;
+            Logger::getInstance()->debug('Language : "' . $this->_language . '" defined as default', 'language');
+        }
 
         //Check if alls vars defined
-        if (!$isDefault && self::$_defaultLanguageVars !== null) {
+        if ($this->_defaultLanguage != $this->_language) {
             foreach (self::$_defaultLanguageVars as $name => $value) {
                 if (!property_exists(self::$_languageVars, $name)) {
-                    // Notify
-                    Logger::getInstance()->debug('Miss language var : "' . $name . '" on new language : "' . $language . '"');
-                    // And add default language var
+                    Logger::getInstance()->debug('Miss language var : "' . $name . '" on new language : "' . $language . '"', 'language');
+                    // restore var, by default language
                     self::$_languageVars->$name = self::$_defaultLanguageVars->$name;
                 }
             }

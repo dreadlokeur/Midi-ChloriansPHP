@@ -47,7 +47,7 @@ class File extends Cache implements IDrivers {
             //override
             if (!$forceReplace)
                 throw new \Exception('Write key : "' . $key . '" fail, already defined');
-            
+
             Logger::getInstance()->debug('Key : "' . $key . '" already exist, override', 'cache' . $this->_name);
             if ($this->isLocked($key)) {
                 Logger::getInstance()->debug('Key : "' . $key . '" must be unlocked', 'cache' . $this->_name);

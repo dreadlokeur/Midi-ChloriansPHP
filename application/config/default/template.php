@@ -22,7 +22,7 @@ $config = array(
                 'directory' => '[PATH_TEMPLATE_DEFAULT_ASSETS]css[DS]',
                 'cache' => array(
                     'compress' => true,
-                    'name' => 'core'//cache name
+                    'name' => 'default'//cache name
                 )
             ),
             'js' => array(

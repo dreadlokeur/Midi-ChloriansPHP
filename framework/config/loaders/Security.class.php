@@ -34,6 +34,9 @@ class Security extends Loader {
             if (isset($datas['form'])) {
                 $securityData = array();
                 foreach ($datas['form'] as $formName => $formDatas) {
+                    if (!Validate::isVariableName($formName))
+                        throw new \Exception('Security form name must be a valid variable');
+
                     $form = new \stdClass();
                     $form->name = $formName;
                     if (isset($formDatas['protection'])) {
