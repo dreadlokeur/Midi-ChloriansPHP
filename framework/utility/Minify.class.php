@@ -4,8 +4,10 @@ namespace framework\utility;
 
 use framework\Cache;
 use framework\mvc\Template;
+use framework\mvc\Router;
 use framework\utility\Tools;
 use framework\utility\Validate;
+use framework\network\Http;
 use JavaScriptPacker;
 
 class Minify {
@@ -15,18 +17,21 @@ class Minify {
 
     protected $_cache = null;
     protected $_compress = false;
+    protected $_rewriteUrls = false;
     protected $_path = null;
     protected $_type = null;
     protected $_files = array();
     protected $_key = '';
     protected $_content = '';
 
-    public function __construct($cacheName, $path, $type, $compress = true) {
+    public function __construct($cacheName, $path, $type, $compress = true, $rewriteUrls = true) {
         $this->setCache($cacheName);
         $this->setPath($path);
         $this->setType($type);
         if ($compress)
             $this->setCompress($compress);
+        if ($rewriteUrls)
+            $this->setRewriteUrls($rewriteUrls);
     }
 
     public function setCache($cacheName) {
@@ -59,6 +64,16 @@ class Minify {
 
     public function getCompress() {
         return $this->_compress;
+    }
+
+    public function setRewriteUrls($rewriteUrls) {
+        if (!is_bool($rewriteUrls))
+            throw new \Exception('rewriteUrls parameter must be a boolean');
+        $this->_rewriteUrls = $rewriteUrls;
+    }
+
+    public function getRewriteUrls() {
+        return $this->_rewriteUrls;
     }
 
     public function setPath($path) {
@@ -153,6 +168,7 @@ class Minify {
                     // Compress file with Javascript Packer plugin
                     $packer = new JavaScriptPacker($js);
                     $notCompressed .= trim($packer->pack());
+                    //TODO rewrite urls for js
                 }
                 else
                     $content .= $js;
@@ -177,6 +193,11 @@ class Minify {
         $buffer = str_replace(': ', ':', $buffer);
         $buffer = str_replace(' ,', ',', $buffer);
         $buffer = str_replace(' ;', ';', $buffer);
+
+
+        //rewrite url path
+        if ($this->getRewriteUrls())
+            $buffer = preg_replace("#url(([a-zA-Z_/.\"\']*))#", 'url(' . Router::getHost(true, Http::isHttps()) . '$1)', $buffer);
         return $buffer;
     }
 

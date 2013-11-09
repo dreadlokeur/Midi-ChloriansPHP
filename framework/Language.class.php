@@ -26,7 +26,11 @@ class Language {
     }
 
     public static function getVars() {
-        return self::$_languageVars;
+        $vars = new \stdClass();
+        foreach (self::$_languageVars as $var => $va)
+            $vars->$var = self::getVar((string) $var);
+
+        return $vars;
     }
 
     public static function setVar($name, $value, $forceReplace = false) {

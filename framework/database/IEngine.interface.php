@@ -21,6 +21,8 @@ interface IEngine {
     public function fetch();
 
     public function fetchAll();
+
+    public function lastInsertId();
 }
 
 ?>

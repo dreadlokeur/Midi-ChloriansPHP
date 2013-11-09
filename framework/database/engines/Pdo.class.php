@@ -76,9 +76,8 @@ class Pdo implements IEngine {
             } catch (\PDOException $e) {
                 throw new \Exception('Error : ' . $e->getMessage() . ' N° : ' . $e->getCode() . '');
             }
+            Logger::getInstance()->debug('Connect server : "' . $dsn . '"', $this->_configName);
         }
-
-        Logger::getInstance()->debug('Connect server : "' . $dsn . '"', $this->_configName);
         return $this;
     }
 
@@ -174,15 +173,14 @@ class Pdo implements IEngine {
         return $this;
     }
 
-    public function execute(
-    $closeStatement = false) {
+    public function execute($closeStatement = false) {
         if (Application::getDebug())
             Benchmark::getInstance($this->_configName)->startTime()->startRam();
 
         if ($this->_query === null || !$this->haveStatement())
             throw new \Exception('Set query before execute...');
 
-        if ($this->_paramsNumberNecesary != count($this->_params))
+        if (count($this->_params) < $this->_paramsNumberNecesary)
             throw new \Exception('Miss bind parameters');
 
         // Bind parameters
@@ -227,7 +225,7 @@ class Pdo implements IEngine {
         if (!$this->haveStatement())
             throw new \Exception('You must execute query before fetch result');
 
-        $this->_statement->fetch($fetchStyle, $cursorOrientation, $offset);
+        return $this->_statement->fetch($fetchStyle, $cursorOrientation, $offset);
     }
 
     public function fetchAll($fetchStyle = \PDO::FETCH_BOTH, $fetchArgument = false, $ctorArgs = false) {
@@ -237,11 +235,18 @@ class Pdo implements IEngine {
         if ($fetchArgument == \PDO::FETCH_CLASS) {
             if ($ctorArgs)
                 return $this->_statement->fetchAll($fetchStyle, $fetchArgument, $ctorArgs);
-            else
-                return $this->_statement->fetchAll($fetchStyle, $fetchArgument);
+
+            return $this->_statement->fetchAll($fetchStyle, $fetchArgument);
         }
         else
             return $this->_statement->fetchAll($fetchStyle);
+    }
+
+    public function lastInsertId() {
+        if (!is_null($this->_connection))
+            return $this->_connection->lastInsertId();
+
+        return null;
     }
 
     public function isReadQuery($query) {
@@ -257,6 +262,7 @@ class Pdo implements IEngine {
         $this->_paramsNumberNecesary = 0;
         $this->_bindParamType = null;
         $this->_namedParamOrder = array();
+        $this->_statement = null;
     }
 
 }

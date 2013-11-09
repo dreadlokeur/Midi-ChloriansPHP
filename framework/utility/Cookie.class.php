@@ -16,7 +16,6 @@ class Cookie {
     const EXPIRE_TIME_SECOND = Date::SECOND;
     const EXPIRE_TIME_MINUTE = Date::MINUTE;
     const EXPIRE_TIME_DAY = Date::DAY;
-    const EXPIRE_TIME_DAY = Date::DAY;
     const EXPIRE_TIME_WEEK = Date::WEEK;
     const EXPIRE_TIME_MONTH = Date::MONTH;
     const EXPIRE_TIME_YEAR = Date::YEAR;
@@ -33,7 +32,7 @@ class Cookie {
     protected $_httponly = false;
     protected $_sizeLimit = '4096'; // in ko
 
-    public function __construct($name, $value = null, $expire = self::EXPIRE_TIME_WEEK, $path = null, $domain = null, $secure = false, $httponly = false) {
+    public function __construct($name, $value = null, $write = true, $expire = self::EXPIRE_TIME_WEEK, $path = null, $domain = null, $secure = false, $httponly = false) {
         $this->setName($name);
         $this->setValue($value);
         if ($expire !== 0)
@@ -44,6 +43,9 @@ class Cookie {
             $this->setDomain($domain);
         $this->setSecure($secure);
         $this->setHttponly($httponly);
+
+        if ($write)
+            $this->write();
     }
 
     public function setName($name) {
@@ -189,6 +191,7 @@ class Cookie {
     public static function get($key = null, $default = null, $allowHtmlTags = false) {
         return Http::getCookie($key, $default, $allowHtmlTags);
     }
+
 }
 
 ?>

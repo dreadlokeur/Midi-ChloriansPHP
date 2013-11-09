@@ -15,6 +15,7 @@ use framework\logger\observers\Write;
 use framework\logger\observers\Mail;
 use framework\mvc\Template;
 use framework\mvc\Router;
+use framework\utility\Cookie;
 use framework\utility\Date;
 use framework\utility\Benchmark;
 
@@ -121,7 +122,11 @@ if (defined('TIMEZONE'))
 // Auto set language, by session
 $lang = Session::getInstance()->get('language');
 if (!is_null($lang) && $lang != Language::getInstance()->getLanguage())
-    $language->setLanguage(Session::getInstance()->get('language'));
+    $language->setLanguage($lang);
+// Auto set language, by cookie
+$lang = Cookie::get('language');
+if (!is_null($lang) && $lang != Language::getInstance()->getLanguage())
+    $language->setLanguage($lang);
 
 // Security
 Security::autorun();

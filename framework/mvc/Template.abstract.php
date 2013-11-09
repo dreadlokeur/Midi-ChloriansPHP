@@ -98,7 +98,8 @@ abstract class Template {
             if ($assetType == self::ASSET_CSS || $assetType == self::ASSET_JS) {
                 if (isset($assetDatas['cache'])) {
                     $compress = isset($assetDatas['cache']['compress']) ? $assetDatas['cache']['compress'] : false;
-                    $minify = new Minify($assetDatas['cache']['name'], $assetDatas['directory'], $assetType, $compress);
+                    $rewriteUrls = isset($assetDatas['cache']['rewriteUrls']) ? $assetDatas['cache']['rewriteUrls'] : false;
+                    $minify = new Minify($assetDatas['cache']['name'], $assetDatas['directory'], $assetType, $compress, $rewriteUrls);
                     if ($assetType == self::ASSET_CSS)
                         $this->_css = $minify->minify();
                     if ($assetType == self::ASSET_JS)
@@ -139,4 +140,5 @@ abstract class Template {
     }
 
 }
+
 ?>

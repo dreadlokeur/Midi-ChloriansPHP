@@ -6,8 +6,9 @@
             <formName>
                 <protection>
                     <csrf>
-                        <urlReferer>root,captcha</urlReferer><!--routes name -->
-                        <timeValidity>60</timeValidity>
+                        <urlReferer>root</urlReferer><!--route name -->
+                        <urlReferer>captcha</urlReferer><!--route name -->
+                        <timeValidity>60</timeValidity><!--second -->
                     </csrf>
                     <captcha>
                         <dataFile>[PATH_DATA]captcha[DS]captcha-full.xml</dataFile>

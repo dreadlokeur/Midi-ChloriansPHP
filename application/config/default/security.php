@@ -8,8 +8,8 @@ $config = array(
             'formName' => array(
                 'protection' => array(
                     'csrf' => array(
-                        'urlReferer' => 'index,captcha',//routes name
-                        'timeValidity' => 60
+                        'urlReferer' => array('index', 'captcha'), //routes name
+                        'timeValidity' => 60 //second
                     ),
                     'captcha' => array(
                         'dataFile' => '[PATH_DATA]captcha[DS]captcha-full.xml'

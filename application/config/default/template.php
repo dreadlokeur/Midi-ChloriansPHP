@@ -22,6 +22,7 @@ $config = array(
                 'directory' => '[PATH_TEMPLATE_DEFAULT_ASSETS]css[DS]',
                 'cache' => array(
                     'compress' => true,
+                    'rewriteUrls' => true,
                     'name' => 'default'//cache name
                 )
             ),

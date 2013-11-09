@@ -25,6 +25,7 @@
     });
 })(jQuery);
 jQuery(document).ready(function($) {
+    // language updater
     $('.updateLanguage').click(function() {
         var language = $(this).attr('id');
         if (language === $('meta[http-equiv=content-language]').attr("content"))
@@ -38,5 +39,6 @@ jQuery(document).ready(function($) {
                     location.reload();
             }
         });
+        return false;
     });
 });

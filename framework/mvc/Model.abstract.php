@@ -32,8 +32,8 @@ abstract class Model {
         if (!is_string($name))
             throw new \Exception('Model name must be a string');
 
-        if (\class_exists('models\\' . $name))
-            $modelClass = 'models\\' . $name;
+        if (\class_exists('models\\' . ucfirst($name) . 'Manager'))
+            $modelClass = 'models\\' . ucfirst($name) . 'Manager';
         else
             $modelClass = $name;
 
@@ -52,8 +52,8 @@ abstract class Model {
         if (!is_string($name))
             throw new \Exception('Model name must be a string');
 
-        if (\class_exists('models\\' . $name))
-            $modelClass = 'models\\' . $name;
+        if (\class_exists('models\\' . ucfirst($name) . 'Object'))
+            $modelClass = 'models\\' . ucfirst($name) . 'Object';
         else
             $modelClass = $name;
 
@@ -155,17 +155,42 @@ abstract class Model {
     }
 
     public function hydrate($datas = array()) {
-        foreach ($datas as $key => $value) {
-            $method = 'set' . ucfirst($key);
-            if (!method_exists($this, $method))
-                throw new \Exception('Miss setter : "' . $method . '" into model');
+        foreach ($datas as $key => $value)
+            $this->$key = $value;
+    }
 
-            $this->$method($value);
+    public function __get($name) {
+        $method = 'get' . ucfirst($name);
+        if (method_exists($this, $method))
+            return $this->$method();
+        elseif (property_exists($this, $name))
+            return $this->$name;
+        else {
+            $name = '_' . $name;
+            if (property_exists($this, $name))
+                return $this->$name;
+
+            return null;
         }
     }
 
-    public function getDb() {
-        return Database::getDatabase($this->_modelDBName);
+    public function __set($name, $value) {
+        $method = 'set' . ucfirst($name);
+        if (method_exists($this, $method))
+            $this->$method($value);
+        elseif (property_exists($this, $name))
+            $this->$name = $value;
+        else {
+            $name = '_' . $name;
+            if (property_exists($this, $name))
+                $this->$name = $value;
+        }
+
+        return $this;
+    }
+
+    public function getDb($returnEngine = false) {
+        return Database::getDatabase($this->_modelDBName, $returnEngine);
     }
 
     public function setModelDBName($dbName) {
@@ -184,13 +209,17 @@ abstract class Model {
         return $this->_modelDBTable;
     }
 
-    public function execute($query, $parameters = array()) {
-        $driver = $this->_db->getClass();
-        $driver->set($query);
+    public function execute($query, $parameters = array(), $returnLastInsertId = false, $closeStatement = false) {
+        $engine = $this->getDb(true);
+        $engine->set($query);
         foreach ($parameters as $paramValue => $paramType)
-            $driver->bind($paramValue, $paramType);
+            $engine->bind($paramValue, $paramType);
 
-        $driver->execute();
+        $engine->execute($closeStatement);
+
+
+        if ($returnLastInsertId)
+            return $engine->lastInsertId();
     }
 
 }

@@ -7,6 +7,7 @@ use framework\Security;
 use framework\security\Form;
 use framework\network\Http;
 use framework\Language;
+use framework\utility\Cookie;
 
 class Index extends Controller {
 
@@ -21,6 +22,9 @@ class Index extends Controller {
         $this->setAjaxController();
         $this->session->add('language', $language, true, false);
         $this->addAjaxDatas('updated', true);
+        
+        //create cookie
+        new Cookie('language', $language);
     }
 
     public function captcha($formName, $type) {

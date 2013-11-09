@@ -21,6 +21,7 @@
                 <directory>[PATH_TEMPLATE_DEFAULT_ASSETS]css[DS]</directory>
                 <cache>
                     <compress>true</compress>
+                    <rewriteUrls>true</rewriteUrls>
                     <name>core</name> <!-- cache name -->
                 </cache>
             </css>

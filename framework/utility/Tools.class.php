@@ -350,11 +350,8 @@ class Tools {
             return $value;
     }
 
-    public static function getFileExtension($file) {
-        if (!file_exists($file))
-            throw new \Exception('File : "' . $file . '" not exists');
-
-        return str_replace('.', '', strrchr($file, '.'));
+    public static function getFileExtension($filename) {
+        return str_replace('.', '', strrchr($filename, '.'));
     }
 
 }
