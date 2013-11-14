@@ -31,6 +31,10 @@ class Method {
         return array_key_exists((int) $method, self::$_methodsList);
     }
 
+    public static function isPostMethod($method) {
+        return $method == self::$_methodsList[2];
+    }
+
 }
 
 ?>

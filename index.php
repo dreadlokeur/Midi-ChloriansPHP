@@ -38,6 +38,7 @@
          :-""-.`./-.'     /    `.___.'   
                \ `t  ._  /  Yoda         
                 "-.t-._:'
+ *  Always two there are, no more, no less: a master(REQUEST) and an apprentice(RESPONSE).
  * 
  * Index file :
  *     - Include loader, paths and run application

@@ -140,11 +140,19 @@ class Router {
         self::$_host = $host . ((substr($host, -1) != '/') ? '/' : '');
     }
 
-    public static function getHost($url = false, $ssl = false) {
-        if ($url)
-            return ($ssl ? 'https://' : 'http://') . self::$_host;
+    public static function getHost($url = false, $ssl = false, $stripLastSlash = false, $stripFirstSlash = false) {
+        $host = self::$_host;
+        if ($stripLastSlash)
+            $host = rtrim($host, '/');
+        if ($stripFirstSlash)
+            $host = ltrim($host, '/');
 
-        return self::$_host;
+
+        if ($url)
+            return ($ssl ? 'https://' : 'http://') . $host;
+
+
+        return $host;
     }
 
     public function setControllersNamespace($namespace, $namespaceSeparator = '\\') {
@@ -310,7 +318,7 @@ class Router {
 
     public function show500($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_INTERNAL_SERVER_ERROR, true);
-        
+
         $this->runRoute('error', array(1 => '500'), $die);
     }
 
@@ -322,7 +330,7 @@ class Router {
 
     public function showDebugger($isException, $die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_INTERNAL_SERVER_ERROR, true);
-        
+
         $this->runRoute('debugger', array(1 => $isException), $die);
     }
 

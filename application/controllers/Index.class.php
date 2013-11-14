@@ -6,7 +6,6 @@ use framework\mvc\Controller;
 use framework\Security;
 use framework\security\Form;
 use framework\network\Http;
-use framework\Language;
 use framework\utility\Cookie;
 
 class Index extends Controller {
@@ -15,16 +14,23 @@ class Index extends Controller {
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
     }
 
-    public function language($language) {
-        if (!is_string($language) || ($language == Language::getInstance()->getLanguage()) || !Http::isAjaxRequest())
-            $this->router->show404(true);
+    public function setAjax($check = false) {
+        if (!Http::isAjaxRequest() && $check)
+            Http::redirect(Router::getUrl('index'));
 
-        $this->setAjaxController();
+        if (Http::isAjaxRequest())
+            $this->setAjaxController();
+    }
+
+    public function language($language) {
+        if (!is_string($language))
+            $language = (string) $language;
+
         $this->session->add('language', $language, true, false);
         $this->addAjaxDatas('updated', true);
-        
+
         //create cookie
-        new Cookie('language', $language);
+        new Cookie('language', $language, true, Cookie::EXPIRE_TIME_MINUTE, '/');
     }
 
     public function captcha($formName, $type) {

@@ -179,7 +179,7 @@ class Logger implements \SplSubject {
 
             // avoid multicall
             if ($reset) {
-                $this->_groups = array();
+                //$this->_groups = array();
                 $this->_logs = array();
                 $this->_observers = new \SplObjectStorage();
             }

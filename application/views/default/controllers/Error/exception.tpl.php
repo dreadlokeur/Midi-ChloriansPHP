@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="<?php echo $this->lang; ?>" />
     <head>
         <title><?php echo ucfirst($this->langs->debugger_title); ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $this->getCharset(); ?>" />

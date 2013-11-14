@@ -3,6 +3,7 @@
 namespace framework\network;
 
 use framework\utility\Superglobals;
+use framework\network\http\Method;
 
 class Http {
 
@@ -254,6 +255,10 @@ class Http {
      */
     public static function isAjaxRequest() {
         return (self::getServer('HTTP_X_REQUESTED_WITH') && (stripos(self::getServer('HTTP_X_REQUESTED_WITH'), 'XMLHttpRequest') !== false));
+    }
+
+    public static function isPost() {
+        return (Method::isPostMethod(self::getServer('REQUEST_METHOD')));
     }
 
     /**

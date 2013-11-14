@@ -27,6 +27,7 @@ define('PATH_CACHE', PATH_APP . 'cache' . DS);
 define('PATH_LOGS', PATH_APP . 'logs' . DS);
 define('PATH_LANGUAGE', PATH_DATA . 'langs' . DS);
 define('PATH_CONFIG', PATH_APP . 'config' . DS);
+define('PATH_TMP', PATH_APP . 'tmp' . DS);
 // Cache paths
 define('PATH_CACHE_CONFIG', PATH_CACHE . 'config' . DS);
 define('PATH_CACHE_CORE', PATH_CACHE . 'core' . DS);

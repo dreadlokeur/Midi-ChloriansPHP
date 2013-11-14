@@ -26,7 +26,7 @@ class Cookie {
     protected $_value = null;
     protected $_autoFixDomain = true;
     protected $_expire = 0;
-    protected $_path = '';
+    protected $_path = null;
     protected $_domain = null;
     protected $_secure = false;
     protected $_httponly = false;
@@ -35,8 +35,7 @@ class Cookie {
     public function __construct($name, $value = null, $write = true, $expire = self::EXPIRE_TIME_WEEK, $path = null, $domain = null, $secure = false, $httponly = false) {
         $this->setName($name);
         $this->setValue($value);
-        if ($expire !== 0)
-            $this->setExpire($expire);
+        $this->setExpire($expire);
         if (!is_null($path))
             $this->setPath($path);
         if (!is_null($domain))
@@ -60,8 +59,6 @@ class Cookie {
     }
 
     public function setValue($value) {
-        //todo check;
-
         $lengh = (function_exists('mb_strlen') ? mb_strlen($value) : strlen($value));
         if ($lengh > $this->getSizeLimit())
             throw new \Exception('Cookie value exceeds autorize limit: "' . $this->getSizeLimit() . '" ko');
@@ -74,10 +71,15 @@ class Cookie {
     }
 
     public function setExpire($expire = self::EXPIRE_TIME_WEEK, $multiplicator = 0) {
-        if (!is_int($expire))
-            throw new \Exception('Expire parameter must be an integer');
+        if (!is_int($expire) && !is_null($expire))
+            throw new \Exception('Expire parameter must be an integer or null');
         if (!is_int($multiplicator))
             throw new \Exception('multiplicator parameter must be an integer');
+
+        if ($expire == 0) {
+            $this->_expire = 0;
+            return;
+        }
 
         if ($multiplicator != 0 && $expire != -1)
             $expire = $expire * $multiplicator;
@@ -93,7 +95,6 @@ class Cookie {
     }
 
     public function setPath($path) {
-        //todo check;
         if (!is_string($path))
             throw new \Exception('path parameter must be a string');
         $this->_path = $path;

@@ -28,8 +28,8 @@ jQuery(document).ready(function($) {
     // language updater
     $('.updateLanguage').click(function() {
         var language = $(this).attr('id');
-        if (language === $('meta[http-equiv=content-language]').attr("content"))
-            return;
+        if (language === $('html').attr("lang"))
+            return false;
         $.ajax({
             type: 'GET',
             url: urls['language'] + language,

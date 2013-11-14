@@ -22,6 +22,7 @@ $config = array(
         ),
         'controller' => 'index',
         'methods' => array(
+            'setAjax' => array(true),
             'language' => array('[[1]]')
         )
     ),

@@ -120,13 +120,14 @@ if (defined('TIMEZONE'))
     Date::setDateDefaultTimezone(TIMEZONE);
 
 // Auto set language, by session
-$lang = Session::getInstance()->get('language');
-if (!is_null($lang) && $lang != Language::getInstance()->getLanguage())
-    $language->setLanguage($lang);
+$languageLoaded = Language::getInstance()->getLanguage();
+$langSession = Session::getInstance()->get('language');
+if (!is_null($langSession) && $langSession != $languageLoaded)
+    $language->setLanguage($langSession);
 // Auto set language, by cookie
-$lang = Cookie::get('language');
-if (!is_null($lang) && $lang != Language::getInstance()->getLanguage())
-    $language->setLanguage($lang);
+$langCookie = Cookie::get('language');
+if (!is_null($langCookie) && $langCookie != $languageLoaded)
+    $language->setLanguage($langCookie);
 
 // Security
 Security::autorun();

@@ -27,7 +27,7 @@ abstract class Model {
     const ORDER_BY_DESC = 'DESC';
     const ORDER_BY_ASC = 'ASC';
 
-    public static function factoryManager($name, $datas) {
+    public static function factoryManager($name, $datas = array()) {
         // Factory model
         if (!is_string($name))
             throw new \Exception('Model name must be a string');
@@ -47,7 +47,7 @@ abstract class Model {
         return $inst->newInstance($datas);
     }
 
-    public static function factoryObject($name, $datas) {
+    public static function factoryObject($name, $datas = array()) {
         // Factory model
         if (!is_string($name))
             throw new \Exception('Model name must be a string');
