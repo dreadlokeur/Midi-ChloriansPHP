@@ -30,7 +30,7 @@ class Index extends Controller {
         $this->addAjaxDatas('updated', true);
 
         //create cookie
-        new Cookie('language', $language, true, Cookie::EXPIRE_TIME_MINUTE, '/');
+        new Cookie('language', $language, true, Cookie::EXPIRE_TIME_INFINITE, '/');
     }
 
     public function captcha($formName, $type) {
