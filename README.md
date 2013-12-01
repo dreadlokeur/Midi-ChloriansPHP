@@ -1,4 +1,4 @@
-[![Midi-ChloriansPHP](http://img15.hostingpics.net/pics/582569MidichloriansPHP.png)]
+[![Midi-ChloriansPHP](http://img15.hostingpics.net/pics/582569MidichloriansPHP.png)](http://www.midichlorians-php.fr.ht/)
 
 #Midi-ChloriansPHP
 Welcome to the Midi-ChloriansPHP 1.0.1 Release! 
@@ -12,7 +12,7 @@ PLEASE USE AT YOUR OWN RISK.
 
 ### SYSTEM REQUIREMENTS
 
-MidichloriansPHP requires PHP 5.4 or later. 
+Midi-ChloriansPHP requires PHP 5.4 or later. 
 
 ### FEATURES
 
@@ -39,8 +39,8 @@ MidichloriansPHP requires PHP 5.4 or later.
 
 ### LICENSE
 
-The files in this archive are released under the MidichloriansPHP license.
-You can find a copy of this license in LICENSE.txt.
+The files in this archive are released under the Midi-ChloriansPHP license.
+You can find a copy of this license in LICENSE.
 
 ### ACKNOWLEDGEMENTS
 

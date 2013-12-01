@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <vars>
-    <site_name>MidichloriansPHP site name</site_name>
-    <site_slogan>MidichloriansPHP site slogan</site_slogan>
-    <site_desc>MidichloriansPHP site desc</site_desc>
-    <site_keywords>MidichloriansPHP site keywords</site_keywords>
+    <site_name>Midi-ChloriansPHP site name</site_name>
+    <site_slogan>Midi-ChloriansPHP site slogan</site_slogan>
+    <site_desc>Midi-ChloriansPHP site desc</site_desc>
+    <site_keywords>Midi-ChloriansPHP site keywords</site_keywords>
     <!-- errors -->
     <e_fatal>fatal</e_fatal>
     <e_error>erreur</e_error>
