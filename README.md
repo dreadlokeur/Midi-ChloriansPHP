@@ -1,65 +1,50 @@
-[![Flemwork](http://img4.hostingpics.net/pics/755466logodouble.png)](http://www.flemwork.com)
+[![Midi-ChloriansPHP](http://img15.hostingpics.net/pics/582569MidichloriansPHP.png)]
 
-# Flemwork
-### What is it ?
+#Midi-ChloriansPHP
+Welcome to the Midi-ChloriansPHP 1.0.1 Release! 
 
-A modular PHP framework providing the strict minimum for any web application.
+### RELEASE INFORMATION
 
-« Flem » closely means « Lazyness » in French => Flemwork wants to be lazy.
-The laziness can be explained by the fact that Flemwork provides the strict minimum for a web application.
+Midi-ChloriansPHP 1.0.1dev2
 
-Each application has its own features and its own needs.
-By default, Flemwork disables all its features. The developer must manually enable them according to the needs of the application.
-So Flemwork not load everything that is unnecessary and avoids overloading the process.
+THIS RELEASE IS A DEVELOPMENT RELEASE AND NOT INTENDED FOR PRODUCTION USE.
+PLEASE USE AT YOUR OWN RISK.
 
-That's what is called the « Flem » !
+### SYSTEM REQUIREMENTS
 
-### What it provides ?
-What each application needs ?
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Modular development
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Request/Response handler
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) User Input security
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Router
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) Cache system
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) MVC architecture
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) Localization (Optional)
-* Some basics utils
+MidichloriansPHP requires PHP 5.4 or later. 
 
-All this features is managed by Flemwork.
-Flemwork doesn't use any library for the database management, template engine, orm engine...
-The developer has to "teach" to Flemwork how to use them by the way of dedicated interfaces.
+### FEATURES
 
-# Getting started
-### Configuration
-Just edit the `./Application/Settings.json` file.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) MVC architecture.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Auto-loading class and configuration.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Multi-language.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Asynchronous request (AJAX).
+* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png)Pipelining HTTP.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Configuration multi format (XML, PHP, YAML).
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Templating multi format and multiple.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Security components.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Profiling and debug tools.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Logging system.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Errors management.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Caching engine.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Network utility.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Database access layer (DAL).
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Routing and url management.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Vendors plugins integration.
+* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png)CLI support.
+* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png)ORM, DAO, CRUD.
+* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png)Install/update automatic.
+* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Divers tools.
 
-### Develop your application
-The development of the application is in the "Sources".
+### LICENSE
 
-Each directory contains specific elements of the application:
-* `./Application/Sources/Config` Contains the configuration files.
-* `./Application/Sources/Controllers` Contains the controllers
-* `./Application/Sources/Helpers` Contains light classes for specific tasks
-* `./Application/Sources/Interfaces` Contains the interfaces of different engines.
-* `./Application/Sources/Libraries` Contains the external libraries.
-* `./Application/Sources/Locales` Contains the language translations.
-* `./Application/Sources/Models` Contains the entities and the entity repositories.
-* `./Application/Sources/Views` Contains the templates.
-* `./Application/Sources/Web` Contains the accessible ressources.
+The files in this archive are released under the MidichloriansPHP license.
+You can find a copy of this license in LICENSE.txt.
 
-If you opted for the modular development, your directory `./Application/Sources/` has to contain only one directory by module.
-In each module directory, you have to follow the previous architecture.
+### ACKNOWLEDGEMENTS
 
-An example:
-```
-$> ls Sources
-Example AnotherModule MainModule
-```
+The Midi-ChloriansPHP team would like to thank all the contributors to the Midi-ChloriansPHP 
+project, our corporate sponsor, and you, the MidichloriansPHP user.
 
-```
-$> ls Sources/Example
-Config Controllers Helpers Interfaces Libraries Locales Models Views Web
-```
-
-### Documentation
-Writting...
+Thank Marijuana's inspiration :)
