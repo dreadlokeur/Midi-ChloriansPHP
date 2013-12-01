@@ -20,7 +20,7 @@ Midi-ChloriansPHP requires PHP 5.4 or later.
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Auto-loading class and configuration.
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Multi-language.
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Asynchronous request (AJAX).
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png)Pipelining HTTP.
+* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) Pipelining HTTP.
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Configuration multi format (XML, PHP, YAML).
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Templating multi format and multiple.
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Security components.
@@ -32,9 +32,9 @@ Midi-ChloriansPHP requires PHP 5.4 or later.
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Database access layer (DAL).
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Routing and url management.
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Vendors plugins integration.
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png)CLI support.
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png)ORM, DAO, CRUD.
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png)Install/update automatic.
+* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) CLI support.
+* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) ORM, DAO, CRUD.
+* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) Install/update automatic.
 * ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Divers tools.
 
 ### LICENSE
