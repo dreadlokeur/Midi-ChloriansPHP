@@ -57,9 +57,10 @@ class Language {
     }
 
     public function __destruct() {
-        //if ($this->_defaultLanguage)
-        //    Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
-        //Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
+        if ($this->_defaultLanguage)
+            Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
+
+        Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
     }
 
     public static function setDatasPath($datasPath) {
@@ -119,5 +120,4 @@ class Language {
     }
 
 }
-
 ?>

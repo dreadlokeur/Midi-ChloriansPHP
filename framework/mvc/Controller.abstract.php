@@ -78,13 +78,14 @@ abstract class Controller {
             }
             switch ($this->_ajaxDatasType) {
                 case self::HTML:
-
                     Header::sentHeader('Content-type', 'text/html');
                     foreach ($this->_ajaxDatas as $data)
                         echo $data;
                     break;
                 case self::XML:
-                    throw new \Exception('not yet');
+                    Header::sentHeader('Content-type', 'text/xml');
+                    foreach ($this->_ajaxDatas as $data)
+                        echo $data;
                     break;
                 case self::JSON:
                     Header::sentHeader('Content-type', 'application/json');

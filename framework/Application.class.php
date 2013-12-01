@@ -7,7 +7,7 @@ use framework\mvc\Router;
 use framework\error\ErrorManager;
 use framework\error\ExceptionManager;
 
-class Application {
+final class Application {
 
     use pattern\Singleton,
         debugger\Debug;

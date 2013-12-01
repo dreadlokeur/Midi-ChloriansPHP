@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<?php echo $this->lang; ?>" />
+<html lang="<?php echo $this->lang; ?>">
     <?php include $this->getPath() . 'includes' . DS . 'head.tpl.php'; ?>
     <body>
         <?php include $this->getPath() . 'includes' . DS . 'header.tpl.php'; ?>

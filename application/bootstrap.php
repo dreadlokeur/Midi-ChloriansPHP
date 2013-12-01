@@ -26,6 +26,9 @@ $bench = array('time' => microtime(true), 'ram' => memory_get_usage());
 Config::setPath(PATH_CONFIG);
 Config::getInstance();
 
+// Setting
+if (defined('TIMEZONE'))
+    Date::setDateDefaultTimezone(TIMEZONE);
 
 if (defined('ENVIRONNEMENT'))
     static::setEnv(ENVIRONNEMENT);
@@ -114,10 +117,6 @@ if (defined('LOGGER_ERROR') && LOGGER_ERROR) {
 if (!defined('HOSTNAME'))
     throw new \Exception('Miss hostname constant');
 Router::setHost(HOSTNAME);
-
-// Setting
-if (defined('TIMEZONE'))
-    Date::setDateDefaultTimezone(TIMEZONE);
 
 // Auto set language, by session
 $languageLoaded = Language::getInstance()->getLanguage();

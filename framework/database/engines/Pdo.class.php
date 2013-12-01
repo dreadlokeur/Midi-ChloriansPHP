@@ -6,17 +6,11 @@ use framework\database\IEngine;
 use framework\database\Server;
 use framework\utility\Benchmark;
 use framework\utility\Validate;
-use framework\mvc\Model;
 use framework\Database;
 use framework\Application;
 use framework\Logger;
 
 class Pdo implements IEngine {
-
-    const PARAM_NAMED = 1;
-    const PARAM_POSITIONAL = 2;
-    const BIND_VALUE = 1;
-    const BIND_PARAM = 2;
 
     //Conn and config
     protected $_configName = null;
@@ -29,14 +23,15 @@ class Pdo implements IEngine {
     protected $_paramsNumberNecesary = 0;
     protected $_namedParamOrder = array();
     protected $_bindParamType = null;
+    //params type
     protected $_paramType = array(
-        Model::PARAM_NULL => \PDO::PARAM_NULL,
-        Model::PARAM_INT => \PDO::PARAM_INT,
-        Model::PARAM_STR => \PDO::PARAM_STR,
-        Model::PARAM_LOB => \PDO::PARAM_LOB,
-        Model::PARAM_STMT => \PDO::PARAM_STMT,
-        Model::PARAM_BOOL => \PDO::PARAM_BOOL,
-        Model::PARAM_INPUT_OUTPUT => \PDO::PARAM_INPUT_OUTPUT);
+        Database::PARAM_NULL => \PDO::PARAM_NULL,
+        Database::PARAM_INT => \PDO::PARAM_INT,
+        Database::PARAM_STR => \PDO::PARAM_STR,
+        Database::PARAM_LOB => \PDO::PARAM_LOB,
+        Database::PARAM_STMT => \PDO::PARAM_STMT,
+        Database::PARAM_BOOL => \PDO::PARAM_BOOL,
+        Database::PARAM_INPUT_OUTPUT => \PDO::PARAM_INPUT_OUTPUT);
     //For debug message information
     protected $_paramTypeName = array(
         0 => 'null',
@@ -45,7 +40,36 @@ class Pdo implements IEngine {
         3 => 'lob',
         4 => 'stmt',
         5 => 'bool',
-        2147483648 => 'input output'); //
+        2147483648 => 'input output');
+    //fetch style
+    protected $_fetchStyle = array(
+        Database::FETCH_LAZY => \PDO::FETCH_LAZY,
+        Database::FETCH_ASSOC => \PDO::FETCH_ASSOC,
+        Database::FETCH_NUM => \PDO::FETCH_NUM,
+        Database::FETCH_BOTH => \PDO::FETCH_BOTH,
+        Database::FETCH_OBJ => \PDO::FETCH_OBJ,
+        Database::FETCH_BOUND => \PDO::FETCH_BOUND,
+        Database::FETCH_COLUMN => \PDO::FETCH_COLUMN,
+        Database::FETCH_CLASS => \PDO::FETCH_CLASS,
+        Database::FETCH_INTO => \PDO::FETCH_INTO,
+        Database::FETCH_FUNC => \PDO::FETCH_FUNC,
+        Database::FETCH_NAMED => \PDO::FETCH_NAMED,
+        Database::FETCH_KEY_PAIR => \PDO::FETCH_KEY_PAIR,
+        Database::FETCH_GROUP => \PDO::FETCH_GROUP,
+        Database::FETCH_UNIQUE => \PDO::FETCH_UNIQUE,
+        Database::FETCH_CLASSTYPE => \PDO::FETCH_CLASSTYPE,
+        Database::FETCH_SERIALIZE => \PDO::FETCH_SERIALIZE,
+        Database::FETCH_PROPS_LATE => \PDO::FETCH_PROPS_LATE,
+    );
+    //fetch orientation
+    protected $_fetchOrientation = array(
+        Database::FETCH_ORI_NEXT => \PDO::FETCH_ORI_NEXT,
+        Database::FETCH_ORI_PRIOR => \PDO::FETCH_ORI_PRIOR,
+        Database::FETCH_ORI_FIRST => \PDO::FETCH_ORI_FIRST,
+        Database::FETCH_ORI_LAST => \PDO::FETCH_ORI_LAST,
+        Database::FETCH_ORI_ABS => \PDO::FETCH_ORI_ABS,
+        Database::FETCH_ORI_REL => \PDO::FETCH_ORI_REL
+    );
 
     public function __construct($configName) {
         $this->_configName = $configName;
@@ -118,15 +142,15 @@ class Pdo implements IEngine {
                 throw new \Exception('You cannot mixed positional and named parameter on query');
             $query = preg_replace('#:([0-9a-zA-Z_-]+)#', '?', $query);
             // set param bind type to named
-            $this->_bindParamType = self::PARAM_NAMED;
+            $this->_bindParamType = Database::PARAM_BIND_NAMED;
             $this->_namedParamOrder = $namedParam[1];
         }
         else
-            $this->_bindParamType = self::PARAM_POSITIONAL;
+            $this->_bindParamType = Database::PARAM_BIND_POSITIONAL;
 
 
         // Count parameters necessary
-        $this->_paramsNumberNecesary = $this->_bindParamType === self::PARAM_POSITIONAL ? substr_count($this->_query, '?') : count($namedParam[1]);
+        $this->_paramsNumberNecesary = $this->_bindParamType === Database::PARAM_BIND_POSITIONAL ? substr_count($this->_query, '?') : count($namedParam[1]);
 
         // Now prepare : create PdoStatement
         $this->_statement = $this->_connection->prepare($this->_query, $options);
@@ -137,8 +161,8 @@ class Pdo implements IEngine {
         return $this;
     }
 
-    public function bind($value, $type, $key = false, $bindType = self::BIND_PARAM) {
-        if ($bindType != self::BIND_VALUE && $bindType != self::BIND_PARAM)
+    public function bind($value, $type = Database::PARAM_STR, $key = false, $bindType = Database::BIND_TYPE_PARAM) {
+        if ($bindType != Database::BIND_TYPE_VALUE && $bindType != Database::BIND_TYPE_PARAM)
             throw new \Exception('Invalid bind type');
 
         if (!is_string($type) && !is_int($type))
@@ -151,9 +175,9 @@ class Pdo implements IEngine {
             throw new \Exception('Key for param must bet start with letter and can have caracters : a-zA-Z0-9_-');
 
         // Search if is not mixed key format
-        if ($key !== false && $this->_bindParamType === self::PARAM_POSITIONAL)
+        if ($key !== false && $this->_bindParamType === Database::PARAM_BIND_POSITIONAL)
             throw new \Exception('You cannot mixed positionnal and named parameter');
-        if ($key === false && count($this->_params) > 0 && $this->_bindParamType === self::PARAM_NAMED)
+        if ($key === false && count($this->_params) > 0 && $this->_bindParamType === Database::PARAM_BIND_NAMED)
             throw new \Exception('You cannot mixed positionnal and named parameter');
 
         // Add datas on params array
@@ -186,8 +210,8 @@ class Pdo implements IEngine {
         // Bind parameters
         $i = 0;
         foreach ($this->_params as $param) {
-            $bindName = $this->_bindParamType === self::PARAM_POSITIONAL ? $i + 1 : ':' . $this->_namedParamOrder[$i];
-            if ($param['bindType'] == self::BIND_PARAM)
+            $bindName = $this->_bindParamType === Database::PARAM_BIND_POSITIONAL ? $i + 1 : ':' . $this->_namedParamOrder[$i];
+            if ($param['bindType'] == Database::PARAM_BIND_PARAM)
                 $this->_statement->bindParam($bindName, $param['value'], $param['type']);
             else
                 $this->_statement->bindValue($bindName, $param['value'], $param['type']);
@@ -221,25 +245,34 @@ class Pdo implements IEngine {
         return $this;
     }
 
-    public function fetch($fetchStyle = \PDO::FETCH_BOTH, $cursorOrientation = \PDO::FETCH_ORI_NEXT, $offset = false) {
+    public function fetch($fetchStyle = Database::FETCH_BOTH, $cursorOrientation = Database::FETCH_ORI_NEXT, $offset = 0) {
         if (!$this->haveStatement())
             throw new \Exception('You must execute query before fetch result');
 
-        return $this->_statement->fetch($fetchStyle, $cursorOrientation, $offset);
+        if (!array_key_exists($fetchStyle, $this->_fetchStyle))
+            throw new \Exception('Fetch style "' . $fetchStyle . '" don\'t exist');
+
+        if (!array_key_exists($cursorOrientation, $this->_fetchOrientation))
+            throw new \Exception('Cursor orientation "' . $cursorOrientation . '" don\'t exist');
+
+        return $this->_statement->fetch($this->_fetchStyle[$fetchStyle], $this->_fetchOrientation[$cursorOrientation], $offset);
     }
 
-    public function fetchAll($fetchStyle = \PDO::FETCH_BOTH, $fetchArgument = false, $ctorArgs = false) {
+    public function fetchAll($fetchStyle = Database::FETCH_BOTH, $fetchArgument = false, $ctorArgs = false) {
         if (!$this->haveStatement())
             throw new \Exception('You must execute query before fetch result');
 
-        if ($fetchArgument == \PDO::FETCH_CLASS) {
-            if ($ctorArgs)
-                return $this->_statement->fetchAll($fetchStyle, $fetchArgument, $ctorArgs);
+        if (!array_key_exists($fetchStyle, $this->_fetchStyle))
+            throw new \Exception('Fetch style "' . $fetchStyle . '" don\'t exist');
 
-            return $this->_statement->fetchAll($fetchStyle, $fetchArgument);
+        if ($this->_fetchStyle[$fetchStyle] == \PDO::FETCH_CLASS) {
+            if ($ctorArgs)
+                return $this->_statement->fetchAll($this->_fetchStyle[$fetchStyle], $fetchArgument, $ctorArgs);
+
+            return $this->_statement->fetchAll($this->_fetchStyle[$fetchStyle], $fetchArgument);
         }
         else
-            return $this->_statement->fetchAll($fetchStyle);
+            return $this->_statement->fetchAll($this->_fetchStyle[$fetchStyle]);
     }
 
     public function lastInsertId() {

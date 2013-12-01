@@ -8,6 +8,47 @@ use framework\Application;
 
 class Database {
 
+    const PARAM_NULL = 0;
+    const PARAM_INT = 1;
+    const PARAM_STR = 2;
+    const PARAM_LOB = 3;
+    const PARAM_STMT = 4;
+    const PARAM_BOOL = 5;
+    const PARAM_INPUT_OUTPUT = 6;
+    // bind order type
+    const PARAM_BIND_POSITIONAL = true;
+    const PARAM_BIND_NAMED = false;
+    // bind type
+    const BIND_TYPE_PARAM = 1;
+    const BIND_TYPE_VALUE = 2;
+    
+    //fetch style
+    const FETCH_LAZY = 1;
+    const FETCH_ASSOC = 2;
+    const FETCH_NUM = 3;
+    const FETCH_BOTH = 4;
+    const FETCH_OBJ = 5;
+    const FETCH_BOUND = 6;
+    const FETCH_COLUMN = 7;
+    const FETCH_CLASS = 8;
+    const FETCH_INTO = 9;
+    const FETCH_FUNC = 10;
+    const FETCH_NAMED = 11;
+    const FETCH_KEY_PAIR = 12;
+    const FETCH_GROUP = 13;
+    const FETCH_UNIQUE = 14;
+    const FETCH_CLASSTYPE = 15;
+    const FETCH_SERIALIZE = 16;
+    const FETCH_PROPS_LATE = 17;
+
+    //fetch orientation
+    const FETCH_ORI_NEXT = 0;
+    const FETCH_ORI_PRIOR = 1;
+    const FETCH_ORI_FIRST = 2;
+    const FETCH_ORI_LAST = 3;
+    const FETCH_ORI_ABS = 4;
+    const FETCH_ORI_REL = 5;
+
     protected static $_databases = array();
     protected $_name = '';
     protected $_type = null;

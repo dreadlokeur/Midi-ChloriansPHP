@@ -7,16 +7,17 @@ use framework\network\http\Method;
 
 class Http {
 
-    const POST = 'POST';
-    const GET = 'GET';
-    const COOKIE = 'COOKIE';
-    const REQUEST = 'REQUEST';
     const PROTOCOL_VERSION_0_9 = '0.9';
     const PROTOCOL_VERSION_1_0 = '1.0';
     const PROTOCOL_VERSION_1_1 = '1.1';
     const PROTOCOL_VERSION_2_0 = '2.0';
 
-    protected static $_protocolVersionList = array(self::PROTOCOL_VERSION_0_9, self::PROTOCOL_VERSION_1_0, self::PROTOCOL_VERSION_1_1, self::PROTOCOL_VERSION_2_0);
+    protected static $_protocolVersionList = array(
+        self::PROTOCOL_VERSION_0_9,
+        self::PROTOCOL_VERSION_1_0,
+        self::PROTOCOL_VERSION_1_1,
+        self::PROTOCOL_VERSION_2_0
+    );
     protected static $_requestOrder = array('REQUEST');
 
     public static function existsHttpProtocolVersion($httpProtocolVersion) {

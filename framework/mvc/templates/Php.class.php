@@ -174,7 +174,7 @@ class Php extends Template implements ITemplate {
             return false;
 
         $asset = $this->_assets[$type];
-        return Router::getHost(true, $ssl) . str_replace(PATH_ROOT, '', $asset['directory']);
+        return Router::getHost(true, $ssl) . str_replace(DS, '/', str_replace(PATH_ROOT, '', $asset['directory']));
     }
 
     public function getCss() {

@@ -42,16 +42,20 @@ class Write implements \SplObserver {
         return self::$_logExt;
     }
 
-    public function purgeLogsDir($deleteRootLogsDir = true) {
+    public function purgeLogsDir($deleteRootLogsDir = true, $chmod = false) {
         $dir = Tools::cleanScandir(self::$_logDir);
         foreach ($dir as &$f) {
-            if (is_file(self::$_logDir . $f))
+            if (is_file(self::$_logDir . $f)) {
+                if ($chmod)
+                    chmod(self::$_logDir . $f, $chmod);
                 unlink(self::$_logDir . $f);
+            }
             if (is_dir(self::$_logDir . $f))
-                Tools::deleteTreeDirectory(self::$_logDir . $f);
+                Tools::deleteTreeDirectory(self::$_logDir . $f, true, $chmod);
         }
         if ($deleteRootLogsDir) {
-            chmod(self::$_logDir, 0775);
+            if ($chmod)
+                chmod(self::$_logDir, $chmod);
             rmdir(self::$_logDir);
         }
     }

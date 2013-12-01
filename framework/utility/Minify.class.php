@@ -153,10 +153,12 @@ class Minify {
             $content = '';
             foreach ($this->_files as $file) {
                 $f = file_get_contents($file['name']);
-                if ($this->_compress && !$file['alreadyCompressed']) {
-                    $content .= $this->_compressCss($f);
-                    continue;
-                }
+                if ($this->_compress && !$file['alreadyCompressed'])
+                    $f = $this->_compressCss($f);
+                //rewrite url path
+                if ($this->getRewriteUrls())
+                    $f = preg_replace("#\[HOSTNAME]#", Router::getHost(true, Http::isHttps()), $f);
+
                 $content .= $f;
             }
             return $content;
@@ -194,10 +196,6 @@ class Minify {
         $buffer = str_replace(' ,', ',', $buffer);
         $buffer = str_replace(' ;', ';', $buffer);
 
-
-        //rewrite url path
-        if ($this->getRewriteUrls())
-            $buffer = preg_replace("#url(([a-zA-Z_/.\"\']*))#", 'url(' . Router::getHost(true, Http::isHttps()) . '$1)', $buffer);
         return $buffer;
     }
 

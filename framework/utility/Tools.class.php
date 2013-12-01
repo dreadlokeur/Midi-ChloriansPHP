@@ -19,10 +19,11 @@ class Tools {
             throw new Exception('Impossible to identify operating system');
     }
 
-    public static function deleteTreeDirectory($directory, $deleteRootDirectory = true) {
+    public static function deleteTreeDirectory($directory, $deleteRootDirectory = true, $chmod = false) {
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory), \RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iterator as $path) {
-            chmod($path, 0775);
+            if ($chmod)
+                chmod($path, $chmod);
             if ($path->isDir()) {
                 $last = substr($path->__toString(), -1, 1);
                 if ($last == '.' || $last == '..' || $last == '.svn')
@@ -33,7 +34,8 @@ class Tools {
                 unlink($path->__toString());
         }
         if ($deleteRootDirectory) {
-            chmod($directory, 0775);
+            if ($chmod)
+                chmod($directory, $chmod);
             rmdir($directory);
         }
     }

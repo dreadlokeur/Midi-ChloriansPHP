@@ -8,14 +8,7 @@ abstract class Model {
 
     protected $_modelDBName = '';
     protected $_modelDBTable = '';
-
-    const PARAM_NULL = 0;
-    const PARAM_INT = 1;
-    const PARAM_STR = 2;
-    const PARAM_LOB = 3;
-    const PARAM_STMT = 4;
-    const PARAM_BOOL = 5;
-    const PARAM_INPUT_OUTPUT = 6;
+    
     // Find type
     const FIND_LIKE = 'LIKE';
     const FIND_EQUAL = '=';
