@@ -16,26 +16,26 @@ Midi-ChloriansPHP requires PHP 5.4 or later.
 
 ### FEATURES
 
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) MVC architecture.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Auto-loading class and configuration.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Multi-language.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Asynchronous request (AJAX).
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) Pipelining HTTP.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Configuration multi format (XML, PHP, YAML).
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Templating multi format and multiple.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Security components.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Profiling and debug tools.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Logging system.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Errors management.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Caching engine.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Network utility.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Database access layer (DAL).
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Routing and url management.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Vendors plugins integration.
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) CLI support.
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) ORM, DAO, CRUD.
-* ![Not Implemented](http://www.novatis.tn/wp-content/themes/novatis/images/shortcode_icon/cross.png) Install/update automatic.
-* ![Implemented](http://www.allmysms.com/_media/pictures/icons/iconeValid.png) Divers tools.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) MVC architecture.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Auto-loading class and configuration.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Multi-language.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Asynchronous request (AJAX).
+* ![Not Implemented](http://img15.hostingpics.net/pics/553209cross.png) Pipelining HTTP.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Configuration multi format (XML, PHP, YAML).
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Templating multi format and multiple.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Security components.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Profiling and debug tools.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Logging system.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Errors management.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Caching engine.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Network utility.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Database access layer (DAL).
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Routing and url management.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Vendors plugins integration.
+* ![Not Implemented](http://img15.hostingpics.net/pics/553209cross.png) CLI support.
+* ![Not Implemented](http://img15.hostingpics.net/pics/553209cross.png) ORM, DAO, CRUD.
+* ![Not Implemented](http://img15.hostingpics.net/pics/553209cross.png) Install/update automatic.
+* ![Implemented](http://img15.hostingpics.net/pics/320145iconeValid.png) Divers tools.
 
 ### LICENSE
 
