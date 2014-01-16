@@ -176,7 +176,6 @@ class Logger implements \SplSubject {
             foreach ($this->_observers as $observer)
                 $observer->update($this, $logs, $this->getGroups());
 
-
             // avoid multicall
             if ($reset) {
                 //$this->_groups = array();
@@ -223,7 +222,7 @@ class Logger implements \SplSubject {
     }
 
     public function fatal($message, $groupName = false) {
-        $this->_addLog($message, self::EMERGENCY, $groupName);
+        $this->_addLog($message, self::EMERGENCY, $groupName, false, true);
     }
 
     public function emergency($message, $groupName = false) {
@@ -262,7 +261,7 @@ class Logger implements \SplSubject {
         return $this->_countLogs;
     }
 
-    protected function _addLog($message, $level, $groupName = false, $isBacktrace = false) {
+    protected function _addLog($message, $level, $groupName = false, $isBacktrace = false, $notify = false) {
         if (($level <= $this->getLevel() || $this->getLevel() == self::DEBUG || Application::getDebug())) {
             // cache log
             if (self::getCache() && $level >= self::NOTICE && !Application::getDebug()) {
@@ -296,6 +295,9 @@ class Logger implements \SplSubject {
 
             if (!$isBacktrace && self::getLogBacktrace())
                 $this->_logBackTrace();
+
+            if ($notify)
+                $this->notify();
         }
     }
 

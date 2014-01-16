@@ -211,7 +211,7 @@ class Pdo implements IEngine {
         $i = 0;
         foreach ($this->_params as $param) {
             $bindName = $this->_bindParamType === Database::PARAM_BIND_POSITIONAL ? $i + 1 : ':' . $this->_namedParamOrder[$i];
-            if ($param['bindType'] == Database::PARAM_BIND_PARAM)
+            if ($param['bindType'] == Database::BIND_TYPE_PARAM)
                 $this->_statement->bindParam($bindName, $param['value'], $param['type']);
             else
                 $this->_statement->bindValue($bindName, $param['value'], $param['type']);

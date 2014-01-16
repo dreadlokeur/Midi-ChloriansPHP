@@ -17,6 +17,9 @@ class Language {
     protected static $_defaultLanguageVars = null;
 
     public static function getVar($varName, $default = null) {
+        if (!Validate::isVariableName($varName))
+            throw new \Exception('language var name must be a valid variable');
+
         if (!property_exists(self::$_languageVars, $varName)) {
             Logger::getInstance()->debug('Language var ' . $varName . ' is not setted');
             return $default;
@@ -57,10 +60,9 @@ class Language {
     }
 
     public function __destruct() {
-        if ($this->_defaultLanguage)
-            Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
-
-        Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
+        //if ($this->_defaultLanguage)
+        //    Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
+        //Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
     }
 
     public static function setDatasPath($datasPath) {
@@ -120,4 +122,5 @@ class Language {
     }
 
 }
+
 ?>

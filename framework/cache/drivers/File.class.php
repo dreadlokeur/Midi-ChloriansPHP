@@ -58,7 +58,7 @@ class File extends Cache implements IDrivers {
         //create file
         $file = new \SplFileObject($this->_path . $this->_prefix . $this->_prefixGroups . md5($key), 'w+');
         if ($file->flock(LOCK_EX)) {
-            $file->fwrite(serialize(array($this->_calculExpire($expire, $type), $key, $data, $type)));
+            $file->fwrite(base64_encode(serialize(array($this->_calculExpire($expire, $type), $key, $data, $type))));
             $file->flock(LOCK_UN);
         }
         Logger::getInstance()->debug('Key : "' . $key . '" written', 'cache' . $this->_name);
@@ -79,7 +79,8 @@ class File extends Cache implements IDrivers {
                 return $default;
             else {
                 $file = new \SplFileObject($this->_path . $this->_prefix . $this->_prefixGroups . md5($key), 'r');
-                $data = unserialize($file->fgets());
+                $data = unserialize(base64_decode($file->fgets()));
+
                 // decrease expire value
                 if ($data[3] == self::TYPE_NUMBER && $data[0] > 0) {
                     Logger::getInstance()->debug('Decrease count usage key :  "' . $key . '"', 'cache' . $this->_name);
@@ -90,6 +91,7 @@ class File extends Cache implements IDrivers {
                 Logger::getInstance()->debug('Read key :  "' . $key . '"', 'cache' . $this->_name);
                 if ($onlyExpireTime)//return expiress time
                     return $data[0];
+
                 return $data[2];
             }
         } else {
@@ -138,8 +140,10 @@ class File extends Cache implements IDrivers {
 
         if (!is_readable($this->_path . $this->_prefix . $this->_prefixGroups . md5($key)))
             throw new \Exception('not readdable file');
+
         $file = new \SplFileObject($this->_path . $this->_prefix . $this->_prefixGroups . md5($key), 'r');
-        $data = unserialize($file->fgets());
+        $data = unserialize(base64_decode($file->fgets()));
+
         // Check if is valid cache file
         if (!is_array($data) || count($data) < 4) {
             Logger::getInstance()->debug('Key : "' . $key . '" have not valid cache file', 'cache' . $this->_name);
@@ -202,7 +206,7 @@ class File extends Cache implements IDrivers {
                 //not a lock or gc
                 if (stripos($f, $this->_prefix . $this->_prefixGroups . md5($this->_lockName)) == false && stripos($f, $this->_prefix . $this->_prefixGroups . md5($this->_gcName)) == false) {
                     $file = new \SplFileObject($this->_path . $f, 'r');
-                    $data = unserialize($file->fgets());
+                    $data = unserialize(base64_decode($file->fgets()));
                     $key = isset($data[1]) ? $data[1] : $f;
                     $this->isExpired($key); //auto-deleting cache file
                 }
@@ -211,20 +215,16 @@ class File extends Cache implements IDrivers {
         Logger::getInstance()->debug('Cache cleared', 'cache' . $this->_name);
     }
 
-    public function purge($deleteCachePath = true, $chmod = false) {
+    public function purge($deleteCachePath = true) {
         $dir = Tools::cleanScandir($this->_path);
         foreach ($dir as &$f) {
-            if (is_file($this->_path . $f)) {
-                if ($chmod)
-                    chmod($this->_path . $f, $chmod);
+            if (is_file($this->_path . $f))
                 unlink($this->_path . $f);
-            }
             if (is_dir($this->_path . $f))
-                Tools::deleteTreeDirectory($this->_path . $f, true, $chmod);
+                Tools::deleteTreeDirectory($this->_path . $f);
         }
         if ($deleteCachePath) {
-            if ($chmod)
-                chmod($this->_path, $chmod);
+            chmod($this->_path, 0775);
             rmdir($this->_path);
         }
         Logger::getInstance()->debug('Cache purged', 'cache' . $this->_name);
@@ -239,7 +239,7 @@ class File extends Cache implements IDrivers {
                     // find
                     if (stripos($f, $groupName) !== false) {
                         $file = new \SplFileObject($this->_path . $f, 'r');
-                        $data = unserialize($file->fgets());
+                        $data = unserialize(base64_decode($file->fgets()));
                         $key = isset($data[1]) ? $data[1] : $f;
                         $this->delete($key);
                     }

@@ -8,7 +8,7 @@ use framework\Cli;
 class Display implements \SplObserver {
 
     protected $_preStartIsDisplayed = false;
-    protected $_activated = false;
+    protected $_activated = true;
 
     public function __construct() {
         ob_start(); //buffer

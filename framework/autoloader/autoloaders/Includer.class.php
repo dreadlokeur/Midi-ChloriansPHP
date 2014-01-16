@@ -24,10 +24,12 @@ class Includer extends Autoloader implements IAutoloaders {
             if (file_exists($classInfos['sourceFilePath'])) {
                 require_once $classInfos['sourceFilePath'];
                 self::_addLog('Class: "' . $class . '" was included by sourceFile : "' . $classInfos['sourceFilePath'] . '"');
-            } else
-                throw new \Exception('Class : "' . $class . '" can\'t include by source file : "' . $classInfos['sourceFilePath'] . '"');
-        } else
-            throw new \Exception('Class : "' . $class . '" not found');
+            }
+            else
+                self::_addLog('Class : "' . $class . '" can\'t include by source file : "' . $classInfos['sourceFilePath'] . '"');
+        }
+        else
+            self::_addLog('Class : "' . $class . '" not found');
 
         if (self::getDebug())
             self::_setBenchmark(microtime(true) - $benchTime, memory_get_usage() - $benchMemory);

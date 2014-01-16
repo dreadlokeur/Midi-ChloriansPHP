@@ -42,20 +42,16 @@ class Write implements \SplObserver {
         return self::$_logExt;
     }
 
-    public function purgeLogsDir($deleteRootLogsDir = true, $chmod = false) {
+    public function purgeLogsDir($deleteRootLogsDir = true) {
         $dir = Tools::cleanScandir(self::$_logDir);
         foreach ($dir as &$f) {
-            if (is_file(self::$_logDir . $f)) {
-                if ($chmod)
-                    chmod(self::$_logDir . $f, $chmod);
+            if (is_file(self::$_logDir . $f))
                 unlink(self::$_logDir . $f);
-            }
             if (is_dir(self::$_logDir . $f))
-                Tools::deleteTreeDirectory(self::$_logDir . $f, true, $chmod);
+                Tools::deleteTreeDirectory(self::$_logDir . $f);
         }
         if ($deleteRootLogsDir) {
-            if ($chmod)
-                chmod(self::$_logDir, $chmod);
+            chmod(self::$_logDir, 0775);
             rmdir(self::$_logDir);
         }
     }
@@ -106,12 +102,14 @@ class Write implements \SplObserver {
     }
 
     protected function _writeLogs() {
-        $file = new \SplFileObject($this->_selectLogDir() . date('d') . '.' . self::$_logExt, 'a+');
-        if ($file->flock(LOCK_EX)) {
-            $file->fwrite($this->_logs);
-            $file->flock(LOCK_UN);
+        if (!empty($this->_logs)) {
+            $file = new \SplFileObject($this->_selectLogDir() . date('d') . '.' . self::$_logExt, 'a+');
+            if ($file->flock(LOCK_EX)) {
+                $file->fwrite($this->_logs);
+                $file->flock(LOCK_UN);
+            }
+            $this->_logs = '';
         }
-        $this->_logs = '';
     }
 
     protected function _selectLogDir() {

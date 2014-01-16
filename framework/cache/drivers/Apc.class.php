@@ -45,7 +45,7 @@ class Apc extends Cache implements IDrivers {
             }
         }
         $ttl = $type == self::TYPE_NUMBER ? 0 : $expire;
-        apc_store($this->_prefix . $this->_prefixGroups . md5($key), serialize(array($expire, $key, $data, $type)), $ttl);
+        apc_store($this->_prefix . $this->_prefixGroups . md5($key), base64_encode(serialize(array($expire, $key, $data, $type))), $ttl);
         Logger::getInstance()->debug('Key : "' . $key . '" written', 'cache' . $this->_name);
     }
 
@@ -63,7 +63,7 @@ class Apc extends Cache implements IDrivers {
             if ($this->isExpired($key))
                 return $default;
             else {
-                $data = unserialize(apc_fetch($this->_prefix . $this->_prefixGroups . md5($key)));
+                $data = unserialize(base64_decode(apc_fetch($this->_prefix . $this->_prefixGroups . md5($key))));
                 // decrease expire value
                 if ($data[3] == self::TYPE_NUMBER && $data[0] > 0) {
                     Logger::getInstance()->debug('Read key :  "' . $key . '"', 'cache' . $this->_name);
@@ -118,7 +118,7 @@ class Apc extends Cache implements IDrivers {
             Logger::getInstance()->debug('Key : "' . $key . '" expired', 'cache' . $this->_name);
             return true;
         } else {
-            $data = unserialize(apc_fetch($this->_prefix . $this->_prefixGroups . md5($key)));
+            $data = unserialize(base64_decode(apc_fetch($this->_prefix . $this->_prefixGroups . md5($key))));
             if (!is_array($data) || count($data) < 4) {
                 Logger::getInstance()->debug('Key : "' . $key . '" have not valid cache data', 'cache' . $this->_name);
                 return true;
@@ -195,7 +195,7 @@ class Apc extends Cache implements IDrivers {
                 if ($groupName != false && stripos($key['key'], $groupName) == false)
                     continue;
 
-                $data = unserialize(apc_fetch($key['key']));
+                $data = unserialize(base64_decode(apc_fetch($key['key'])));
                 $key = isset($data[0]) ? $data[0] : $key['key'];
                 $this->delete($key);
             }
