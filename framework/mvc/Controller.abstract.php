@@ -21,7 +21,7 @@ abstract class Controller {
     protected $_templateInitialized = false;
     protected $_autoCallDisplay = true;
     protected $_isAjax = false;
-    protected $_ajaxDatas = '';
+    protected $_ajaxDatas = array();
     protected $_ajaxDatasType = self::JSON;
     protected $_ajaxDatasCache = false;
     protected $_ajaxAutoAddDatas = array(
