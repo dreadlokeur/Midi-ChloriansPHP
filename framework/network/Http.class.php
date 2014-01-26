@@ -295,6 +295,18 @@ class Http {
         return $rootRequest;
     }
 
+    public static function getCurrentUrl($withPort = false) {
+        $url = 'http' . (self::isHttps() ? 's' : '') . '://' . self::getServer('SERVER_NAME');
+
+        // add port
+        if ($withPort) {
+            if ((self::isHttps() && self::getServer('SERVER_PORT') != 443) || (!self::isHttps() && self::getServer('SERVER_PORT') != 80))
+                $url .= ':' . self::getServer('SERVER_PORT');
+        }
+
+        return $url . self::getServer('REQUEST_URI');
+    }
+
 }
 
 ?>

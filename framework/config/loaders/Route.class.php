@@ -33,6 +33,7 @@ class Route extends Loader {
             foreach ($methods as $method => $val) {
                 //no have parameters, replace wtih empty parameters list
                 if (is_int($method)) {
+                    //TODO fix : replace methode into good order
                     unset($methods[$method]);
                     $methods[$val] = array();
                 }

@@ -5,6 +5,7 @@ $config = array(
         'path' => '[PATH_TEMPLATE_DEFAULT]',
         'charset' => 'UTF-8',
         'driver' => 'php',
+        'autoSanitize' => false,
         'assets' => array(
             'img' => array(
                 'directory' => '[PATH_TEMPLATE_DEFAULT_ASSETS]images[DS]'

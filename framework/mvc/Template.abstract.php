@@ -28,6 +28,7 @@ abstract class Template {
     );
     protected $_css = '';
     protected $_js = '';
+    protected $_autoSanitize = false;
 
     public static function addTemplate($name, ITemplate $template, $forceReplace = false) {
         if (!is_string($name) && !is_int($name))
@@ -82,6 +83,32 @@ abstract class Template {
             throw new \Exception('Asset type must be a string');
 
         return in_array($type, self::$_assetsType);
+    }
+
+    public function setAutoSanitize($sanitize) {
+        if (!\is_bool($sanitize))
+            throw new \Exception('Sanitize parameter must be a boolean');
+        $this->_autoSanitize = $sanitize;
+    }
+
+    public function getAutoSanitize() {
+        return $this->_autoSanitize;
+    }
+
+    public function sanitize($value, $name) {
+        if (is_array($value)) {
+            foreach ($value as &$v)
+                $v = self::sanitize($v, $name);
+        } elseif (is_object($value)) {
+            $reflexion = new \ReflectionObject($value);
+            $properties = $reflexion->getProperties(\ReflectionProperty::IS_PUBLIC);
+            foreach ($properties as &$property)
+                $value->{$property->name} = $this->sanitize($value->{$property->name}, $name);
+        } elseif (is_string($value))
+            $value = htmlspecialchars(htmlspecialchars_decode($value, ENT_QUOTES), ENT_QUOTES, $this->_charset);
+
+        Logger::getInstance()->debug('Sanitize variable : "' . $name . '"', $this->_name);
+        return $value;
     }
 
     public function initAssets() {

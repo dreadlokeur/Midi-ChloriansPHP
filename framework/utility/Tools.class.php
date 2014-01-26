@@ -29,8 +29,7 @@ class Tools {
                 if ($last == '.' || $last == '..' || $last == '.svn')
                     continue;
                 rmdir($path->__toString());
-            }
-            else
+            } else
                 unlink($path->__toString());
         }
         if ($deleteRootDirectory) {
@@ -111,8 +110,7 @@ class Tools {
         elseif (is_array($object)) {
             foreach ($object as $k => &$value)
                 $array[$k] = self::parseObjectToArray($value);
-        }
-        else
+        } else
             $array = $object;
 
         return $array;
@@ -162,6 +160,40 @@ class Tools {
             throw new \Exception('La copie du fichier: ' . $file . ' a échouée...');
     }
 
+    public static function saveDirectory($source, $target, $chmod = false) {
+        if (!is_dir($source)) {
+            self::saveFile($source, $target);
+            return;
+        }
+
+
+        if (!is_dir($target)) {
+            if (!mkdir($target, $chmod, true))
+                throw new \Exception('Error on creating "' . $target . '" directory');
+        }
+
+        $d = dir($source);
+        $navFolders = array('.', '..', '.svn');
+        while (false !== ($fileEntry = $d->read() )) {//copy one by one
+            //skip if it is navigation folder . or ..
+            if (in_array($fileEntry, $navFolders))
+                continue;
+
+            //do copy
+            $s = "$source/$fileEntry";
+            $t = "$target/$fileEntry";
+            self::saveDirectory($s, $t, $chmod);
+        }
+        $d->close();
+    }
+
+    public static function countFilesIntoDirectory($directory, $dirCleanList = array('.', '..', '.svn')) {
+        if (!is_dir($directory))
+            throw new \Exception('Directory doesn\'t exists');
+
+        return count(self::cleanScandir($directory, $dirCleanList));
+    }
+
     // TODO : Ajout d'un argument pour forcer la clé de la global qu'on veut
     public static function getUserIp($byGlobalType = null) {
         if (!is_null($byGlobalType) && $byGlobalType != Superglobals::SERVER && $byGlobalType != Superglobals::ENV)
@@ -185,8 +217,7 @@ class Tools {
                 $ip = Http::getEnv('HTTP_CLIENT_IP');
             else
                 $ip = Http::getEnv('REMOTE_ADDR');
-        }
-        else
+        } else
             throw new \Exception('Unbearable user internet protocol, plz check your environnement');
 
         return $ip;
@@ -328,27 +359,26 @@ class Tools {
             //check cons pattern [CONS_NAME] or lang var {var_name}
             $pattern = array("#\[([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\]#", "#\{([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\}#");
             $callback = function ($item) {
-                        //Is defined, return value
-                        if (defined($item[1]))
-                            return constant($item[1]);
-                        else {
-                            //check if is loaded into config loader
-                            $cons = Constant::getCons();
-                            if (array_key_exists($item[1], $cons))
-                                return $cons[$item[1]];
+                //Is defined, return value
+                if (defined($item[1]))
+                    return constant($item[1]);
+                else {
+                    //check if is loaded into config loader
+                    $cons = Constant::getCons();
+                    if (array_key_exists($item[1], $cons))
+                        return $cons[$item[1]];
 
-                            $varLang = Language::getInstance()->getVar($item[1]);
+                    $varLang = Language::getInstance()->getVar($item[1]);
 
-                            if (!is_null($varLang))
-                                return $varLang;
-                            // no find cons, or var lang
-                            return $item[1];
-                        }
-                    };
+                    if (!is_null($varLang))
+                        return $varLang;
+                    // no find cons, or var lang
+                    return $item[1];
+                }
+            };
 
             return preg_replace_callback($pattern, $callback, $value);
-        }
-        else
+        } else
             return $value;
     }
 

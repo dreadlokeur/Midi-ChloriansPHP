@@ -18,22 +18,17 @@ class Language {
 
     public static function getVar($varName, $default = null) {
         if (!Validate::isVariableName($varName))
-            throw new \Exception('language var name must be a valid variable');
+            throw new \Exception('language var name : "' . $varName . '"must be a valid variable');
 
         if (!property_exists(self::$_languageVars, $varName)) {
             Logger::getInstance()->debug('Language var ' . $varName . ' is not setted');
             return $default;
-        }
-        else
+        } else
             return Tools::castValue((string) self::$_languageVars->$varName);
     }
 
     public static function getVars() {
-        $vars = new \stdClass();
-        foreach (self::$_languageVars as $var => $va)
-            $vars->$var = self::getVar((string) $var);
-
-        return $vars;
+        return self::$_languageVars;
     }
 
     public static function setVar($name, $value, $forceReplace = false) {

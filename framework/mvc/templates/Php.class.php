@@ -17,6 +17,7 @@ class Php extends Template implements ITemplate {
     protected $_assets = array();
     protected $_vars = null;
     protected $_charset = 'UTF-8';
+    protected $_content = null;
 
     public function __construct($params) {
         if (!is_array($params))
@@ -30,7 +31,8 @@ class Php extends Template implements ITemplate {
         $this->setPath($params['path']);
         if (isset($params['charset']))
             $this->setCharset($params['charset']);
-
+        if (isset($params['autoSanitize']))
+            $this->setAutoSanitize($params['autoSanitize']);
         if (isset($params['assets']))
             $this->setAssets($params['assets']);
 
@@ -41,6 +43,10 @@ class Php extends Template implements ITemplate {
 
     public function __get($name) {
         return $this->getVar($name);
+    }
+
+    public function __isset($name) {
+        return \property_exists($this->_vars, $name);
     }
 
     public function setName($name) {
@@ -90,7 +96,8 @@ class Php extends Template implements ITemplate {
             throw new \Exception('Name of variable must be a valid variable name');
         if (!$forceReplace && property_exists($this->_vars, $name))
             throw new \Exception('Variable "' . $name . '" already defined in template');
-        $this->_vars->{$name} = $safeValue ? $value : $this->_sanitize($value);
+        $this->_vars->{$name} = $safeValue || !$this->getAutoSanitize() ? $value : $this->sanitize($value, $name);
+
         Logger::getInstance()->debug('Add var : "' . $name . '"', $this->_name);
         return $this;
     }
@@ -146,14 +153,33 @@ class Php extends Template implements ITemplate {
     }
 
     public function parse() {
-        Logger::getInstance()->debug('Parse', $this->_name);
+        ob_start();
+        try {
+            if (!is_null($this->_file)) {
+                include($this->_path . $this->_file);
+                $this->_content = ob_get_clean();
+            }
+        } catch (\Exception $e) {
+            ob_end_clean();
+            throw $e;
+        }
+        Logger::getInstance()->debug('Parse template file', $this->_name);
     }
 
     public function display() {
-        if (is_null($this->_file))
-            return false;
+        echo $this->getContent();
+    }
 
-        return include($this->_path . $this->_file);
+    public function getContent($autoParse = true) {
+        if ($this->_content === null && $autoParse)
+            $this->parse();
+
+        return $this->_content;
+    }
+
+    public function reset() {
+        $this->_content = null;
+        $this->purgeVars();
     }
 
     public function getUrl($routeName, $vars = array(), $lang = null, $ssl = false) {
@@ -183,21 +209,6 @@ class Php extends Template implements ITemplate {
 
     public function getJs() {
         return $this->_js;
-    }
-
-    protected function _sanitize($value) {
-        if (is_array($value)) {
-            foreach ($value as &$v)
-                $v = $this->_sanitize($v);
-        } elseif (is_object($value)) {
-            $reflexion = new \ReflectionObject($value);
-            $properties = $reflexion->getProperties(\ReflectionProperty::IS_PUBLIC);
-            foreach ($properties as &$propertie)
-                $value->{$propertie->name} = $this->_sanitize($value->{$propertie->name});
-        } elseif (is_string($value))
-            $value = htmlspecialchars(htmlspecialchars_decode($value, ENT_QUOTES), ENT_QUOTES, $this->_charset);
-
-        return $value;
     }
 
 }

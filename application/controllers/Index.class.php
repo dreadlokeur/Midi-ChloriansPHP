@@ -16,7 +16,7 @@ class Index extends Controller {
 
     public function setAjax($check = false) {
         if (!Http::isAjaxRequest() && $check)
-            Http::redirect(Router::getUrl('index'));
+            Http::redirect($this->router->getUrl('index'));
 
         if (Http::isAjaxRequest())
             $this->setAjaxController();

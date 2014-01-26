@@ -12,6 +12,7 @@
     <meta http-equiv="Cache-Control" content="public;max-age=315360000" />
     <meta name="Revisit-After" content="7 days" />
     <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="<?php echo $this->urls->index; ?>">
     <link rel="icon" href="<?php echo $this->getUrlAsset('img'); ?>favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="<?php echo $this->getUrlAsset('img'); ?>favicon.ico" type="image/x-icon" />
     <style media="screen" type="text/css"><?php echo $this->getCss(); ?></style>
@@ -20,8 +21,11 @@
     <![endif]-->
     <!--[if lt IE 9]>
             <script src="<?php echo $this->getUrlAsset('js'); ?>no-autoload/html5.js"></script>
-            <link rel="stylesheet" href="<?php echo $this->getUrlAsset('css'); ?>no-autoload/ie.css"> 
+            <script scr="<?php echo $this->getUrlAsset('js'); ?>no-autoload/respond.js"></script>
     <![endif]-->
+    <!--[if IE]>
+            <link rel="stylesheet" href="<?php echo $this->getUrlAsset('css'); ?>no-autoload/ie.css"> 
+    <!--[endif]-->
 <?php if (defined('GOOGLE_UA')) { ?>
         <script type="text/javascript">
             var _gaq = _gaq || [];

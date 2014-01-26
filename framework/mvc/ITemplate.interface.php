@@ -46,9 +46,19 @@ interface ITemplate {
 
     public function display();
 
+    public function getContent($autoParse = true);
+
+    public function reset();
+
     public function getUrl($routeName, $vars = array(), $lang = null, $ssl = false);
 
     public function getUrlAsset($type, $ssl = false);
+
+    public function setAutoSanitize($sanitize);
+
+    public function getAutoSanitize();
+
+    public function sanitize($value, $name);
 }
 
 ?>

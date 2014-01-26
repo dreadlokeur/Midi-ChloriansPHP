@@ -24,6 +24,13 @@ abstract class Controller {
     protected $_ajaxDatas = '';
     protected $_ajaxDatasType = self::JSON;
     protected $_ajaxDatasCache = false;
+    protected $_ajaxAutoAddDatas = array(
+        'content' => false,
+        'post' => false,
+        'query' => false,
+        'cookie' => false
+    );
+    protected $_errors = array();
 
     public function isTemplateInitialized() {
         return $this->_templateInitialized;
@@ -41,13 +48,13 @@ abstract class Controller {
 
         $this->_template = $tpl;
         // Set langs/urls vars into tpl
-        $this->_template->setVar('urls', Router::getUrls(Language::getInstance()->getLanguage(), Http::isHttps()), false, true);
-        $this->_template->setVar('langs', Language::getVars(), false, true);
-        $this->_template->setVar('lang', Language::getInstance()->getLanguage(), false, true);
+        $this->_template->setVar('urls', Router::getUrls($this->language->getLanguage(), Http::isHttps()), false, true);
+        $this->_template->setVar('langs', $this->language->getVars(), false, true);
+        $this->_template->setVar('lang', $this->language->getLanguage(), false, true);
         //init assets
         $this->_template->initAssets();
         $this->_templateInitialized = true;
-        Logger::getInstance()->debug('Initialize template', 'router');
+        $this->log->debug('Initialize template', 'router');
     }
 
     public function __get($name) {
@@ -70,7 +77,31 @@ abstract class Controller {
     }
 
     public function display() {
+        if ($this->hasErrors())
+            $this->tpl->set('errors', $this->getErrors());
+        if ($this->tpl->post === null)
+            $this->tpl->setVar('post', Http::getPost(), false, true);
+        if ($this->tpl->query === null)
+            $this->tpl->setVar('query', Http::getQuery(), false, true);
+        if ($this->tpl->cookie === null)
+            $this->tpl->setVar('cookie', Http::getCookie(), false, true);
+        $this->tpl->setVar('notifyInformation', $this->session->get('notifyInformation'), false, true);
+        $this->tpl->setVar('notifyError', $this->session->get('notifyError'), false, true);
+        $this->tpl->setVar('notifySuccess', $this->session->get('notifySuccess'), false, true);
+
+
         if ($this->_isAjax) {
+            if ($this->hasErrors())
+                $this->addAjaxDatas('errors', $this->getErrors());
+            if ($this->_ajaxAutoAddDatas['post'] && !array_key_exists('post', $this->_ajaxDatas))
+                $this->addAjaxDatas('post', Http::getPost());
+            if ($this->_ajaxAutoAddDatas['query'] && !array_key_exists('query', $this->_ajaxDatas))
+                $this->addAjaxDatas('query', Http::getQuery());
+            if ($this->_ajaxAutoAddDatas['cookie'] && !array_key_exists('cookie', $this->_ajaxDatas))
+                $this->addAjaxDatas('cookie', Http::getCookie());
+            if ($this->_ajaxAutoAddDatas['content'] && !array_key_exists('content', $this->_ajaxDatas))
+                $this->addAjaxDatas('content', $this->tpl->getContent());
+
             // No cache
             if (!$this->_ajaxDatasCache) {
                 Header::sentHeader('Cache-Control', 'no-cache, must-revalidate');
@@ -93,17 +124,17 @@ abstract class Controller {
                     break;
                 default:
                     throw new \Exception('Ajax datas type not valid');
-                    break;
             }
         } else {
-            if (!$this->_templateInitialized)//try init
-                $this->initTemplate();
-
-            if ($this->_templateInitialized) {
-                if ($this->_template->display())
-                    Logger::getInstance()->debug('Display template file : "' . $this->_template->getFile() . '"', 'router');
-            }
+            //display
+            $this->tpl->display();
+            $this->log->debug('Display template file : "' . $this->tpl->getFile() . '"', 'router');
         }
+
+        // Delete stored messages
+        $this->session->delete('notifyInformation', true);
+        $this->session->delete('notifyError', true);
+        $this->session->delete('notifySuccess', true);
     }
 
     public function setAutoCallDisplay($autoCallDisplay) {
@@ -116,7 +147,10 @@ abstract class Controller {
         return $this->_autoCallDisplay;
     }
 
-    public function setAjaxController($ajaxDatasType = self::JSON, $desactivateLoggerDisplayer = true, $ajaxDatasCache = false) {
+    public function setAjaxController($ajaxDatasType = self::JSON, $desactivateLoggerDisplayer = true, $ajaxDatasCache = false, $ajaxAutoAddDatas = array()) {
+        if (!Http::isAjaxRequest())
+            $this->log->debug('Trying set controller on ajax when resquest isn\'t ajax', 'router');
+
         if ($ajaxDatasType != self::HTML && $ajaxDatasType != self::XML && $ajaxDatasType != self::JSON)
             throw new \Exception('ajax datas type parameter must be a valid data type : htmt(1), xml(2) or json(3)');
         if (!is_bool($ajaxDatasCache))
@@ -126,22 +160,89 @@ abstract class Controller {
         $this->_ajaxDatasType = $ajaxDatasType;
         $this->_isAjax = true;
         if ($desactivateLoggerDisplayer) {
-            $logger = Logger::getInstance();
-            $displayer = $logger->getObservers('display');
+            $displayer = $this->log->getObservers('display');
             if (!is_null($displayer)) {
                 $displayer->setActivated(false);
-                $logger->detach($displayer);
+                $this->log->detach($displayer);
             }
         }
+        if (!is_array($ajaxAutoAddDatas))
+            throw new \Exception('ajaxAutoAddDatasparameter must be a boolean');
+        if (!empty($ajaxAutoAddDatas))
+            $this->setAjaxAutoAddDatas(extract($ajaxAutoAddDatas));
+
+        $this->log->debug('Set controller in ajax', 'router');
     }
 
-    public function isAjaxController($bool) {
-        $this->_isAjax = $bool;
+    public function setAjaxAutoAddDatas($content = false, $post = false, $query = false, $cookie = false) {
+        if (!$this->isAjaxController())
+            return;
+
+        if (!is_bool($content) || !is_bool($post) || !is_bool($query) || !is_bool($cookie))
+            throw new \Exception('ajaxAutoAddDatas parameters must be a boolean');
+
+        if ($content)
+            $this->_ajaxAutoAddDatas['content'] = $content;
+        if ($post)
+            $this->_ajaxAutoAddDatas['post'] = $content;
+        if ($query)
+            $this->_ajaxAutoAddDatas['query'] = $content;
+        if ($cookie)
+            $this->_ajaxAutoAddDatas['cookie'] = $content;
+    }
+
+    public function isAjaxController() {
+        return $this->_isAjax;
     }
 
     public function addAjaxDatas($key, $datas) {
         $this->_ajaxDatas[$key] = $datas;
         return $this;
+    }
+
+    public function notifyInformation($title, $details = array()) {
+        if (!is_array($details))
+            throw new \Exception('Details parameters must be an array');
+        $object = new \stdClass();
+        $object->heading = $title;
+        if (count($details) > 0)
+            $object->messages = $details;
+        $this->session->addVariable('notifyInformation', $object, true);
+    }
+
+    public function notifyError($title, $details = array()) {
+        if (!is_array($details))
+            throw new \Exception('Details parameters must be an array');
+        $object = new \stdClass();
+        $object->heading = $title;
+        if (count($details) > 0)
+            $object->messages = $details;
+        $this->session->addVariable('notifyError', $object, true);
+    }
+
+    public function notifySuccess($title, $details = array()) {
+        if (!is_array($details))
+            throw new \Exception('Details parameters must be an array');
+        $object = new \stdClass();
+        $object->heading = $title;
+        if (count($details) > 0)
+            $object->messages = $details;
+        $this->session->addVariable('notifySuccess', $object, true);
+    }
+
+    public function addError($error, $key = null) {
+        if ($key === null)
+            $this->_errors[] = $error;
+        else
+            $this->_errors[$key] = $error;
+    }
+
+    public function getErrors() {
+        return $this->_errors;
+    }
+
+    public function hasErrors() {
+        return (boolean) count($this->_errors);
     }
 
 }

@@ -15,7 +15,7 @@ class Router {
 
     use \framework\pattern\Singleton;
 
-    protected static $_routes = array();
+    protected static $_routes = null;
     protected static $_host = '';
     protected $_controllersNamespace = 'controllers';
     protected $_namespaceSeparator = '\\';
@@ -41,26 +41,27 @@ class Router {
         if (!is_string($name) && !is_int($name))
             throw new \Exception('Route name must be string or integer');
 
-
-        if (array_key_exists($name, self::$_routes)) {
+        if (method_exists(self::$_routes, $name)) {
             if (!$forceReplace)
                 throw new \Exception('Route : "' . $name . '" already defined');
 
             Logger::getInstance()->debug('Route : "' . $name . '" already defined, was overloaded');
         }
+        if (!is_object(self::$_routes))
+            self::$_routes = new \stdClass();
 
-        self::$_routes[$name] = new \stdClass();
-        self::$_routes[$name]->name = $name;
-        self::$_routes[$name]->forceSsl = $forceSsl;
-        self::$_routes[$name]->regex = $regex;
-        self::$_routes[$name]->controller = $controller;
-        self::$_routes[$name]->rules = $rules;
-        self::$_routes[$name]->methods = $methods;
+        self::$_routes->$name = new \stdClass();
+        self::$_routes->$name->name = $name;
+        self::$_routes->$name->forceSsl = $forceSsl;
+        self::$_routes->$name->regex = $regex;
+        self::$_routes->$name->controller = $controller;
+        self::$_routes->$name->rules = $rules;
+        self::$_routes->$name->methods = $methods;
     }
 
     public static function getRoute($routeName) {
         if (array_key_exists($routeName, self::$_routes))
-            return self::$_routes[$routeName];
+            return self::$_routes->$routeName;
 
         return false;
     }
@@ -76,59 +77,81 @@ class Router {
             if (!$route->controller)
                 throw new \Exception('Route : "' . $routeName . '" missing datas : controller');
 
-            $methods = isset($route->methods) ? $route->methods : array();
             Logger::getInstance()->debug('Run route : "' . $routeName . '"', 'router');
-            $this->runController($route->controller, $methods, $vars);
+            $this->runController($route->controller, $route->methods, $vars);
         }
         if ($die)
             exit();
     }
 
-    public static function getUrl($routeName, $vars = array(), $lang = null, $ssl = false, $default = '') {
+    public static function getUrl($routeName, $vars = array(), $lang = null, $ssl = false, $ruleNumber = null, $varsSeparator = '/', $default = '') {
         $route = self::getRoute($routeName);
-        //index url
-        if ($routeName == 'index')
-            return self::getHost(true, $ssl);
 
-        //no exist route, or empty rules
-        if (!$route || empty($route->rules))
+        if (!is_array($vars))
+            throw new \Exception('Route : "' . $routeName . '" vars must be an array');
+
+        //no exist route
+        if (!$route)
             return $default;
 
+        //config lang and ssl
         if ($lang === null)
             $lang = Language::getInstance()->getLanguage();
+        if ($route->forceSsl)
+            $ssl = true;
 
-        $url = '';
-        $matched = false;
+        if (empty($route->rules))
+            return self::getHost(true, $ssl);
+
+        $ruleCount = 0;
         foreach ($route->rules as &$rule) {
-            $args = preg_split('#(\(.+\))#iuU', $rule);
-            foreach ($args as $key => $value) {
-                // only one rule
-                if (count($route->rules) == 1)
-                    $matched = true;
-                //match by lang
-                elseif ($lang !== null && $key == 0 && $lang . '/' == $value)
-                    $matched = true;
+            $matchedRule = self::_matchRule($route, $rule, $lang, $vars, $varsSeparator, $ruleNumber, $ruleCount);
+            if ($matchedRule !== false)
+                break;
 
-                if ($matched) {
-                    $url = $value . ((array_key_exists($key, $vars) && $route->regex ? rawurlencode($vars[$key]) : ''));
-                    break;
-                }
-            }
+            $ruleCount++;
         }
-        if ($matched) {
-            if ($route->forceSsl)
-                $ssl = true;
+        // no matched rule, return rule 1
+        $matchedRule = self::_matchRule($route, $rule, $lang, $vars, $varsSeparator, 1, 1);
 
-            return self::getHost(true, $ssl) . $url;
-        }
+        if ($matchedRule !== false)
+            return self::getHost(true, $ssl) . $matchedRule;
 
         return $default;
     }
 
+    protected static function _matchRule($route, $rule, $lang, $vars, $varsSeparator, $ruleNumber, $ruleCount) {
+        $matched = false;
+        $url = '';
+        $args = preg_split('#(\(.+\))#iuU', $rule);
+        foreach ($args as $key => $value) {
+            //match by lang
+            if ($lang !== null && $key == 0 && ($lang . $varsSeparator == $value || $lang == $value))
+                $matched = true;
+            // only one rule or rule number
+            elseif (count($route->rules) == 1 || $ruleNumber === $ruleCount)
+                $matched = true;
+
+            //add argument (if exist)
+            if ($matched) {
+                $arg = array_key_exists($key, $vars) && $route->regex ? rawurlencode($vars[$key]) : '';
+                //empty arg
+                if ($arg == '' && $value == $varsSeparator)
+                    continue;
+
+                $url .= $value . $arg;
+            }
+        }
+        if (!empty($url))
+            return rtrim($url, $varsSeparator);
+
+        return $matched;
+    }
+
     public static function getUrls($lang = null, $ssl = false) {
-        $urls = array();
+        $urls = new \stdClass();
         foreach (self::$_routes as $route)
-            $urls[$route->name] = self::getUrl($route->name, array(), $lang, $ssl);
+            $urls->{$route->name} = self::getUrl($route->name, array(), $lang, $ssl);
 
         return $urls;
     }
@@ -147,10 +170,8 @@ class Router {
         if ($stripFirstSlash)
             $host = ltrim($host, '/');
 
-
         if ($url)
-            return ($ssl ? 'https://' : 'http://') . $host;
-
+            return 'http' . ($ssl ? 's' : '') . '://' . $host;
 
         return $host;
     }
@@ -241,6 +262,10 @@ class Router {
             throw new \Exception('Controller "' . $controller . '" not found');
         $controller = $this->getControllersNamespace(true) . $controller;
 
+        if (!is_array($vars))
+            throw new \Exception('Controller : "' . $controller . '" vars must be an array');
+        if (!is_array($methods))
+            throw new \Exception('Controller : "' . $controller . '" methodes must be an array');
 
         $inst = new \ReflectionClass($controller);
         if ($inst->isInterface() || $inst->isAbstract())
@@ -261,15 +286,21 @@ class Router {
                     throw new \Exception('Method "' . $methodName . '" don\'t exists or isn\'t public on controller "' . $controller . '"');
 
                 $args = array();
-                if ($methodParams) {
+                if (!is_array($methodParams))
+                    $args[] = $methodParams;
+                else {
                     foreach ($methodParams as $parameter) {
-                        if (count($vars) > 0) {
-                            $key = (int) str_replace(array('[', ']'), '', $parameter);
-                            if (array_key_exists($key, $vars))
-                                $args[] = $vars[$key];
-                        }
-                        else
+                        //check if is [['key']] type, or direct value
+                        if (stripos($parameter, '[[') === false)
                             $args[] = $parameter;
+                        else {
+                            if (count($vars) > 0) {
+                                $key = (int) str_replace(array('[', ']'), '', $parameter);
+                                if (array_key_exists($key, $vars))
+                                    $args[] = $vars[$key];
+                            } else
+                                $args[] = $parameter;
+                        }
                     }
                 }
 
