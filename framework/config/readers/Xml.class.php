@@ -22,9 +22,10 @@ class Xml extends Reader {
     }
 
     public function read() {
-        $xml = @simplexml_load_file($this->_filename, null, LIBXML_COMPACT);
-        if ($xml === null || $xml === false)
+        $xml = simplexml_load_file($this->_filename, null, LIBXML_COMPACT);
+        if (is_null($xml) || !$xml)
             throw new \Exception('Invalid xml file : "' . $this->_filename . '"');
+        
         //delete comment
         unset($xml->comment);
 

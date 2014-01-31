@@ -82,13 +82,13 @@ class Language {
         $file = self::getDatasPath() . $language . '.xml';
         if (!file_exists($file))
             throw new \Exception('Invalid lang : "' . $language . '", have not xml datas file');
-        $xml = @simplexml_load_file($file);
-        if ($xml === null || $xml === false)
+        $xml = simplexml_load_file($file);
+        if (is_null($xml) || !$xml)
             throw new \Exception('Invalid lang : "' . $language . '" invalid xml file');
+        
         Logger::getInstance()->debug('Load datas file : "' . $file . '"', 'language');
         //delete comment
         unset($xml->comment);
-
         // set language
         self::$_languageVars = $xml;
         $this->_language = $language;

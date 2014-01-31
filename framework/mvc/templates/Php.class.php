@@ -158,12 +158,12 @@ class Php extends Template implements ITemplate {
             if (!is_null($this->_file)) {
                 include($this->_path . $this->_file);
                 $this->_content = ob_get_clean();
+                Logger::getInstance()->debug('Parse template file', $this->_name);
             }
         } catch (\Exception $e) {
             ob_end_clean();
             throw $e;
         }
-        Logger::getInstance()->debug('Parse template file', $this->_name);
     }
 
     public function display() {

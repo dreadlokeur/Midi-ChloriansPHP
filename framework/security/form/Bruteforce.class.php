@@ -11,10 +11,13 @@ class Bruteforce implements IForm {
     protected $_formName = '';
 
     public function __construct($options = array()) {
-        
+        throw new \Exception('Not yet');
     }
 
     public function setFormName($name) {
+        if (!Validate::isVariableName($name))
+            throw new \Exception('Form name must be a valid variable name');
+
         $this->_formName = $name;
     }
 
@@ -38,11 +41,7 @@ class Bruteforce implements IForm {
         
     }
 
-    public function check($checkingValue, $addAttempt = true) {
-        
-    }
-
-    public function addAttempt($attemptInfo = '') {
+    public function check($checkingValue, $flush = true) {
         
     }
 

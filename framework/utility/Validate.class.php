@@ -264,13 +264,15 @@ class Validate {
         else {
             if (file_exists(PATH_DATA . 'charset.xml')) {
                 $charsetList = simplexml_load_file(PATH_DATA . 'charset.xml');
+                if (is_null($charsetList) || !$charsetList)
+                    throw new \Exception('Invalid charset datas file : "' . PATH_DATA . '' . 'charset.xml"');
+
                 foreach ($charsetList->charset as $char) {
                     if ($char == $charset)
                         return true;
                 }
                 return false;
-            }
-            else
+            } else
                 throw new \Exception('Please set charset list data');
         }
     }
@@ -282,14 +284,16 @@ class Validate {
             return (in_array($language, $languageList));
         else {
             if (file_exists(PATH_DATA . 'language.xml')) {
-                $languageList = @simplexml_load_file(PATH_DATA . 'language.xml');
+                $languageList = simplexml_load_file(PATH_DATA . 'language.xml');
+                if (is_null($languageList) || !$languageList)
+                    throw new \Exception('Invalid language datas file : "' . PATH_DATA . '' . 'language.xml"');
+
                 foreach ($languageList as $lang) {
                     if ($lang == $language)
                         return true;
                 }
                 return false;
-            }
-            else
+            } else
                 throw new \Exception('Please set language list data');
         }
     }
@@ -301,14 +305,16 @@ class Validate {
             return (in_array($timezone, $timezoneList));
         else {
             if (file_exists(PATH_DATA . 'timezone.xml')) {
-                $timezoneList = @simplexml_load_file(PATH_DATA . 'Timezone.xml');
+                $timezoneList = simplexml_load_file(PATH_DATA . 'timezone.xml');
+                if (is_null($timezoneList) || !$timezoneList)
+                    throw new \Exception('Invalid timezone datas file : "' . PATH_DATA . '' . 'timezone.xml"');
+
                 foreach ($timezoneList as $zone) {
                     if ($zone == $timezone)
                         return true;
                 }
                 return false;
-            }
-            else
+            } else
                 throw new \Exception('Please set Timezone list data');
         }
     }
@@ -323,30 +329,36 @@ class Validate {
         return preg_match('`[0-9]{5}`', $codePostal);
     }
 
-    /**
-     * Permet de verifier si une email est une mail bannis dans la liste de wanted_email
-     *
-     * @access public
-     * @static
-     * @param <void>
-     * @return <bool>
-     */
-    public static function isWantedEmail($value, $file = null) {
-        //On prend la valeur après le "@"
-        preg_match('/[^@]+$/', $value, $matches);
-        if ($file !== null) {
-            if (!file_exists($file))
-                throw new \Exception('file don\'t exists');
-            $xml = @simplexml_load_file(PATH_DATA . 'wantedEmail.xml');
-        }
-        else
-            $xml = @simplexml_load_file(PATH_DATA . 'wantedEmail.xml');
+    public static function isWantedEmail($email, $byDomain = true, $wantedEmailList = array()) {
+        if (!self::isEmail($email))
+            throw new \Exception('Email must be a valid email');
+        if (!is_bool($byDomain))
+            throw new \Exception('By domain must be an boolen');
 
-        if (!$xml)
-            throw new \Exception('invalid xml file');
+        if (!is_array($wantedEmailList))
+            throw new \Exception('wantedEmailList must be an array');
+
+        if (empty($wantedEmailList)) {
+            if (file_exists(PATH_DATA . 'wantedEmail.xml')) {
+                $wantedEmailList = simplexml_load_file(PATH_DATA . 'wantedEmail.xml');
+                if (is_null($wantedEmailList) || !$wantedEmailList)
+                    throw new \Exception('Invalid wantedEmail datas file : "' . PATH_DATA . '' . 'wantedEmail.xml"');
+
+                $wantedEmailList = $wantedEmailList->email;
+            } else
+                throw new \Exception('Please set wantedEmail list datas');
+        }
+
+        if ($byDomain) {
+            //On prend la valeur après le "@"
+            preg_match('/[^@]+$/', $email, $matches);
+            $wanted = $matches[0];
+        } else
+            $wanted = $email;
+
         //Check into wanted email list
-        for ($i = 0; $i < count($xml->wanted_email); $i++) {
-            if ($xml->wanted_email[$i] == $matches[0])
+        for ($i = 0; $i < count($wantedEmailList); $i++) {
+            if ($wantedEmailList[$i] == $wanted)
                 return true;
         }
         return false;

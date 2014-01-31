@@ -6,7 +6,8 @@
     <captcha>
         <regex>true</regex>
         <rules>
-            <rule>captcha/([0-9]+)/([a-z]+)</rule>
+            <rule>captcha/([0-9a-zA-Z]+)/([a-z]+)</rule>
+            <rule>captcha/([0-9a-zA-Z]+)/([a-z]+)/([0-9]+)</rule>
         </rules>
         <controller>index</controller>
         <methods>

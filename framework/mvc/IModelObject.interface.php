@@ -4,7 +4,7 @@ namespace framework\mvc;
 
 interface IModelObject {
 
-    public function __construct($datas = array());
+    public function __construct();
 
     public function hydrate($datas = array());
 }

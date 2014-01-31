@@ -14,6 +14,7 @@ use framework\Session;
 use framework\mvc\Router;
 use framework\network\http\Header;
 use framework\utility\Color;
+use framework\Logger;
 
 class Captcha implements IForm {
 
@@ -98,9 +99,9 @@ class Captcha implements IForm {
             if (!file_exists($options['dataFile']) || !Validate::isFileMimeType('xml', $options['dataFile']))
                 throw new \Exception('Security captcha invalid data file');
 
-            $xml = @simplexml_load_file($options['dataFile']);
-            if ($xml === null || $xml === false)
-                throw new \Exception('Security captcha invalid data xml file');
+            $xml = simplexml_load_file($options['dataFile']);
+            if (is_null($xml) || !$xml)
+                throw new \Exception('Security captcha invalid data xml file : "' . $options['dataFile'] . '"');
 
             // Casting options into xml data file
             $optionsData = $xml->option;
@@ -130,6 +131,9 @@ class Captcha implements IForm {
     }
 
     public function setFormName($name) {
+        if (!Validate::isVariableName($name))
+            throw new \Exception('Form name must be a valid variable name');
+
         $this->_formName = $name;
     }
 
@@ -151,6 +155,7 @@ class Captcha implements IForm {
 
         // Put into session (locked)
         $session->add($this->getFormName() . 'Captcha', $this->_key, true, true);
+        Logger::getInstance()->debug('Captcha : "' . $this->getFormName() . '" create key value : "' . $this->_key . '"', 'security');
     }
 
     public function set() {
@@ -184,22 +189,17 @@ class Captcha implements IForm {
         $this->_audioContents = null;
     }
 
-    public function check($checkingValue, $flush = true, $addAttempt = true) {
-        $session = Session::getInstance();
-        $realValue = $session->get($this->getFormName() . 'Captcha');
+    public function check($checkingValue, $flush = true) {
+        $realValue = Session::getInstance()->get($this->getFormName() . 'Captcha');
         if ($flush)
             $this->flush();
 
         if (is_null($realValue) || $realValue != $checkingValue) {
-            if ($addAttempt)
-                $this->addAttempt('Invalid captcha value : "' . $checkingValue . '"');
+            Logger::getInstance()->debug('Captcha : "' . $this->getFormName() . '" invalid captcha value : "' . $checkingValue . '" need value : "' . $realValue . '"', 'security');
             return false;
         }
-        return true;
-    }
 
-    public function addAttempt($attemptInfo = '') {
-        Logger::getInstance()->debug('Captcha : "' . $this->getFormName() . '" attempt, information : "' . $attemptInfo . '"', 'security');
+        return true;
     }
 
     public function setLength($lengh) {
@@ -527,8 +527,6 @@ class Captcha implements IForm {
     }
 
     public function setImageDistortion($type, $level) {
-        //TODO
-        throw new \Exception('Distortion not yet');
         if (!is_int($type) || $type < 0 || $type > 2)
             throw new \Exception('Distortion type must be an int');
         if (!is_int($level) || !is_float($level))

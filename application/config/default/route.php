@@ -8,11 +8,12 @@ $config = array(
     'captcha' => array(
         'regex' => true,
         'rules' => array(
-            'captcha/([0-9]+)/([a-z]+)'
+            'captcha/([0-9a-zA-Z]+)/([a-z]+)',
+            'captcha/([0-9a-zA-Z]+)/([a-z]+)/([0-9]+)'
         ),
         'controller' => 'index',
         'methods' => array(
-            'captcha' => array('[[1]]', '[[2]]')
+            'captcha' => array('[[1]]', '[[2]]', '[[3]]')
         )
     ),
     'language' => array(

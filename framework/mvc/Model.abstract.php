@@ -8,7 +8,7 @@ abstract class Model {
 
     protected $_modelDBName = '';
     protected $_modelDBTable = '';
-    
+
     // Find type
     const FIND_LIKE = 'LIKE';
     const FIND_EQUAL = '=';
@@ -20,7 +20,7 @@ abstract class Model {
     const ORDER_BY_DESC = 'DESC';
     const ORDER_BY_ASC = 'ASC';
 
-    public static function factoryManager($name, $datas = array()) {
+    public static function factoryManager($name, $dbName, $dbTable) {
         // Factory model
         if (!is_string($name))
             throw new \Exception('Model name must be a string');
@@ -34,10 +34,10 @@ abstract class Model {
         if (!in_array('framework\\mvc\\IModelManager', $inst->getInterfaceNames()))
             throw new \Exception('Model class must be implement framework\mvc\IModelManager');
 
-        if (is_array($datas))
-            return $inst->newInstanceArgs($datas);
-
-        return $inst->newInstance($datas);
+        $manager = $inst->newInstance();
+        $manager->setModelDBName($dbName);
+        $manager->setModelDBTable($dbTable);
+        return $manager;
     }
 
     public static function factoryObject($name, $datas = array()) {
@@ -54,7 +54,9 @@ abstract class Model {
         if (!in_array('framework\\mvc\\IModelObject', $inst->getInterfaceNames()))
             throw new \Exception('Model class must be implement framework\mvc\IModelObject');
 
-        return $inst->newInstance($datas);
+        $manager = $inst->newInstance();
+        $manager->hydrate($datas);
+        return $manager;
     }
 
     public static function isValidFindType($findType) {
@@ -124,27 +126,16 @@ abstract class Model {
         switch ($typeVal) {
             case 'boolean':
                 return self::PARAM_BOOL;
-                break;
             case 'integer':
             case 'double':
                 return self::PARAM_INT;
-                break;
             case 'string':
                 return self::PARAM_STR;
-                break;
-                break;
             case 'NULL':
                 return self::PARAM_NULL;
-                break;
             default:
                 return false;
-                break;
         }
-    }
-
-    public function __construct($dbName, $dbTable) {
-        $this->setModelDBName($dbName);
-        $this->setModelDBTable($dbTable);
     }
 
     public function hydrate($datas = array()) {

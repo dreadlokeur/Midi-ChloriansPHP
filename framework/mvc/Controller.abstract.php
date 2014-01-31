@@ -28,7 +28,7 @@ abstract class Controller {
         'content' => false,
         'post' => false,
         'query' => false,
-        'cookie' => false
+        'cookie' => false,
     );
     protected $_errors = array();
 
@@ -78,7 +78,7 @@ abstract class Controller {
 
     public function display() {
         if ($this->hasErrors())
-            $this->tpl->set('errors', $this->getErrors());
+            $this->tpl->setVar('errors', $this->getErrors());
         if ($this->tpl->post === null)
             $this->tpl->setVar('post', Http::getPost(), false, true);
         if ($this->tpl->query === null)
@@ -101,6 +101,12 @@ abstract class Controller {
                 $this->addAjaxDatas('cookie', Http::getCookie());
             if ($this->_ajaxAutoAddDatas['content'] && !array_key_exists('content', $this->_ajaxDatas))
                 $this->addAjaxDatas('content', $this->tpl->getContent());
+            if (!array_key_exists('notifyInformation', $this->_ajaxDatas))
+                $this->addAjaxDatas('notifyInformation', $this->session->get('notifyInformation'));
+            if (!array_key_exists('notifyError', $this->_ajaxDatas))
+                $this->addAjaxDatas('notifyError', $this->session->get('notifyError'));
+            if (!array_key_exists('notifySuccess', $this->_ajaxDatas))
+                $this->addAjaxDatas('notifySuccess', $this->session->get('notifySuccess'));
 
             // No cache
             if (!$this->_ajaxDatasCache) {
@@ -207,7 +213,7 @@ abstract class Controller {
         $object->heading = $title;
         if (count($details) > 0)
             $object->messages = $details;
-        $this->session->addVariable('notifyInformation', $object, true);
+        $this->session->add('notifyInformation', $object, true);
     }
 
     public function notifyError($title, $details = array()) {
@@ -217,7 +223,7 @@ abstract class Controller {
         $object->heading = $title;
         if (count($details) > 0)
             $object->messages = $details;
-        $this->session->addVariable('notifyError', $object, true);
+        $this->session->add('notifyError', $object, true);
     }
 
     public function notifySuccess($title, $details = array()) {
@@ -227,7 +233,7 @@ abstract class Controller {
         $object->heading = $title;
         if (count($details) > 0)
             $object->messages = $details;
-        $this->session->addVariable('notifySuccess', $object, true);
+        $this->session->add('notifySuccess', $object, true);
     }
 
     public function addError($error, $key = null) {

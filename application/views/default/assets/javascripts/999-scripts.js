@@ -1,43 +1,49 @@
 (function($) {
-    $.extend({
-        refreshCaptcha: function(url, name) {
+    jQuery(document).ready(function($) {
+        //refresh captcha
+        $("body").on("click", ".refresh-captcha", function() {
+            refreshCaptcha($(this).find(".captach-image"), $(this).attr('href'));
+            return false;
+        });
+        function refreshCaptcha(img, url) {
             $.ajax({
                 type: 'GET',
                 url: url,
                 dataType: 'json',
                 success: function(datas) {
-                    if (datas.imageUrl && $('#captcha-' + name + '-scr-img').length > 0)
-                        document.getElementById('captcha-' + name + '-scr-img').src = datas.imageUrl + '/' + Math.floor(Math.random() * 100);
-
-                    if (datas.audioUrl && $('#captcha-' + name + '-scr-audio').length)
-                        $('#captcha-' + name + '-scr-audio').remove();
-                    //document.getElementById('captcha-'+arguments[1]+'-scr-audio').src = datas.audioUrl+'/' +Math.floor(Math.random()*14);
+                    if (datas.imageUrl && img !== "undefined")
+                        img.attr("src", datas.imageUrl + '/' + Math.floor(Math.random() * 100));
                 }
             });
-        },
-        playCaptcha: function(url, name) {
-            if ($.browser.msie)
-                return $('<embed id="captcha-' + name + '-scr-audio" src="' + url + '/' + Math.floor(Math.random() * 100) + '" hidden="true">').appendTo('body');
-            else
-                return $('<audio id="captcha-' + name + '-scr-audio" src="' + url + '/' + Math.floor(Math.random() * 100) + '" hidden="true" autoplay="true"></audio>').appendTo('body');
         }
+
+        //refresh audio captcha
+        $("body").on("click", ".play-captcha", function() {
+            $(this).find(".captach-audio").remove();
+            if ($.browser.msie) {
+                $(this).append('<embed src="' + $(this).attr('href') + '/' + Math.floor(Math.random() * 100) + '" hidden="true" class="captach-audio">').appendTo('body');
+            } else {
+                $(this).append('<audio src="' + $(this).attr('href') + '/' + Math.floor(Math.random() * 100) + '" hidden="true" autoplay="true" class="captach-audio"></audio>');
+            }
+
+            return false;
+        });
+        
+        // language updater
+        $('.updateLanguage').click(function() {
+            var language = $(this).attr('id');
+            if (language === $('html').attr("lang"))
+                return false;
+            $.ajax({
+                type: 'GET',
+                url: urls['language'] + '/' + language,
+                dataType: 'json',
+                success: function(datas) {
+                    if (datas.updated === true)
+                        window.location.replace(urls['index']);
+                }
+            });
+            return false;
+        });
     });
 })(jQuery);
-jQuery(document).ready(function($) {
-    // language updater
-    $('.updateLanguage').click(function() {
-        var language = $(this).attr('id');
-        if (language === $('html').attr("lang"))
-            return false;
-        $.ajax({
-            type: 'GET',
-            url: urls['language'] + '/' + language,
-            dataType: 'json',
-            success: function(datas) {
-                if (datas.updated === true)
-                    window.location.replace(urls['index']);
-            }
-        });
-        return false;
-    });
-});

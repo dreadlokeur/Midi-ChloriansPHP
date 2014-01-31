@@ -17,6 +17,5 @@
             <p><b><?php echo ucfirst($this->langs->debugger_line); ?></b> : <?php echo $this->error->line; ?></p>
             <p><b><?php echo ucfirst($this->langs->debugger_message); ?></b> : <?php echo $this->error->message; ?></p>
         </section>
-
     </body>
 </html>

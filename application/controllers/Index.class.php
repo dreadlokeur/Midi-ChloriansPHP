@@ -34,21 +34,21 @@ class Index extends Controller {
     }
 
     public function captcha($formName, $type) {
-        $captcha = Security::getSecurity(Security::TYPE_FORM)->getProtection(Http::getQuery($formName), Form::PROTECTION_CAPTCHA);
+        $captcha = Security::getSecurity(Security::TYPE_FORM)->getProtection($formName, Form::PROTECTION_CAPTCHA);
         if (!$captcha)
             $this->router->show404(true);
 
-        if (Http::getQuery($type) == 'refresh') {
+        if ($type == 'refresh') {
             $this->setAjaxController();
             $captcha->flush();
             $this->addAjaxDatas('imageUrl', $captcha->get('image', true));
             $this->addAjaxDatas('audioUrl', $captcha->get('audio', true));
         } else {
-            if (Http::getQuery($type) == 'image') {
+            if ($type == 'image') {
                 if (!$captcha->getImage())
                     $this->router->show404(true);
                 $captcha->get('image');
-            } elseif (Http::getQuery($type) == 'audio') {
+            } elseif ($type == 'audio') {
                 if (!$captcha->getAudio())
                     $this->router->show404(true);
                 $captcha->get('audio');

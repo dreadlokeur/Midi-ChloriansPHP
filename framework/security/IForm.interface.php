@@ -18,9 +18,7 @@ interface IForm {
 
     public function flush();
 
-    public function check($checkingValue, $addAttempt);
-
-    public function addAttempt($attemptInfo = '');
+    public function check($checkingValue, $flush = true);
 }
 
 ?>

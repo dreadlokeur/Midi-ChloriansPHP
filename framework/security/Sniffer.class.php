@@ -77,10 +77,16 @@ class Sniffer extends Security implements ISecurity {
             $ip = Tools::getUserIp();
             $userAgent = Http::getServer('HTTP_USER_AGENT');
 
-            if ($this->_badCrawlerFile)
+            if ($this->_badCrawlerFile) {
                 $badCrawlerXml = simplexml_load_file($this->_badCrawlerFile);
-            if ($this->_goodCrawlerFile)
+                if (is_null($badCrawlerXml) || !$badCrawlerXml)
+                    throw new \Exception('Invalid xml file : "' . $this->_badCrawlerFile . '"');
+            }
+            if ($this->_goodCrawlerFile) {
                 $goodCrawlerXml = simplexml_load_file($this->_goodCrawlerFile);
+                if (is_null($goodCrawlerXml) || !$goodCrawlerXml)
+                    throw new \Exception('Invalid xml file : "' . $this->_goodCrawlerFile . '"');
+            }
 
             if ($badCrawlerXml) {
                 $badCrawlerList = $badCrawlerXml->crawler;

@@ -25,7 +25,13 @@ class Php extends Reader {
         include $this->_filename;
         if (!isset($config))
             throw new \Exception('Invalid config file : "' . $this->_filename . '"');
-        return (array) $config;
+
+        //cast config
+        $datas = (array) $config;
+        //destruct var
+        unset($config);
+
+        return $datas;
     }
 
 }

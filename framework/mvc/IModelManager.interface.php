@@ -4,7 +4,7 @@ namespace framework\mvc;
 
 interface IModelManager {
 
-    public function __construct($dbName = '', $dbtable = '');
+    public function __construct();
 
     public function setModelDBName($dbName);
 
