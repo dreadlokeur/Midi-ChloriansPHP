@@ -65,7 +65,7 @@ class Csrf implements IForm {
         return $this->_token;
     }
 
-    public function check($checkingValue, $flush = true) {
+    public function check($checkingValue, $flush = false) {
         if (is_null($this->_token))
             return false;
         $tokenRealValue = Session::getInstance()->get($this->getFormName() . 'CsrfToken');

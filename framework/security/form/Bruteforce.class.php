@@ -41,7 +41,7 @@ class Bruteforce implements IForm {
         
     }
 
-    public function check($checkingValue, $flush = true) {
+    public function check($checkingValue, $flush = false) {
         
     }
 

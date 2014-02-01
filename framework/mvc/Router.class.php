@@ -312,7 +312,8 @@ class Router {
         }
 
         $this->_controller = $ctrl;
-        if ($ctrl->getAutoCallDisplay() && Template::getTemplate()) {//call display only when have a template
+        //call display only when have a template
+        if ($ctrl->getAutoCallDisplay() && Template::getTemplate()) {
             Logger::getInstance()->debug('Call method "display"', 'router');
             $ctrl->display();
         }

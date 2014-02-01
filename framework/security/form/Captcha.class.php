@@ -189,7 +189,7 @@ class Captcha implements IForm {
         $this->_audioContents = null;
     }
 
-    public function check($checkingValue, $flush = true) {
+    public function check($checkingValue, $flush = false) {
         $realValue = Session::getInstance()->get($this->getFormName() . 'Captcha');
         if ($flush)
             $this->flush();

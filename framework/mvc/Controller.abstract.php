@@ -17,7 +17,7 @@ abstract class Controller {
     const XML = 2;
     const JSON = 3;
 
-    protected $_template;
+    protected $_template = null;
     protected $_templateInitialized = false;
     protected $_autoCallDisplay = true;
     protected $_isAjax = false;
@@ -42,8 +42,10 @@ abstract class Controller {
 
         $tpl = Template::getTemplate();
         //no template
-        if (!$tpl)
+        if (!$tpl) {
+            $this->log->debug('try initialize template, but no template configured', 'router');
             return false;
+        }
 
 
         $this->_template = $tpl;
@@ -52,7 +54,8 @@ abstract class Controller {
         $this->_template->setVar('langs', $this->language->getVars(), false, true);
         $this->_template->setVar('lang', $this->language->getLanguage(), false, true);
         //init assets
-        $this->_template->initAssets();
+        if (!Http::isAjaxRequest())
+            $this->_template->initAssets();
         $this->_templateInitialized = true;
         $this->log->debug('Initialize template', 'router');
     }

@@ -80,7 +80,7 @@ class Session {
 
     protected function _generateSecurity() {
         self::_checkState();
-        return sha1(Tools::getUserIp() . Http::getServer('HTTP_USER_AGENT'));
+        return md5(Tools::getUserIp() . Http::getServer('HTTP_USER_AGENT'));
     }
 
     protected function _securityCheck() {

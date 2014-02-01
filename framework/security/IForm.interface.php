@@ -18,7 +18,7 @@ interface IForm {
 
     public function flush();
 
-    public function check($checkingValue, $flush = true);
+    public function check($checkingValue, $flush = false);
 }
 
 ?>

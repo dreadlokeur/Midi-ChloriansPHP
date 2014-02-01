@@ -22,9 +22,10 @@ class Minify {
     protected $_type = null;
     protected $_files = array();
     protected $_key = '';
+    protected $_name = '';
     protected $_content = '';
 
-    public function __construct($cacheName, $path, $type, $compress = true, $rewriteUrls = true) {
+    public function __construct($cacheName, $path, $type, $compress = true, $rewriteUrls = true, $name = '') {
         $this->setCache($cacheName);
         $this->setPath($path);
         $this->setType($type);
@@ -32,6 +33,7 @@ class Minify {
             $this->setCompress($compress);
         if ($rewriteUrls)
             $this->setRewriteUrls($rewriteUrls);
+        $this->setName($name);
     }
 
     public function setCache($cacheName) {
@@ -89,6 +91,16 @@ class Minify {
         return $this->_path;
     }
 
+    public function setName($name) {
+        if (!is_string($name))
+            throw new \Exception('Compress parameter must be a string');
+        $this->_name = $name;
+    }
+
+    public function getName() {
+        return $this->_name;
+    }
+
     public function addFile($file, $alreadyCompressed = false) {
         if (!file_exists($file) || !is_file($file))
             throw new \Exception('File ' . $file . ' don\'t exist');
@@ -107,7 +119,7 @@ class Minify {
                 $this->addFile($this->getPath() . $file);
         }
 
-        $this->_key = md5($this->getPath());
+        $this->_key = md5($this->_name . Router::getHost(true, Http::isHttps()) . $this->getPath());
         if ($this->_cacheExpired() || $forceCacheUpdate)
             $this->_generateCache();
 
@@ -120,14 +132,14 @@ class Minify {
     }
 
     protected function _cacheExpired() {
-        $content = $this->_cache->read($this->_key . 'content');
+        $content = $this->_cache->read($this->_key . 'content' . $this->_type);
         if (is_null($content))
             return true;
-        $filesList = $this->_cache->read($this->_key . 'filesList');
+        $filesList = $this->_cache->read($this->_key . 'filesList' . $this->_type);
         if (is_null($filesList) || md5(serialize($this->_files)) != $filesList)
             return true;
 
-        $filemtime = $this->_cache->read($this->_key . 'filemtime');
+        $filemtime = $this->_cache->read($this->_key . 'filemtime' . $this->_type);
         if (is_null($filemtime))
             return true;
         foreach ($this->_files as $file) {
@@ -141,9 +153,9 @@ class Minify {
 
     protected function _generateCache() {
         $content = $this->_getContent();
-        $this->_cache->write($this->_key . 'content', $content, true);
-        $this->_cache->write($this->_key . 'filesList', md5(serialize($this->_files)), true);
-        $this->_cache->write($this->_key . 'filemtime', time(), true);
+        $this->_cache->write($this->_key . 'content' . $this->_type, $content, true);
+        $this->_cache->write($this->_key . 'filesList' . $this->_type, md5(serialize($this->_files)), true);
+        $this->_cache->write($this->_key . 'filemtime' . $this->_type, time(), true);
 
         $this->_content = $content;
     }
@@ -155,12 +167,12 @@ class Minify {
                 $f = file_get_contents($file['name']);
                 if ($this->_compress && !$file['alreadyCompressed'])
                     $f = $this->_compressCss($f);
-                //rewrite url path
-                if ($this->getRewriteUrls())
-                    $f = preg_replace("#\[HOSTNAME]#", Router::getHost(true, Http::isHttps()), $f);
-
                 $content .= $f;
             }
+            //rewrite url path
+            if ($this->getRewriteUrls())
+                return preg_replace("#\[HOSTNAME]#", Router::getHost(true, Http::isHttps()), $content);
+
             return $content;
         } elseif ($this->_type == Template::ASSET_JS) {
             $notCompressed = $content = '';
@@ -170,14 +182,15 @@ class Minify {
                     // Compress file with Javascript Packer plugin
                     $packer = new JavaScriptPacker($js);
                     $notCompressed .= trim($packer->pack());
-                    //TODO rewrite urls for js
-                }
-                else
+                } else
                     $content .= $js;
 
                 if (substr($notCompressed, -1) != ';')
                     $notCompressed .= ';';
             }
+            //rewrite url path
+            if ($this->getRewriteUrls())
+                return preg_replace("#\[HOSTNAME]#", Router::getHost(true, Http::isHttps()), $content . $notCompressed);
 
             return $content . $notCompressed;
         }
