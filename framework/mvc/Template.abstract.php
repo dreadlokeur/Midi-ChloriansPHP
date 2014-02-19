@@ -34,8 +34,12 @@ abstract class Template {
         if (!is_string($name) && !is_int($name))
             throw new \Exception('Template name must be string or integer');
 
-        if (array_key_exists($name, Template::getTemplates()) && !$forceReplace)
-            throw new \Exception('Template : "' . $name . '" already defined');
+        if (array_key_exists($name, self::$_templates)) {
+            if (!$forceReplace)
+                throw new \Exception('Template : "' . $name . '" already defined');
+
+            Logger::getInstance()->debug('Template : "' . $name . '" already defined, was overloaded');
+        }
 
         self::$_templates[$name] = $template;
     }
@@ -112,7 +116,7 @@ abstract class Template {
     }
 
     public function initAssets() {
-        Logger::getInstance()->debug('Initialize assets', $this->_name);
+        Logger::getInstance()->debug('Initialize assets', 'template' . $this->_name);
         foreach ($this->_assets as $assetType => $assetDatas) {
             if (!isset($assetDatas['directory']))
                 throw new \Exception('Miss asset : "' . $assetType . '" directory for template : "' . $this->_name . '"');

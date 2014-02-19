@@ -6,7 +6,7 @@ namespace framework\security\form;
 
 use framework\security\IForm;
 
-class Bruteforce implements IForm {
+class Flood implements IForm {
 
     protected $_formName = '';
 

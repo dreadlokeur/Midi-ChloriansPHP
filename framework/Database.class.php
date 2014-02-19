@@ -4,9 +4,11 @@ namespace framework;
 
 use framework\database\Server;
 use framework\Logger;
-use framework\Application;
+use framework\database\IEngine;
 
 class Database {
+
+    use pattern\Factory;
 
     const PARAM_NULL = 0;
     const PARAM_INT = 1;
@@ -21,7 +23,6 @@ class Database {
     // bind type
     const BIND_TYPE_PARAM = 1;
     const BIND_TYPE_VALUE = 2;
-    
     //fetch style
     const FETCH_LAZY = 1;
     const FETCH_ASSOC = 2;
@@ -40,7 +41,6 @@ class Database {
     const FETCH_CLASSTYPE = 15;
     const FETCH_SERIALIZE = 16;
     const FETCH_PROPS_LATE = 17;
-
     //fetch orientation
     const FETCH_ORI_NEXT = 0;
     const FETCH_ORI_PRIOR = 1;
@@ -53,7 +53,6 @@ class Database {
     protected $_name = '';
     protected $_type = null;
     protected $_engine = null;
-    protected $_engineName = '';
     protected $_masters = array();
     protected $_slaves = array();
     protected $_stats = array('time' => 0, 'ram' => 0); //Queries totals stats
@@ -104,16 +103,7 @@ class Database {
     public function __construct($name, $engine) {
         $this->setName($name);
         $this->setEngine($engine);
-        Logger::getInstance()->addGroup($this->_name, 'Database ' . $this->_name . ' Benchmark and Informations', true, true);
-    }
-
-    public function __destruct() {
-        Logger::getInstance()->debug('Engine : ' . $this->_engineName, $this->_name);
-        if (Application::getProfiler()) {
-            $stats = $this->getStats();
-            Logger::getInstance()->debug('Queries : ' . (string) $this->_queryCount . ' (Aproximately memory used  : ' . $stats['ram'] . ' KB in aproximately ' . $stats['time'] . ' ms)', $this->_name);
-            Logger::getInstance()->debug('Servers : ' . $this->countServers() . ' (Masters : ' . $this->countServers(Server::TYPE_MASTER) . '  Slaves : ' . $this->countServers(Server::TYPE_SLAVE) . ')', $this->_name);
-        }
+        Logger::getInstance()->addGroup('database' . $this->_name, 'Database ' . $this->_name, true, true);
     }
 
     public function isValidDriver($driver) {
@@ -127,21 +117,8 @@ class Database {
         $this->_name = $name;
     }
 
-    public function setEngine($engine) {
-        if (!is_string($engine))
-            throw new \Exception('Engine parameter must be a string');
-
-        $class = 'framework\database\engines\\' . ucfirst($engine);
-        if (!class_exists($class))
-            throw new \Exception('Database engine invalid');
-
-
-        $inst = new \ReflectionClass($class);
-        if (!in_array('framework\database\IEngine', $inst->getInterfaceNames()))// check interface
-            throw new \Exception('Database engine class must be implement framework\database\IEngine');
-
-        $this->_engine = $inst->newInstance($this->_name);
-        $this->_engineName = $class;
+    public function setEngine(IEngine $engine) {
+        $this->_engine = $engine;
     }
 
     // Getters
@@ -151,6 +128,10 @@ class Database {
 
     public function getEngine() {
         return $this->_engine;
+    }
+
+    public function getQueryCount() {
+        return $this->_queryCount;
     }
 
     // Servers
@@ -172,32 +153,27 @@ class Database {
             $this->_slaves[] = $server;
     }
 
-    public function getServer($type, $dbname = false) {
+    public function getServer($type) {
         $nbServers = $this->countServers($type);
         switch ($type) {
             case Server::TYPE_MASTER:
-                if (!$dbname) {
-                    if ($nbServers == 0)
-                        throw new \Exception('Not servers exists');
-                    elseif ($nbServers == 1)
-                        return $this->_masters[0];
-                    else// Load Balancing
-                        return $this->_masters[array_rand($this->_masters)];
-                }
+                if ($nbServers == 0)
+                    throw new \Exception('Not servers exists');
+                elseif ($nbServers == 1)
+                    return $this->_masters[0];
+                else// Load Balancing
+                    return $this->_masters[array_rand($this->_masters)];
                 break;
             case Server::TYPE_SLAVE:
-                if (!$dbname) {
-                    if ($nbServers == 0)
-                        return $this->getServer(Server::TYPE_MASTER);
-                    elseif ($nbServers == 1)
-                        return $this->_slaves[0];
-                    else // Load Balancing
-                        return $this->_slaves[array_rand($this->_slaves)];
-                    break;
-                }
+                if ($nbServers == 0)
+                    return $this->getServer(Server::TYPE_MASTER);
+                elseif ($nbServers == 1)
+                    return $this->_slaves[0];
+                else // Load Balancing
+                    return $this->_slaves[array_rand($this->_slaves)];
+                break;
             default:
                 throw new \Exception('Server type ' . $type . ' don\'t exist !');
-                break;
         }
     }
 

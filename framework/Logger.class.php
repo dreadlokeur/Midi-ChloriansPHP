@@ -4,7 +4,6 @@ namespace framework;
 
 use framework\utility\Benchmark;
 use framework\Application;
-use framework\Cache as CacheManager;
 
 class Logger implements \SplSubject {
 
@@ -24,7 +23,6 @@ class Logger implements \SplSubject {
     protected static $_logBacktrace = false;
     protected $_observers; // SplObjectStorage
     protected $_logs = array();
-    protected $_countLogs = 0;
     protected $_groups = array();
 
     protected function __construct() {
@@ -33,29 +31,6 @@ class Logger implements \SplSubject {
     }
 
     public function __destruct() {
-        // call destructor of caches
-        $caches = CacheManager::getCaches();
-        foreach ($caches as $cache)
-            $cache->__destruct();
-
-
-        if (Application::getDebug() || self::getLevel() == self::DEBUG) {
-            if (Application::getProfiler()) {
-                // Logger debug informations and benchmark
-                $this->addGroup('logger', 'Logger Benchmark and Informations', true);
-                $this->debug($this->_observers->count() . ' observers registered', 'logger');
-                $this->debug(count($this->getGroups()) . ' groups and ' . ($this->countLogs() + 3) . ' logs', 'logger');
-                $this->debug('In aproximately ' . Benchmark::getInstance('logger')->stopTime()->getStatsTime() . ' ms', 'logger');
-                $this->debug('Aproximately memory used  : ' . Benchmark::getInstance('logger')->stopRam()->getStatsRam() . ' KB', 'logger');
-
-                // Global informations && Benchmark
-                $this->addGroup('global', 'Global Benchmark and Informations', true);
-                // Benchmark
-                $this->debug('Page generated in aproximately : ' . Benchmark::getInstance('global')->stopTime()->getStatsTime() . ' ms', 'global');
-                $this->debug('Aproximately memory used  : ' . Benchmark::getInstance('global')->stopRam()->getStatsRam() . ' KB - Memory allocated : ' . memory_get_peak_usage(true) / 1024 . ' KB', 'global');
-            }
-        }
-
         // Notify observers for writting logs
         $this->notify();
     }
@@ -169,20 +144,21 @@ class Logger implements \SplSubject {
         return null;
     }
 
-    public function notify($reset = true) {
-        if ($this->_observers->count() && $this->countLogs() > 0) {
+    public function notify($resetObservers = true, $resetLogs = true, $resetGroups = false) {
+        if ($this->countObservers() && $this->countLogs() > 0) {
             $logs = $this->getLogs();
 
             foreach ($this->_observers as $observer)
                 $observer->update($this, $logs, $this->getGroups());
-
-            // avoid multicall
-            if ($reset) {
-                //$this->_groups = array();
-                $this->_logs = array();
-                $this->_observers = new \SplObjectStorage();
-            }
         }
+
+        // avoid multicall
+        if ($resetGroups)
+            $this->purgeGroups();
+        if ($resetLogs)
+            $this->purgeLogs();
+        if ($resetObservers)
+            $this->_observers = new \SplObjectStorage();
     }
 
     public function getLogs() {
@@ -197,7 +173,7 @@ class Logger implements \SplSubject {
         // Check
         if (!is_string($label))
             throw new \Exception('Label of group must be a string');
-        if (array_key_exists((string) $name, $this->getGroups()) && !$forceReplace)
+        if (array_key_exists($name, $this->getGroups()) && !$forceReplace)
             throw new \Exception('Group : "' . $name . '" aleadry defined');
 
         $this->_logs[] = array();
@@ -258,7 +234,15 @@ class Logger implements \SplSubject {
     }
 
     public function countLogs() {
-        return $this->_countLogs;
+        return count($this->_logs);
+    }
+
+    public function countGroups() {
+        return count($this->_groups);
+    }
+
+    public function countObservers() {
+        return $this->_observers->count();
     }
 
     protected function _addLog($message, $level, $groupName = false, $isBacktrace = false, $notify = false) {
@@ -290,8 +274,6 @@ class Logger implements \SplSubject {
                 $this->_addLogOnGroup($groupName, $log);
             else
                 $this->_logs[] = $log;
-
-            $this->_countLogs++;
 
             if (!$isBacktrace && self::getLogBacktrace())
                 $this->_logBackTrace();

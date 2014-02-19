@@ -6,25 +6,44 @@ use framework\cache\IDrivers;
 use framework\Logger;
 use framework\Cache;
 
-class Apc extends Cache implements IDrivers {
+class Apcu extends Cache implements IDrivers {
 
     public function __construct($params = array()) {
-        if (!extension_loaded('apc'))
-            throw new \Exception('Apc extension not loaded try change your PHP configuration');
+        if (!extension_loaded('apcu') && !extension_loaded('apc'))
+            throw new \Exception('Apcu extension not loaded try change your PHP configuration');
+
         parent::init($params);
+        Logger::getInstance()->addGroup('cache' . $this->_name, 'Cache ' . $this->_name, true, true);
 
         //create dynamic key and add to prefix (it's for multi applications)
         if (!file_exists(PATH_CACHE . $this->_name)) {
             $key = rand();
-            $file = new \SplFileObject(PATH_CACHE . 'ApcKey' . $this->_name, 'w+');
+            $file = new \SplFileObject(PATH_CACHE . 'ApcuKey' . $this->_name, 'w+');
             if ($file->flock(LOCK_EX)) {
                 $file->fwrite($key);
                 $file->flock(LOCK_UN);
             }
-            $this->_prefix = $key . $this->_prefix;
-        }
-        else
-            $this->_prefix = file_get_contents(PATH_CACHE . $this->_name) . $this->_prefix;
+            $this->_prefix .= $key;
+        } else
+            $this->_prefix .= file_get_contents(PATH_CACHE . $this->_name);
+    }
+
+    public function setGc($gcType, $gcOption) {
+        // no need garbage collector
+        $this->_gc = false;
+        Logger::getInstance()->notice('garbage collector useless on APCu', 'cache' . $this->_name);
+    }
+
+    public function checkGc($gc) {
+        Logger::getInstance()->notice('garbage collector useless on APCu', 'cache' . $this->_name);
+    }
+
+    public function writeGc($gc) {
+        Logger::getInstance()->notice('garbage collector useless on APCu', 'cache' . $this->_name);
+    }
+
+    public function runGc() {
+        Logger::getInstance()->notice('garbage collector useless on APCu', 'cache' . $this->_name);
     }
 
     public function write($key, $data, $forceReplace = false, $expire = self::EXPIRE_INFINITE, $type = self::TYPE_TIME) {
@@ -100,8 +119,7 @@ class Apc extends Cache implements IDrivers {
                 $this->_delete($key);
             else
                 Logger::getInstance()->debug('Undeletable key : "' . $key . '" because is locked', 'cache' . $this->_name);
-        }
-        else
+        } else
             $this->_delete($key, false);
     }
 
@@ -182,7 +200,7 @@ class Apc extends Cache implements IDrivers {
     }
 
     public function clear() {
-        Logger::getInstance()->notice('Clear cache useless on APC', 'cache' . $this->_name);
+        Logger::getInstance()->notice('Clear cache useless on APCu', 'cache' . $this->_name);
     }
 
     public function purge($groupName = false) {

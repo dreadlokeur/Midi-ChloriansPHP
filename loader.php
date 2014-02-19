@@ -27,6 +27,7 @@ $autoloader = new Autoloader();
 $autoloader->setAutoloadExtensions(array(
     'class.php',
     'abstract.php',
+    'final.php',
     'interface.php',
     'trait.php',
     'php')

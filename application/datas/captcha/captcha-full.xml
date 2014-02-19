@@ -193,7 +193,7 @@
     </option>
     <option>
         <name>audioLangDirectory</name><!-- Language, need all charsList wav files, required -->
-        <value>[PATH_DATA]captcha[DS]audio[DS]fr_FR</value>
+        <value>[PATH_DATA]captcha[DS]audio[DS]</value>
     </option>
     <option>
         <name>audioLettersGapMin</name><!-- min value for random silence  between letters, optional default is "0" -->

@@ -55,10 +55,6 @@ class Session {
         }
     }
 
-    public function __destruct() {
-        
-    }
-
     public static function getInstance($autoStart = true, $startOptions = array()) {
         if (!is_bool($autoStart))
             throw new \Exception('autoStart parameter must be a boolean');
@@ -115,8 +111,7 @@ class Session {
                     self::setId($id);
                 if (!is_null($name))
                     self::setName($name);
-            }
-            else
+            } else
                 throw new \Exception('Session isn\'t started and cannot be started because header is already send');
         }
     }
@@ -248,14 +243,20 @@ class Session {
         Logger::getInstance()->debug('Session has been destroyed', 'session');
     }
 
-    public function increment($key, $offset = 1, $startValue = 1) {
+    public function increment($key, $offset = 1, $startValue = 1, $returnValue = false) {
         $this->_crement($key, $offset, true, $startValue);
         Logger::getInstance()->debug('Increment : "' . $key . '"', 'session');
+        
+        if ($returnValue)
+            return $this->get($key);
     }
 
-    public function decrement($key, $offset = 1, $startValue = 1) {
+    public function decrement($key, $offset = 1, $startValue = 1, $returnValue = false) {
         $this->_crement($key, $offset, false, $startValue);
         Logger::getInstance()->debug('Decrement : "' . $key . '"', 'session');
+
+        if ($returnValue)
+            return $this->get($key);
     }
 
     protected function _crement($key, $offset = 1, $increment = true, $startValue = 1) {
@@ -263,18 +264,18 @@ class Session {
         $val = $this->get($key);
 
         if (is_null($val)) {
-            if (!is_int($startValue) || $startValue >= 0)
+            if (!is_int($startValue))
                 throw new \Exception('startValue must be an int');
             $this->add($key, $startValue, true);
-            return;
-        }
-        if (!is_int($offset) || $offset == 0)
-            throw new \Exception('Offset must be an int');
-        if (!is_int($val))
-            throw new \Exception('Key value must be an int');
+        } else {
+            if (!is_int($offset) || $offset == 0)
+                throw new \Exception('Offset must be an int');
+            if (!is_int($val))
+                throw new \Exception('Key value must be an int');
 
-        $increment = $increment ? $val + $offset : $val - $offset;
-        $this->add($key, $increment, true);
+            $increment = $increment ? $val + $offset : $val - $offset;
+            $this->add($key, $increment, true);
+        }
     }
 
 }

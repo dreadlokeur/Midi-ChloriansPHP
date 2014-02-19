@@ -2,7 +2,7 @@
 
 $config = array(
     // database name => array(options)
-    'databaseDefault' => array(
+    'default' => array(
         'engine' => 'pdo',
         'server' => array(
             array(

@@ -1,5 +1,5 @@
 (function($) {
-    jQuery(document).ready(function($) {
+    $(document).ready(function() {
         //refresh captcha
         $("body").on("click", ".refresh-captcha", function() {
             refreshCaptcha($(this).find(".captach-image"), $(this).attr('href'));
@@ -28,7 +28,7 @@
 
             return false;
         });
-        
+
         // language updater
         $('.updateLanguage').click(function() {
             var language = $(this).attr('id');

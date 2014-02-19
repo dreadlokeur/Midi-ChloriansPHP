@@ -28,6 +28,8 @@ interface IEngine {
 
     public function lastInsertId();
 
+    public function count();
+
     public function isReadQuery($query);
 }
 

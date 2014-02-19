@@ -9,7 +9,7 @@ class Form extends Security implements ISecurity {
 
     const PROTECTION_CSRF = 'csrf';
     const PROTECTION_CAPTCHA = 'captcha';
-    const PROTECTION_BRUTEFORCE = 'bruteforce';
+    const PROTECTION_FLOOD = 'flood';
     const PROTECTION_XSS = 'xss';
 
     protected $_forms = array();

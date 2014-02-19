@@ -6,15 +6,15 @@
     <ENVIRONNEMENT>dev</ENVIRONNEMENT><!-- dev/test/prod -->
     <HOSTNAME>localhost/Midi-ChloriansPHP</HOSTNAME><!-- your hostname> -->
     <ADMIN_NAME>your admin name</ADMIN_NAME><!-- administrator name -->
-    <ADMIN_EMAIL>your admin email</ADMIN_EMAIL><!-- administrator email -->
+    <ADMIN_EMAIL>youadminemail@mail.com</ADMIN_EMAIL><!-- administrator email -->
     <LANGUAGE_DEFAULT>fr_FR</LANGUAGE_DEFAULT>
     <!-- Optional -->
     <SITE_MAINTENANCE>false</SITE_MAINTENANCE><!-- true/false (if true, running route "error" with param : "503") -->
     <SMTP_SERVER></SMTP_SERVER>
     <TIMEZONE>Europe/Paris</TIMEZONE>
     <TEMPLATE_DEFAULT>default</TEMPLATE_DEFAULT><!-- template name -->
-    <AUTOLOADER_CACHE>core</AUTOLOADER_CACHE> <!-- cache name -->
-    <AUTOLOADER_GLOBALIZER>true</AUTOLOADER_GLOBALIZER>
+    <AUTOLOADER_CACHE>core</AUTOLOADER_CACHE> <!-- cache name/ false -->
+    <AUTOLOADER_GLOBALIZER>true</AUTOLOADER_GLOBALIZER><!-- autoloader cache must be activated) -->
     <GOOGLE_VERIFICATION></GOOGLE_VERIFICATION>
     <GOOGLE_UA></GOOGLE_UA>
     <!-- logger -->

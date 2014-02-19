@@ -8,9 +8,15 @@ interface IDrivers {
 
     public function __construct($params = array());
 
-    public function __destruct();
+    public function getName();
 
     public function setGc($gcType, $gcOption);
+
+    public function checkGc($gc);
+
+    public function writeGc($gc);
+    
+    public function runGc();
 
     public function write($key, $data, $forceReplace = false, $expire = Cache::EXPIRE_INFINITE, $type = Cache::TYPE_TIME);
 

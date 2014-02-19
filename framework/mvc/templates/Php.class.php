@@ -38,7 +38,7 @@ class Php extends Template implements ITemplate {
 
 
         $this->_vars = new \stdClass();
-        Logger::getInstance()->addGroup($this->_name, 'Template ' . $this->_name . ' report', true, true);
+        Logger::getInstance()->addGroup('template' . $this->_name, 'Template ' . $this->_name, true, true);
     }
 
     public function __get($name) {
@@ -58,7 +58,11 @@ class Php extends Template implements ITemplate {
     }
 
     public function setPath($path) {
-        $this->_path = $path;
+        if (!is_dir($path))
+            throw new \Exception('Template path ' . $path . ' don\'t exist');
+        if (!is_readable($path))
+            throw new \Exception('Path ' . $path . ' is not readable');
+        $this->_path = realpath($path) . DS;
     }
 
     public function getPath() {
@@ -98,7 +102,7 @@ class Php extends Template implements ITemplate {
             throw new \Exception('Variable "' . $name . '" already defined in template');
         $this->_vars->{$name} = $safeValue || !$this->getAutoSanitize() ? $value : $this->sanitize($value, $name);
 
-        Logger::getInstance()->debug('Add var : "' . $name . '"', $this->_name);
+        Logger::getInstance()->debug('Add var : "' . $name . '"', 'template' . $this->_name);
         return $this;
     }
 
@@ -131,7 +135,7 @@ class Php extends Template implements ITemplate {
         if (!is_readable($this->_path . $file))
             throw new \Exception('Template : "' . $this->_path . $file . '" isn\'t a readable');
 
-        Logger::getInstance()->debug('Set file : "' . $file . '"', $this->_name);
+        Logger::getInstance()->debug('Set file : "' . $file . '"', 'template' . $this->_name);
         $this->_file = $file;
 
         return $this;
@@ -158,7 +162,7 @@ class Php extends Template implements ITemplate {
             if (!is_null($this->_file)) {
                 include($this->_path . $this->_file);
                 $this->_content = ob_get_clean();
-                Logger::getInstance()->debug('Parse template file', $this->_name);
+                Logger::getInstance()->debug('Parse template file', 'template' . $this->_name);
             }
         } catch (\Exception $e) {
             ob_end_clean();

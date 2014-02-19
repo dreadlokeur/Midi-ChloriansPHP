@@ -386,6 +386,34 @@ class Tools {
         return str_replace('.', '', strrchr($filename, '.'));
     }
 
+    public static function parseDsn($dsn) {
+        if (!is_string($dsn))
+            throw new \Exception('Dsn must ben a string');
+
+        $datasDsn = array();
+        //extract driver
+        $dsnExplode = explode(':', $dsn);
+        if (!$dsnExplode || !isset($dsnExplode[0]))
+            throw new \Exception('Invalid dsn, please set driver');
+        $datasDsn['driver'] = $dsnExplode[0];
+
+        // Get others infos : host, dbname etc ...
+        if (!isset($dsnExplode[1]))
+            throw new \Exception('Invalid dsn format');
+        $orthers = explode(';', $dsnExplode[1]);
+        if (!$orthers)
+            throw new \Exception('Invalid dsn format');
+        foreach ($orthers as &$info) {
+            $infoData = explode('=', $info);
+            if (!is_array($infoData) || !isset($infoData[0]) || !isset($infoData[1]))
+                throw new \Exception('Invalid dsn format');
+
+            $datasDsn[$infoData[0]] = $infoData[1];
+        }
+
+        return $datasDsn;
+    }
+
 }
 
 ?>

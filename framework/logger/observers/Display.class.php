@@ -4,33 +4,30 @@ namespace framework\logger\observers;
 
 use framework\Logger;
 use framework\Cli;
+use framework\network\Http;
 
 class Display implements \SplObserver {
 
-    protected $_preStartIsDisplayed = false;
-    protected $_activated = true;
+    protected $_logs = '';
 
     public function __construct() {
-        ob_start(); //buffer
+        
     }
 
     public function __destruct() {
-        if (!Cli::isCli() && $this->_activated)
-            echo '</pre>';
-    }
-
-    public function setActivated($activate) {
-        if (!is_bool($activate))
-            throw new \Exception('Activate parameter must be a boolean');
-        $this->_activated = $activate;
+        if (!empty($this->_logs)) {
+            if (!Http::isAjaxRequest()) {
+                if (!Cli::isCli())
+                    echo '<pre>';
+                echo $this->_logs;
+                if (!Cli::isCli())
+                    echo '</pre>';
+            }
+        }
     }
 
     public function update(\SplSubject $subject, $logs = array(), $groups = array()) {
-        if (!$this->_preStartIsDisplayed && !Cli::isCli()) {
-            echo '<pre>';
-            $this->_preStartIsDisplayed = true;
-        }
-
+        ob_start();
         $bottomLogs = array();
         foreach ($logs as &$log) {
             if (is_array($log)) {
@@ -46,12 +43,13 @@ class Display implements \SplObserver {
                         $this->_displayGroupBottom($l->date);
                     }
                 }
-            }
-            else
+            } else
                 $this->_displayLog($log->message, $log->level, $log->date, $log->isTrace);
         }
         if (count($bottomLogs) > 0)
             $this->update($subject, $bottomLogs, $groups);
+
+        $this->_logs .= ob_get_clean();
     }
 
     private function _displayLog($message, $level, $date, $isTrace = false) {

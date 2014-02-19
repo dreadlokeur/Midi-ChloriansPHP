@@ -7,6 +7,7 @@ use framework\config\Reader;
 use framework\Database as DatabaseManager;
 use framework\database\Server;
 use framework\utility\Validate;
+use framework\utility\Tools;
 
 class Database extends Loader {
 
@@ -24,58 +25,33 @@ class Database extends Loader {
                 throw new \Exception('Miss server config param for database : "' . $name . '"');
 
             // Create database instance
-            $database = new DatabaseManager($name, $datas['engine']);
+            $database = new DatabaseManager($name, DatabaseManager::factory($datas['engine'], $name, 'framework\database\engines', 'framework\database\IEngine'));
 
             // Fetch servers
             foreach ($datas['server'] as $server) {
-                // Check essential parameters (type, user, password)
-                if (!isset($server['type']))
+                // extract server informations
+                extract($server);
+                // extract dsn
+                if (isset($dsn))
+                    extract(Tools::parseDsn($dsn));
+
+                // check required infos
+                if (!isset($type))
                     throw new \Exception('Miss server type');
-                if (!isset($server['dbuser']))
+                if (!isset($dbuser))
                     throw new \Exception('Miss server dbuser type');
-                if (!isset($server['dbpassword']))
+                if (!isset($dbpassword))
                     throw new \Exception('Miss server dbpassword type');
-
-                //Check database connection info
-                if (isset($server['dsn'])) {// by dsn
-                    $driver = explode(':', $server['dsn']);
-                    if (!$driver || !isset($driver[0]))
-                        throw new \Exception('Invalid dsn, please set driver');
-
-                    // Delete driver into dsn
-                    $driver = $driver[0];
-                    $dsn = str_replace($driver . ':', '', $server['dsn']);
-
-
-                    // Get others infos : host, dbname etc ...
-                    $dsnInfos = explode(';', $dsn);
-                    foreach ($dsnInfos as &$info) {
-                        $infoData = explode('=', $info);
-                        if (!is_array($infoData))
-                            throw new \Exception('Invalid dsn');
-
-                        $$infoData[0] = $infoData[1];
-                    }
-                    // Required infos
-                    if (!isset($host) || !isset($port) || !isset($dbname) || !isset($charset))
-                        throw new \Exception('Invalid dsn, miss parameter');
-                } else {//manually
-                    if (!isset($server['host']))
-                        throw new \Exception('Miss server host type');
-                    $host = $server['host'];
-                    if (!isset($server['port']))
-                        throw new \Exception('Miss server dbport type');
-                    $port = $server['port'];
-                    if (!isset($server['driver']))
-                        throw new \Exception('Miss driver type');
-                    $driver = $server['driver'];
-                    if (!isset($server['dbname']))
-                        throw new \Exception('Miss server dbname type');
-                    $dbname = $server['dbname'];
-                    if (!isset($server['charset']))
-                        throw new \Exception('Miss server charset type');
-                    $charset = $server['charset'];
-                }
+                if (!isset($driver))
+                    throw new \Exception('Miss driver type');
+                if (!isset($host))
+                    throw new \Exception('Miss server host type');
+                if (!isset($port))
+                    throw new \Exception('Miss server port type');
+                if (!isset($dbname))
+                    throw new \Exception('Miss server dbname type');
+                if (!isset($charset))
+                    throw new \Exception('Miss server charset type');
 
 
                 // Check driver is supported by database engine
@@ -83,9 +59,15 @@ class Database extends Loader {
                     throw new \Exception('Invalid driver : "' . $driver . '", not supported database engine : "' . $datas['engine'] . '"');
 
                 // Create server instance
-                $serverInstance = new Server($host, $port, $driver, $dbname, $server['dbuser'], $server['dbpassword'], $server['type'], $charset);
+                $serverInstance = new Server($type, $dbuser, $dbpassword, $driver, $host, $port, $dbname, $charset);
+                if (isset($dsn))
+                    $serverInstance->setDsn($dsn, false);
+
                 // Add into servers list
                 $database->addServer($serverInstance);
+
+                //flush vars
+                unset($type, $dbuser, $dbpassword, $driver, $host, $port, $dbname, $charset, $dsn, $serverInstance);
             }
 
 

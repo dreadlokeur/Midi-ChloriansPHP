@@ -60,7 +60,6 @@ class Chrome implements \SplObserver {
             default:
                 $this->_chrome->log($message);
                 break;
-                break;
         }
     }
 

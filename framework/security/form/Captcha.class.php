@@ -15,6 +15,7 @@ use framework\mvc\Router;
 use framework\network\http\Header;
 use framework\utility\Color;
 use framework\Logger;
+use framework\Language;
 
 class Captcha implements IForm {
 
@@ -576,11 +577,12 @@ class Captcha implements IForm {
         return $this->_audio;
     }
 
-    public function setAudioLangDirectory($lang) {
-        if (!is_dir($lang))
-            throw new \Exception('Invalid audio langue path');
+    public function setAudioLangDirectory($path) {
+        $path = realpath($path . Language::getInstance()->getLanguage());
+        if (!is_dir($path))
+            throw new \Exception('Invalid audio language path : "' . $path . '"');
         // TODO check if have all wav files (charslist)
-        $this->_audioLangDirectory = realpath($lang) . DS;
+        $this->_audioLangDirectory = $path . DS;
     }
 
     public function setAudioLettersGap($gapValue, $gabType) {

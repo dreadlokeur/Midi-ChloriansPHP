@@ -5,8 +5,11 @@ namespace framework;
 use framework\utility\Validate;
 use framework\utility\Date;
 use framework\Logger;
+use framework\cache\IDrivers;
 
 abstract class Cache {
+
+    use pattern\Factory;
 
     const EXPIRE_SECOND = Date::SECOND;
     const EXPIRE_MINUTE = Date::MINUTE;
@@ -44,7 +47,7 @@ abstract class Cache {
         return self::$_caches;
     }
 
-    public static function addCache($name, $conf, $forceReplace = false) {
+    public static function addCache($name, IDrivers $driver, $forceReplace = false) {
         if (!is_string($name) && !is_int($name))
             throw new \Exception('Cache name must be string or integer');
 
@@ -56,30 +59,7 @@ abstract class Cache {
             Logger::getInstance()->debug('Cache : "' . $name . '" already defined, was overloaded');
         }
 
-        self::$_caches[$name] = $conf;
-    }
-
-    public function __destruct() {
-        // Garbage collection, remove all expired cached datas
-        if ($this->_gcType) {
-            $gc = $this->read($this->_gcName, null);
-            // no exist
-            if (is_null($gc))
-                $this->_writeGc($gc); // set gc state
-            else {
-                //check
-                if ($this->_needGc($gc)) {
-                    $this->clear(); //Delete expired datas
-                    $this->delete($this->_gcName);
-                } else {
-                    if ($this->_gcType == self::TYPE_NUMBER)
-                        $this->_writeGc($gc); // increment gc state
-                }
-            }
-
-            // one call
-            $this->_gcType = false;
-        }
+        self::$_caches[$name] = $driver;
     }
 
     public function init($params) {
@@ -94,8 +74,6 @@ abstract class Cache {
                 throw new \Exception('Must be a valid string');
             $this->_prefix = $params['prefix'];
         }
-
-        Logger::getInstance()->addGroup('cache' . $this->_name, 'Cache ' . $this->_name, true, true);
 
         //garbage collector setting
         $gcType = isset($params['gc']) ? $params['gc'] : false;
@@ -121,46 +99,47 @@ abstract class Cache {
         $this->_gcOption = $gcOption;
     }
 
-    public function increment($key, $offset = 1, $startValue = 1) {
-        $this->_crement($key, $offset, true, $startValue);
-        Logger::getInstance()->debug('Increment : "' . $key . '"', 'cache' . $this->_name);
+    public function getName() {
+        return $this->_name;
     }
 
-    public function decrement($key, $offset = 1, $startValue = 1) {
+    public function increment($key, $offset = 1, $startValue = 1, $returnValue = false) {
+        $this->_crement($key, $offset, true, $startValue);
+        Logger::getInstance()->debug('Increment : "' . $key . '"', 'cache' . $this->_name);
+
+        if ($returnValue)
+            return $this->read($key);
+    }
+
+    public function decrement($key, $offset = 1, $startValue = 1, $returnValue = false) {
         $this->_crement($key, $offset, false, $startValue);
         Logger::getInstance()->debug('Decrement : "' . $key . '"', 'cache' . $this->_name);
+
+        if ($returnValue)
+            return $this->read($key);
     }
 
     protected function _crement($key, $offset = 1, $increment = true, $startValue = 1) {
         if (!$this->isExpired($key) && !$this->isLocked($key)) {
             $val = $this->read($key);
             if (is_null($val)) {
-                if (!is_int($startValue) || $startValue >= 0)
+                if (!is_int($startValue))
                     throw new \Exception('startValue must be an int');
                 $this->write($key, $startValue, true);
-                return;
-            }
-            if (!is_int($offset) || $offset == 0)
-                throw new \Exception('Offset must be an int');
-            if (!is_int($val))
-                throw new \Exception('Key value must be an int');
+            } else {
+                if (!is_int($offset) || $offset == 0)
+                    throw new \Exception('Offset must be an int');
+                if (!is_int($val))
+                    throw new \Exception('Key value must be an int');
 
-            $increment = $increment ? $val + $offset : $val - $offset;
-            $this->write($key, $increment, true, $this->getExpire($key));
+                $increment = $increment ? $val + $offset : $val - $offset;
+                $this->write($key, $increment, true, $this->getExpire($key));
+            }
         }
     }
 
     public function getExpire($key) {
         return $this->read($key, null, false, true);
-    }
-
-    public static function factory($cacheDriver, $cacheOptions = array()) {
-        $class = class_exists('framework\cache\drivers\\' . ucfirst($cacheDriver)) ? 'framework\cache\drivers\\' . ucfirst($cacheDriver) : $cacheClass;
-        $inst = new \ReflectionClass($class);
-        if (!in_array('framework\\cache\\IDrivers', $inst->getInterfaceNames()))
-            throw new \Exception('Cache class must be implement framework\cache\IDrivers');
-
-        return $inst->newInstance($cacheOptions);
     }
 
     // clear group/groups into caches/cache

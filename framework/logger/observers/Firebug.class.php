@@ -60,7 +60,6 @@ class Firebug implements \SplObserver {
             default:
                 $this->_fb->log($message);
                 break;
-                break;
         }
     }
 

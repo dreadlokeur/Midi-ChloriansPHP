@@ -11,6 +11,7 @@ class File extends Cache implements IDrivers {
 
     public function __construct($params = array()) {
         parent::init($params);
+        Logger::getInstance()->addGroup('cache' . $this->_name, 'Cache ' . $this->_name, true, true);
 
         if (!isset($params['path']) || !is_string($params['path']))
             throw new \Exception('Miss path parameter, or is invalid');
@@ -24,7 +25,29 @@ class File extends Cache implements IDrivers {
         $this->_path = realpath($params['path']) . DS;
     }
 
-    protected function _needGc($gc) {
+    public function runGc() {
+        // Garbage collector, remove all expired cached datas
+        if ($this->_gcType) {
+            Logger::getInstance()->debug('Garbage collector by : ' . $this->_gcType, 'cache' . $this->_name);
+            $gc = $this->read($this->_gcName, null);
+            // no exist
+            if (is_null($gc))
+                $this->writeGc($gc); // set gc state
+            else {
+                //check
+                if ($this->checkGc($gc)) {
+                    //Delete expired datas
+                    $this->clear();
+                    $this->delete($this->_gcName);
+                } else {
+                    if ($this->_gcType == self::TYPE_NUMBER)
+                        $this->writeGc($gc); // increment gc state
+                }
+            }
+        }
+    }
+
+    public function checkGc($gc) {
         if ($this->_gcType == self::TYPE_NUMBER)
             return $gc >= $this->_gcOption;
         elseif ($this->_gcType == self::TYPE_TIME)
@@ -33,7 +56,7 @@ class File extends Cache implements IDrivers {
             return false;
     }
 
-    protected function _writeGc($gc) {
+    public function writeGc($gc) {
         if (is_null($gc))
             $gc = 0;
         $gc = ($this->_gcType == self::TYPE_NUMBER) ? $gc + 1 : time();
@@ -96,7 +119,6 @@ class File extends Cache implements IDrivers {
             }
         } else {
             Logger::getInstance()->debug('Read key :  "' . $key . '" fail, not exists', 'cache' . $this->_name);
-
             return $default;
         }
     }
@@ -116,8 +138,7 @@ class File extends Cache implements IDrivers {
                 $this->_delete($key);
             else
                 Logger::getInstance()->debug('Undeletable key : "' . $key . '" because is locked', 'cache' . $this->_name);
-        }
-        else
+        } else
             $this->_delete($key);
     }
 
@@ -156,8 +177,7 @@ class File extends Cache implements IDrivers {
             if ($autoDelete)
                 $this->delete($key);
             return true;
-        }
-        else
+        } else
             return false;
     }
 

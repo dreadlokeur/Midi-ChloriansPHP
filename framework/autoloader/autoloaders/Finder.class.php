@@ -7,10 +7,6 @@ use framework\autoloader\IAutoloaders;
 
 class Finder extends Autoloader implements IAutoloaders {
 
-    public function __construct() {
-        
-    }
-
     public function autoload($class) {
         if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false))
             return;

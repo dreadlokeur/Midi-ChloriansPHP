@@ -68,10 +68,7 @@ try {
     // Run app
     Application::getInstance(PATH_APP . 'bootstrap.php')->run();
 } catch (\Exception $e) {
-    // throw new exeception for manage
+    // throw new exeception for manage with Exeception manager
     throw $e;
 }
-
-// Send buffer
-ob_end_flush();
 ?>

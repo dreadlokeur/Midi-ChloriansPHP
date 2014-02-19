@@ -83,7 +83,7 @@ class Minify {
             throw new \Exception('Path ' . $path . ' don\'t exist');
         if (!is_readable($path))
             throw new \Exception('Path ' . $path . ' is not readable');
-        $this->_path = $path;
+        $this->_path = realpath($path) . DS;
         return $this;
     }
 

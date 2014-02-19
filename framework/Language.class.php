@@ -30,6 +30,10 @@ class Language {
     public static function getVars() {
         return self::$_languageVars;
     }
+    public static function countVars() {
+        return count(self::$_languageVars);
+    }
+
 
     public static function setVar($name, $value, $forceReplace = false) {
         if (!Validate::isVariableName($name))
@@ -52,12 +56,6 @@ class Language {
 
     protected function __construct() {
         Logger::getInstance()->addGroup('language', 'Language informations', true, true);
-    }
-
-    public function __destruct() {
-        //if ($this->_defaultLanguage)
-        //    Logger::getInstance()->debug('Language default is : "' . $this->_defaultLanguage . '"', 'language');
-        //Logger::getInstance()->debug(count((array) self::$_languageVars) . ' vars defined', 'language');
     }
 
     public static function setDatasPath($datasPath) {
@@ -114,6 +112,9 @@ class Language {
 
     public function getLanguage() {
         return $this->_language;
+    }
+    public function getDefaultLanguage() {
+        return $this->_defaultLanguage;
     }
 
 }

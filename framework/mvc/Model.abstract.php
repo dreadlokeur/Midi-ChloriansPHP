@@ -193,13 +193,13 @@ abstract class Model {
         return $this->_modelDBTable;
     }
 
-    public function execute($query, $parameters = array(), $returnLastInsertId = false, $closeStatement = false) {
+    public function execute($query, $parameters = array(), $returnLastInsertId = false, $closeStatement = false, $checkBindNumber = true) {
         $engine = $this->getDb(true);
         $engine->set($query);
         foreach ($parameters as $paramValue => $paramType)
             $engine->bind($paramValue, $paramType);
 
-        $engine->execute($closeStatement);
+        $engine->execute($closeStatement, $checkBindNumber);
 
 
         if ($returnLastInsertId)

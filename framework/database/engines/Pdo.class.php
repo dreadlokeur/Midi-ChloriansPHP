@@ -34,13 +34,13 @@ class Pdo implements IEngine {
         Database::PARAM_INPUT_OUTPUT => \PDO::PARAM_INPUT_OUTPUT);
     //For debug message information
     protected $_paramTypeName = array(
-        0 => 'null',
-        1 => 'int',
-        2 => 'str',
-        3 => 'lob',
-        4 => 'stmt',
-        5 => 'bool',
-        2147483648 => 'input output');
+        \PDO::PARAM_NULL => 'null',
+        \PDO::PARAM_INT => 'int',
+        \PDO::PARAM_STR => 'str',
+        \PDO::PARAM_LOB => 'lob',
+        \PDO::PARAM_STMT => 'stmt',
+        \PDO::PARAM_BOOL => 'bool',
+        \PDO::PARAM_INPUT_OUTPUT => 'input output');
     //fetch style
     protected $_fetchStyle = array(
         Database::FETCH_LAZY => \PDO::FETCH_LAZY,
@@ -95,12 +95,16 @@ class Pdo implements IEngine {
             $this->_serverConf = $server;
             // Connect
             try {
-                $dsn = $this->_serverConf->getDriver() . ':dbname=' . $this->_serverConf->getDbname() . ';host=' . $this->_serverConf->getHost() . ';port=' . $this->_serverConf->getPort() . ';charset=' . $this->_serverConf->getDbcharset();
+                if (!is_null($this->_serverConf->getDsn()))
+                    $dsn = $this->_serverConf->getDsn();
+                else
+                    $dsn = $this->_serverConf->getDriver() . ':dbname=' . $this->_serverConf->getDbname() . ';host=' . $this->_serverConf->getHost() . ';port=' . $this->_serverConf->getPort() . ';charset=' . $this->_serverConf->getDbcharset();
+
                 $this->_connection = new \PDO($dsn, $this->_serverConf->getDbuser(), $this->_serverConf->getDbpassword());
             } catch (\PDOException $e) {
                 throw new \Exception('Error : ' . $e->getMessage() . ' N° : ' . $e->getCode() . '');
             }
-            Logger::getInstance()->debug('Connect server : "' . $dsn . '"', $this->_configName);
+            Logger::getInstance()->debug('Connect server : "' . $dsn . '"', 'database' . $this->_configName);
         }
         return $this;
     }
@@ -144,8 +148,7 @@ class Pdo implements IEngine {
             // set param bind type to named
             $this->_bindParamType = Database::PARAM_BIND_NAMED;
             $this->_namedParamOrder = $namedParam[1];
-        }
-        else
+        } else
             $this->_bindParamType = Database::PARAM_BIND_POSITIONAL;
 
 
@@ -197,15 +200,17 @@ class Pdo implements IEngine {
         return $this;
     }
 
-    public function execute($closeStatement = false) {
+    public function execute($closeStatement = false, $checkBindNumber = true) {
         if (Application::getDebug())
             Benchmark::getInstance($this->_configName)->startTime()->startRam();
 
         if ($this->_query === null || !$this->haveStatement())
             throw new \Exception('Set query before execute...');
 
-        if (count($this->_params) < $this->_paramsNumberNecesary)
-            throw new \Exception('Miss bind parameters');
+        if ($checkBindNumber) {
+            if (count($this->_params) < $this->_paramsNumberNecesary)
+                throw new \Exception('Miss bind parameters');
+        }
 
         // Bind parameters
         $i = 0;
@@ -233,7 +238,7 @@ class Pdo implements IEngine {
 
             $time = Benchmark::getInstance($this->_configName)->stopTime()->getStatsTime();
             $ram = Benchmark::getInstance($this->_configName)->stopRam()->getStatsRam();
-            Logger::getInstance()->debug('Query : ' . $this->_query . ' with parameters values : "' . trim($parameters, ' ') . '" Time : ' . $time . ' ms Ram : ' . $ram . ' KB Error : ' . $errorMessage, $this->_configName);
+            Logger::getInstance()->debug('Query : ' . $this->_query . ' with parameters values : "' . trim($parameters, ' ') . '" Time : ' . $time . ' ms Ram : ' . $ram . ' KB Error : ' . $errorMessage, 'database' . $this->_configName);
             Database::getDatabase($this->_configName)->setStats($time, $ram);
             Database::getDatabase($this->_configName)->incrementQueryCount();
         }
@@ -270,8 +275,7 @@ class Pdo implements IEngine {
                 return $this->_statement->fetchAll($this->_fetchStyle[$fetchStyle], $fetchArgument, $ctorArgs);
 
             return $this->_statement->fetchAll($this->_fetchStyle[$fetchStyle], $fetchArgument);
-        }
-        else
+        } else
             return $this->_statement->fetchAll($this->_fetchStyle[$fetchStyle]);
     }
 
@@ -280,6 +284,13 @@ class Pdo implements IEngine {
             return $this->_connection->lastInsertId();
 
         return null;
+    }
+
+    public function count() {
+        if (!$this->haveStatement())
+            throw new \Exception('You must execute query before see count result');
+
+        return $this->_statement->rowCount();
     }
 
     public function isReadQuery($query) {

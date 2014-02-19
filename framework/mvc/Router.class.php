@@ -30,13 +30,6 @@ class Router {
         Logger::getInstance()->addGroup('router', 'Router Benchmark and Informations', true);
     }
 
-    public function __destruct() {
-        if (Application::getProfiler()) {
-            Logger::getInstance()->debug('Request dispatched in aproximately : ' . Benchmark::getInstance('router')->stopTime()->getStatsTime() . ' ms', 'router');
-            Logger::getInstance()->debug('Aproximately memory used  : ' . Benchmark::getInstance('router')->stopRam()->getStatsRam() . ' KB', 'router');
-        }
-    }
-
     public static function addRoute($name, $controller, $rules = array(), $methods = array(), $forceSsl = false, $regex = false, $forceReplace = false) {
         if (!is_string($name) && !is_int($name))
             throw new \Exception('Route name must be string or integer');
@@ -321,21 +314,17 @@ class Router {
 
     public function show400($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_BAD_REQUEST, true);
-        $this->runRoute('error', array(1 => '400'), $die);
+        $this->runRoute('error', array(1 => 400), $die);
     }
 
     public function show401($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_UNAUTHORIZED, true);
-        $this->runRoute('error', array(1 => '401'), $die);
+        $this->runRoute('error', array(1 => 401), $die);
     }
 
     public function show403($die = false) {
-        // Use http protocol 1.0
-        // And http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-        // If use Http 1.1 protocol, header connection is keep-alive, else is close
         Header::setResponseStatusCode(ResponseCode::CODE_FORBIDDEN, true, true, Http::PROTOCOL_VERSION_1_0);
-
-        $this->runRoute('error', array(1 => '403'), $die);
+        $this->runRoute('error', array(1 => 403), $die);
     }
 
     public function show404($die = false) {
@@ -344,25 +333,26 @@ class Router {
         // And http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
         // If use Http 1.1 protocol, header connection is keep-alive, else is close
         Header::setResponseStatusCode(ResponseCode::CODE_NOT_FOUND, true, true, Http::PROTOCOL_VERSION_1_0);
+        $this->runRoute('error', array(1 => 404), $die);
+    }
 
-        $this->runRoute('error', array(1 => '404'), $die);
+    public function show405($die = false) {
+        Header::setResponseStatusCode(ResponseCode::CODE_METHOD_NOT_ALLOWED, true, true, Http::PROTOCOL_VERSION_1_0);
+        $this->runRoute('error', array(1 => 404), $die);
     }
 
     public function show500($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_INTERNAL_SERVER_ERROR, true);
-
-        $this->runRoute('error', array(1 => '500'), $die);
+        $this->runRoute('error', array(1 => 500), $die);
     }
 
     public function show503($die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_SERVICE_UNAVAILABLE, true);
-
-        $this->runRoute('error', array(1 => '503'), $die);
+        $this->runRoute('error', array(1 => 503), $die);
     }
 
     public function showDebugger($isException, $die = false) {
         Header::setResponseStatusCode(ResponseCode::CODE_INTERNAL_SERVER_ERROR, true);
-
         $this->runRoute('debugger', array(1 => $isException), $die);
     }
 

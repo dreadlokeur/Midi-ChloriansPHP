@@ -38,7 +38,6 @@ class Syslog implements \SplObserver {
                 break;
             default:
                 throw new \Exception('This facility parameter is invalid');
-                break;
         }
         switch ($option) {
             case LOG_CONS:
@@ -49,7 +48,6 @@ class Syslog implements \SplObserver {
                 break;
             default:
                 throw new \Exception('This facility parameter is invalid');
-                break;
         }
         openlog($ident, $option, $facility);
     }

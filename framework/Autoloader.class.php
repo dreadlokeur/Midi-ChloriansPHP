@@ -2,9 +2,7 @@
 
 namespace framework;
 
-use framework\Logger;
 use framework\Cache;
-use framework\Application;
 
 class Autoloader {
 
@@ -35,28 +33,6 @@ class Autoloader {
             self::setDebug($debug);
     }
 
-    public function __destruct() {
-        if (self::getDebug()) {
-            $logs = self::getLogs();
-            if (!empty($logs)) {
-                Logger::getInstance()->addGroup('autoloader', 'Autoloader report', true);
-
-                foreach ($logs as &$log)
-                    Logger::getInstance()->debug($log, 'autoloader');
-
-                Logger::getInstance()->debug(count(self::getAutoloaders()) . ' autoloader drivers, ' . count(self::getDirectories()) . ' directories and ' . count(self::getNamespaces()) . ' namespaces registered', 'autoloader');
-                if (Application::getProfiler()) {
-                    Logger::getInstance()->debug('Loading ' . count(self::getClasses()) . ' classes (' . self::countGlobalizedClasses() . ' globalized classes)  in aproximately ' . round(self::getBenchmark('time') * 1000, 4) . ' ms', 'autoloader');
-                    Logger::getInstance()->debug('Aproximately memory used  : ' . round(self::getBenchmark('memory') / 1024, 4) . ' KB', 'autoloader');
-                }
-                // Avoid multi call
-                self::$_logs = array();
-                self::resetBenchmark();
-                self::setDebug(false);
-            }
-        }
-    }
-
     public static function setDebug($bool) {
         if (!is_bool($bool))
             throw new \Exception('debug parameter must be a boolean');
@@ -69,6 +45,15 @@ class Autoloader {
 
     public static function getLogs() {
         return self::$_logs;
+    }
+
+    public static function purgeLogs() {
+        self::$_logs = array();
+    }
+
+    public static function purgeBenchmark() {
+        self::$_benchmarkTime = 0;
+        self::$_benchmarkMemory = 0;
     }
 
     public static function getBenchmark($type) {
@@ -115,8 +100,7 @@ class Autoloader {
                     $cleanedLoaderArguments[$key] = $loaderArguments[$key];
             }
             $loader = $loaderInstance->newInstanceArgs($cleanedLoaderArguments);
-        }
-        else
+        } else
             $loader = $loaderInstance->newInstance();
 
 
@@ -176,17 +160,6 @@ class Autoloader {
         if (!function_exists('spl_autoload_extensions'))
             throw new \Exception('spl_autoload_extensions does not exists in this PHP installation');
         return spl_autoload_extensions();
-    }
-
-    public static function resetBenchmark($time = true, $memory = true) {
-        if (!is_bool($time))
-            throw new \Exception('time parameter must be a boolean');
-        if (!is_bool($memory))
-            throw new \Exception('time parameter must be a boolean');
-        if ($time)
-            self::$_benchmarkTime = 0;
-        if ($memory)
-            self::$_benchmarkMemory = 0;
     }
 
     protected static function _addLog($log) {

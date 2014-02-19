@@ -39,7 +39,7 @@ class Cache extends Loader {
             $params['name'] = $cacheName;
 
             // Add cache
-            CacheManager::addCache($cacheName, CacheManager::factory($params['driver'], $params), true);
+            CacheManager::addCache($cacheName, CacheManager::factory($params['driver'], $params, 'framework\cache\drivers', 'framework\cache\IDrivers'), true);
         }
     }
 

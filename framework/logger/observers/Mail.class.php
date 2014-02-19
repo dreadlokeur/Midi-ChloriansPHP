@@ -11,14 +11,8 @@ class Mail implements \SplObserver {
     protected $_mailConfig = array();
     protected $_logs = '';
 
-    public function __construct($mailConfig, $initSendmailFrom = true) {
+    public function __construct($mailConfig) {
         SwiftMailer::getInstance();
-        // Init sendmail_from
-        if ($initSendmailFrom && ini_get('sendmail_from') != $initSendmailFrom) {
-            if (!Validate::isEmail($initSendmailFrom))
-                throw new \Exception('initSendmailFrom parameter must be a valid email');
-            ini_set('sendmail_from', $initSendmailFrom);
-        }
         //Set mail config
         if (!is_array($mailConfig))
             throw new \Exception('mailConfig parameter must be an array');

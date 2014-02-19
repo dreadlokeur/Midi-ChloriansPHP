@@ -17,10 +17,6 @@ use framework\mvc\Template;
 use framework\mvc\Router;
 use framework\utility\Cookie;
 use framework\utility\Date;
-use framework\utility\Benchmark;
-
-// Start benchmark
-$bench = array('time' => microtime(true), 'ram' => memory_get_usage());
 
 // Load config
 Config::setPath(PATH_CONFIG);
@@ -34,23 +30,16 @@ if (defined('ENVIRONNEMENT'))
     static::setEnv(ENVIRONNEMENT);
 
 // Autoloader cache
-if (defined('AUTOLOADER_CACHE') && !static::getDebug())
+if (defined('AUTOLOADER_CACHE') && !static::getDebug()) {
     Autoloader::setCache(AUTOLOADER_CACHE);
+    //Globalize essentials classes
+    if (defined('AUTOLOADER_GLOBALIZER') && AUTOLOADER_GLOBALIZER) {
+        $globalizer = new Globalizer(static::getGlobalizeClassList(), true);
+        $globalizer->loadGlobalizedClass();
+    }
+}
 // Add vendors directory
 Autoloader::addDirectory(PATH_VENDORS);
-
-//Globalize essentials classes
-if (defined('AUTOLOADER_GLOBALIZER') && AUTOLOADER_GLOBALIZER && !static::getDebug()) {
-    $globalizer = new Globalizer(static::getGlobalizeClassList(), true);
-    $globalizer->loadGlobalizedClass();
-}
-
-// Start benchmark
-if (static::getProfiler()) {
-    Benchmark::getInstance('global')
-            ->startTime(Benchmark::TIME_MS, $bench['time'])
-            ->startRam(Benchmark::RAM_MB, $bench['ram']);
-}
 
 // Exception, Error and Logger management
 $exc = ExceptionManager::getInstance()->start();
@@ -79,7 +68,6 @@ if (static::getDebug()) {
     $err->attach(new Display());
 }
 
-
 // Logger parameters
 if (defined('LOGGER_CACHE') && LOGGER_CACHE && !static::getDebug())
     $log->setCache(LOGGER_CACHE);
@@ -105,7 +93,7 @@ if (defined('LOGGER_MAIL') && LOGGER_MAIL && defined('LOGGER_MAIL_TO_EMAIL') && 
         'toEmail' => LOGGER_MAIL_TO_EMAIL, 'toName' => LOGGER_MAIL_TO_NAME,
         'mailSubject' => $language->getVar('site_name') . '  logs'
     );
-    $log->attach(new Mail($mailConfig, ADMIN_EMAIL));
+    $log->attach(new Mail($mailConfig));
 }
 
 if (defined('LOGGER_ERROR') && LOGGER_ERROR) {
@@ -121,12 +109,16 @@ Router::setHost(HOSTNAME);
 // Auto set language, by session
 $languageLoaded = Language::getInstance()->getLanguage();
 $langSession = Session::getInstance()->get('language');
-if (!is_null($langSession) && $langSession != $languageLoaded)
+if (!is_null($langSession) && $langSession != $languageLoaded) {
     $language->setLanguage($langSession);
+    $languageLoaded = $langSession;
+}
 // Auto set language, by cookie
 $langCookie = Cookie::get('language');
-if (!is_null($langCookie) && $langCookie != $languageLoaded)
+if (!is_null($langCookie) && $langCookie != $languageLoaded) {
     $language->setLanguage($langCookie);
+    $languageLoaded = $langSession;
+}
 
 // Security
 Security::autorun();

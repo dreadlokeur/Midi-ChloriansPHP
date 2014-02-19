@@ -31,6 +31,9 @@ abstract class Controller {
         'cookie' => false,
     );
     protected $_errors = array();
+    //http
+    protected $_request = null;
+    protected $_response = null;
 
     public function isTemplateInitialized() {
         return $this->_templateInitialized;
@@ -156,7 +159,7 @@ abstract class Controller {
         return $this->_autoCallDisplay;
     }
 
-    public function setAjaxController($ajaxDatasType = self::JSON, $desactivateLoggerDisplayer = true, $ajaxDatasCache = false, $ajaxAutoAddDatas = array()) {
+    public function setAjaxController($ajaxDatasType = self::JSON, $ajaxDatasCache = false, $ajaxAutoAddDatas = array()) {
         if (!Http::isAjaxRequest())
             $this->log->debug('Trying set controller on ajax when resquest isn\'t ajax', 'router');
 
@@ -168,13 +171,6 @@ abstract class Controller {
         $this->_ajaxDatasCache = $ajaxDatasCache;
         $this->_ajaxDatasType = $ajaxDatasType;
         $this->_isAjax = true;
-        if ($desactivateLoggerDisplayer) {
-            $displayer = $this->log->getObservers('display');
-            if (!is_null($displayer)) {
-                $displayer->setActivated(false);
-                $this->log->detach($displayer);
-            }
-        }
         if (!is_array($ajaxAutoAddDatas))
             throw new \Exception('ajaxAutoAddDatasparameter must be a boolean');
         if (!empty($ajaxAutoAddDatas))

@@ -7,10 +7,6 @@ use framework\autoloader\IAutoloaders;
 
 class Cache extends Autoloader implements IAutoloaders {
 
-    public function __construct() {
-        
-    }
-
     public function autoload($class) {
         if (!self::getCache())
             return;

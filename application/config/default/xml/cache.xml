@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <core>
-        <driver>file</driver><!-- file/apc -->
+        <driver>file</driver><!-- file/apcu -->
         <prefix>_</prefix><!-- prefix string -->
         <path>[PATH_CACHE_CORE]</path><!-- option (only for file driver) -->
         <gc>time</gc><!-- Garbage collection : time/number => toutes les x secondes, ou toutes les x requests -->
         <gcOption>86400</gcOption><!-- seconds/request -->
-        <groups>autoloader,logger</groups><!-- group list separated by , -->
+        <groups>autoloader,logger</groups><!-- group list separated by "," -->
     </core>
     <default>
         <name>default</name>
@@ -15,5 +15,6 @@
         <path>[PATH_CACHE_DEFAULT]</path>
         <gc>time</gc>
         <gcOption>86400</gcOption>
+        <groups>template</groups><!-- group list separated by "," -->
     </default>
 </config>

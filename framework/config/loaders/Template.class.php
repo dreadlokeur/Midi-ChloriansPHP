@@ -68,7 +68,7 @@ class Template extends Loader {
             }
 
             // Add
-            TemplateManager::addTemplate($name, TemplateManager::factory($datas['driver'], $params));
+            TemplateManager::addTemplate($name, TemplateManager::factory($datas['driver'], $params), true);
         }
     }
 

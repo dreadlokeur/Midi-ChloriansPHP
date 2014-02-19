@@ -114,12 +114,12 @@ class Url {
         if (!is_array($shortenerOpstions))
             throw new \Exception('Options parameter must be an array');
 
-        if (!isset($shortenerOpstions['apiKey']))
-            throw new \Exception('apiKey parameter must be defined');
-        if (!isset($shortenerOpstions['apiLogin']))
-            throw new \Exception('apiKey parameter must be defined');
+       if (isset($shortenerOpstions['apiKey']))
+            $identifiers['key'] = $shortenerOpstions['apiKey'];
+        if (isset($shortenerOpstions['apiLogin']))
+            $identifiers['login'] = $shortenerOpstions['apiLogin'];
 
-        $shortener = Shortener::factory($shortenerName, $shortenerOpstions['apiKey'], $shortenerOpstions['apiLogin']);
+        $shortener = Shortener::factory($shortenerName, $identifiers);
         return $shortener->expand($shortUrl);
     }
 

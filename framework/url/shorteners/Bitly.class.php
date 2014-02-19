@@ -7,7 +7,6 @@
 
 namespace framework\url\shorteners;
 
-use framework\url\Shortener;
 use framework\url\IShortener;
 use framework\network\Curl;
 use framework\utility\Validate;

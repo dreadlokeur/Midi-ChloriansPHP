@@ -2,6 +2,8 @@
 
 namespace framework\database;
 
+use framework\utility\Tools;
+
 class Server {
 
     const TYPE_MASTER = 'master';
@@ -15,15 +17,16 @@ class Server {
     protected $_dbname = null;
     protected $_dbcharset = 'utf8';
     protected $_type = 'master';
+    protected $_dsn = null;
 
-    public function __construct($host, $port, $driver, $dbname, $dbuser, $dbpassword, $type, $charset) {
+    public function __construct($type, $dbuser, $dbpassword, $driver, $host, $port, $dbname, $charset) {
+        $this->setType($type);
+        $this->setDbuser($dbuser);
+        $this->setDbpassword($dbpassword);
         $this->setHost($host);
         $this->setPort($port);
         $this->setDriver($driver);
         $this->setDbname($dbname);
-        $this->setDbuser($dbuser);
-        $this->setDbpassword($dbpassword);
-        $this->setType($type);
         $this->setDbcharset($charset);
     }
 
@@ -82,6 +85,29 @@ class Server {
         $this->_type = $type;
     }
 
+    public function setDsn($dsn, $check = true) {
+        if (!is_string($dsn))
+            throw new \Exception('Dsn must be a string');
+
+        if ($check) {
+            extract(Tools::parseDsn($dsn));
+            // check required infos
+            if (!isset($driver))
+                throw new \Exception('Miss driver type');
+            if (!isset($host))
+                throw new \Exception('Miss server host type');
+            if (!isset($port))
+                throw new \Exception('Miss server port type');
+            if (!isset($dbname))
+                throw new \Exception('Miss server dbname type');
+            if (!isset($charset))
+                throw new \Exception('Miss server charset type');
+        }
+
+        $this->_dsn = $dsn;
+        return $this;
+    }
+
     public function getHost() {
         return $this->_host;
     }
@@ -112,6 +138,10 @@ class Server {
 
     public function getType() {
         return $this->_type;
+    }
+
+    public function getDsn() {
+        return $this->_dsn;
     }
 
 }
