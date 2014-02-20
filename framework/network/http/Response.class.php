@@ -1,10 +1,17 @@
 <?php
 
+//TODO must be completed
+
 namespace framework\network\http;
 
-class Response {
+use framework\network\Http;
 
-    use debugger\Debug;
+class Response extends Http {
+
+    public function __construct() {
+        
+    }
+
 }
 ?>
 

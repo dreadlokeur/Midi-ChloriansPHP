@@ -192,6 +192,41 @@ class Php extends Template implements ITemplate {
         return Router::getUrl($routeName, $vars, $lang, $ssl);
     }
 
+    public function getUrls($lang = null, $ssl = false) {
+        return Router::getUrls($lang, $ssl);
+    }
+
+    public function getCurrentUrl() {
+        return Http::getCurrentUrl();
+    }
+
+    public function getRoute($routeName) {
+        return Router::getRoute($routeName);
+    }
+
+    public function getCurrentRoute() {
+        return Router::getInstance()->getCurrentRoute();
+    }
+
+    public function isCurrentRoute($routeName) {
+        return Router::getInstance()->getCurrentRoute() == $routeName;
+    }
+
+    public function getRoutes() {
+        return Router::getRoutes();
+    }
+
+    public function getCurrentRule() {
+        return Router::getCurrentRule();
+    }
+
+    public function isCurrentRule($rule) {
+        if (!is_string($rule))
+            throw new \Exception('Rule must be a string');
+
+        return stripos(self::getCurrentRule(), $rule) !== false;
+    }
+
     public function getUrlAsset($type, $ssl = false) {
         if (!is_string($type))
             throw new \Exception('Asset type must be a string');

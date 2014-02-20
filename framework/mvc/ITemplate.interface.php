@@ -52,7 +52,27 @@ interface ITemplate {
 
     public function getUrl($routeName, $vars = array(), $lang = null, $ssl = false);
 
+    public function getUrls($lang = null, $ssl = false);
+
+    public function getCurrentUrl();
+
+    public function getRoute($routeName);
+
+    public function getCurrentRoute();
+
+    public function isCurrentRoute($routeName);
+
+    public function getRoutes();
+
+    public function getCurrentRule();
+
+    public function isCurrentRule($rule);
+
     public function getUrlAsset($type, $ssl = false);
+
+    public function getCss();
+
+    public function getJs();
 
     public function setAutoSanitize($sanitize);
 

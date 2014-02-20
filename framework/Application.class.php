@@ -8,12 +8,13 @@ use framework\Cache;
 use framework\Database;
 use framework\Language;
 use framework\Logger;
-use framework\mvc\Router;
-use framework\mvc\Template;
+use framework\database\Server;
 use framework\error\ErrorManager;
 use framework\error\ExceptionManager;
+use framework\mvc\Router;
+use framework\mvc\Template;
+use framework\network\Http;
 use framework\utility\Benchmark;
-use framework\database\Server;
 
 final class Application {
 
@@ -115,6 +116,9 @@ final class Application {
                 Logger::getInstance()->debug(Language::getInstance()->countVars() . ' vars defined', 'language');
 
                 // Router
+                Logger::getInstance()->debug('Current url : ' . Http::getCurrentUrl(), 'router');
+                Logger::getInstance()->debug('Current route : ' .  Router::getInstance()->getCurrentRoute(), 'router');
+                Logger::getInstance()->debug('Current route rule : ' .  Router::getInstance()->getCurrentRule(), 'router');
                 Logger::getInstance()->debug('Request dispatched in aproximately : ' . Benchmark::getInstance('router')->stopTime()->getStatsTime() . ' ms', 'router');
                 Logger::getInstance()->debug('Aproximately memory used  : ' . Benchmark::getInstance('router')->stopRam()->getStatsRam() . ' KB', 'router');
 

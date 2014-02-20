@@ -21,6 +21,7 @@ class Router {
     protected $_namespaceSeparator = '\\';
     protected $_urlParameterKey = false;
     protected $_currentRoute = null;
+    protected $_currentRule = null;
     protected $_controller = null;
 
     protected function __construct() {
@@ -66,7 +67,7 @@ class Router {
     public function runRoute($routeName, $vars = array(), $die = false) {
         $route = self::getRoute($routeName);
         if ($route) {
-            $this->_currentRoute = $routeName;
+            $this->_setCurrentRoute($routeName);
             if (!$route->controller)
                 throw new \Exception('Route : "' . $routeName . '" missing datas : controller');
 
@@ -111,34 +112,6 @@ class Router {
             return self::getHost(true, $ssl) . $matchedRule;
 
         return $default;
-    }
-
-    protected static function _matchRule($route, $rule, $lang, $vars, $varsSeparator, $ruleNumber, $ruleCount) {
-        $matched = false;
-        $url = '';
-        $args = preg_split('#(\(.+\))#iuU', $rule);
-        foreach ($args as $key => $value) {
-            //match by lang
-            if ($lang !== null && $key == 0 && ($lang . $varsSeparator == $value || $lang == $value))
-                $matched = true;
-            // only one rule or rule number
-            elseif (count($route->rules) == 1 || $ruleNumber === $ruleCount)
-                $matched = true;
-
-            //add argument (if exist)
-            if ($matched) {
-                $arg = array_key_exists($key, $vars) && $route->regex ? rawurlencode($vars[$key]) : '';
-                //empty arg
-                if ($arg == '' && $value == $varsSeparator)
-                    continue;
-
-                $url .= $value . $arg;
-            }
-        }
-        if (!empty($url))
-            return rtrim($url, $varsSeparator);
-
-        return $matched;
     }
 
     public static function getUrls($lang = null, $ssl = false) {
@@ -190,7 +163,7 @@ class Router {
     }
 
     public function setUrlParameterKey($key) {
-        if (!\is_int($key) && !Validate::isVariableName($key))
+        if (!is_int($key) && !Validate::isVariableName($key))
             throw new \Exception('Url parameter name must be an integer or a valid variable name');
         $this->_urlParameterKey = $key;
     }
@@ -212,12 +185,14 @@ class Router {
             $routeMatch = true;
             $this->runRoute('index');
         } else {
+            // each routes
             foreach (self::$_routes as $route) {
                 $vars = array();
                 // Check if have rules
                 if (!$route->rules)
                     continue;
 
+                // each route rules
                 foreach ($route->rules as &$rule) {
                     Logger::getInstance()->debug('Try rule: "' . $rule . '"', 'router');
                     if ($route->regex)
@@ -227,6 +202,7 @@ class Router {
 
 
                     if ($routeMatch) {
+                        $this->_setCurrentRule($rule);
                         Logger::getInstance()->debug('Match route : "' . $route->name . '" with rule : "' . $rule . '"', 'router');
                         break;
                     }
@@ -235,9 +211,11 @@ class Router {
                 if (!$routeMatch)
                     continue;
 
-                $this->runRoute($route->name, $vars);
-                if ($routeMatch)
+                // run route, and break
+                if ($routeMatch) {
+                    $this->runRoute($route->name, $vars);
                     break;
+                }
             }
         }
 
@@ -356,12 +334,48 @@ class Router {
         $this->runRoute('debugger', array(1 => $isException), $die);
     }
 
-    protected function setCurrentRoute($currentRoute) {
-        $this->_currentRoute = $currentRoute;
+    public function getCurrentRule() {
+        return $this->_currentRule;
     }
 
     public function getCurrentRoute() {
         return $this->_currentRoute;
+    }
+
+    protected static function _matchRule($route, $rule, $lang, $vars, $varsSeparator, $ruleNumber, $ruleCount) {
+        $matched = false;
+        $url = '';
+        $args = preg_split('#(\(.+\))#iuU', $rule);
+        foreach ($args as $key => $value) {
+            //match by lang
+            if ($lang !== null && $key == 0 && ($lang . $varsSeparator == $value || $lang == $value))
+                $matched = true;
+            // only one rule or rule number
+            elseif (count($route->rules) == 1 || $ruleNumber === $ruleCount)
+                $matched = true;
+
+            //add argument (if exist)
+            if ($matched) {
+                $arg = array_key_exists($key, $vars) && $route->regex ? rawurlencode($vars[$key]) : '';
+                //empty arg
+                if ($arg == '' && $value == $varsSeparator)
+                    continue;
+
+                $url .= $value . $arg;
+            }
+        }
+        if (!empty($url))
+            return rtrim($url, $varsSeparator);
+
+        return $matched;
+    }
+
+    protected function _setCurrentRoute($currentRoute) {
+        $this->_currentRoute = $currentRoute;
+    }
+
+    protected function _setCurrentRule($currentRule) {
+        $this->_currentRule = $currentRule;
     }
 
 }
