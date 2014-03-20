@@ -27,13 +27,22 @@ class Language {
             return Tools::castValue((string) self::$_languageVars->$varName);
     }
 
-    public static function getVars() {
-        return self::$_languageVars;
+    public static function getVars($cast = false) {
+        if (!$cast)
+            return self::$_languageVars;
+        else {
+            $vars = new \stdClass();
+            foreach (self::$_languageVars as $name => $value) {
+                $vars->{$name} = self::getVar($name);
+            }
+
+            return $vars;
+        }
     }
+
     public static function countVars() {
         return count(self::$_languageVars);
     }
-
 
     public static function setVar($name, $value, $forceReplace = false) {
         if (!Validate::isVariableName($name))
@@ -78,12 +87,18 @@ class Language {
         Logger::getInstance()->debug('Try load language : "' . $language . '"', 'language');
         //check datas files
         $file = self::getDatasPath() . $language . '.xml';
-        if (!file_exists($file))
+        if (!file_exists($file)) {
+            if (!$setAsDefault) {
+                Logger::getInstance()->debug('Invalid lang : "' . $language . '", have not xml datas file', 'language');
+                return;
+            }
+
             throw new \Exception('Invalid lang : "' . $language . '", have not xml datas file');
+        }
         $xml = simplexml_load_file($file);
         if (is_null($xml) || !$xml)
             throw new \Exception('Invalid lang : "' . $language . '" invalid xml file');
-        
+
         Logger::getInstance()->debug('Load datas file : "' . $file . '"', 'language');
         //delete comment
         unset($xml->comment);
@@ -113,6 +128,7 @@ class Language {
     public function getLanguage() {
         return $this->_language;
     }
+
     public function getDefaultLanguage() {
         return $this->_defaultLanguage;
     }

@@ -9,7 +9,7 @@
     <?php } ?>
     <meta name="Author" content="<?php echo ADMIN_NAME; ?>" />
     <meta name="Description" content="<?php if ($this->desc) echo $this->desc;else echo $this->langs->site_desc; ?>" />
-    <meta name="Keywords" content="<?php if ($this->keywords) echo $this->keywords;else $this->langs->site_keywords; ?>" />
+    <meta name="Keywords" content="<?php if ($this->keywords) echo $this->keywords;else echo $this->langs->site_keywords; ?>" />
     <meta name="Robots" content="index,follow" />
     <link rel="icon" href="<?php echo $this->getUrlAsset('img'); ?>favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="<?php echo $this->getUrlAsset('img'); ?>favicon.ico" type="image/x-icon" />

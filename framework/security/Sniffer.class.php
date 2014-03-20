@@ -61,21 +61,20 @@ class Sniffer extends Security implements ISecurity {
     }
 
     public function run() {
-        // set bot into session
-        if (Http::getQuery($this->_trapName) && !Validate::isGoogleBot())
-            Session::getInstance()->add('crawler', true, true, true);
+        $ip = Tools::getUserIp();
+        $userAgent = Http::getServer('HTTP_USER_AGENT');
+        //badcrawler detected
+        if (Session::getInstance()->get(md5($ip . 'badcrawler')))
+            Router::getInstance()->show403(true);
 
-        $this->_check();
-
+        $this->_check($ip, $userAgent);
         Logger::getInstance()->debug('Sniffer security was run', 'security');
     }
 
-    protected function _check() {
-        if (Session::getInstance()->get('crawler')) {
+    protected function _check($ip, $userAgent) {
+        if (Http::getQuery($this->_trapName) && !Validate::isGoogleBot()) {
             $isBadCrawler = false;
             $isGoodCrawler = false;
-            $ip = Tools::getUserIp();
-            $userAgent = Http::getServer('HTTP_USER_AGENT');
 
             if ($this->_badCrawlerFile) {
                 $badCrawlerXml = simplexml_load_file($this->_badCrawlerFile);
@@ -97,7 +96,7 @@ class Sniffer extends Security implements ISecurity {
                         $isBadCrawler = true;
                     if ($isBadCrawler) {
                         $this->_catch($ip, $userAgent, self::CRAWLER_BAD);
-                        // Redirection vers 403
+                        Session::getInstance()->add(md5($ip . 'badcrawler'), true, true, true);
                         Router::getInstance()->show403(true);
                         break;
                     }

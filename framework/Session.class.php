@@ -189,7 +189,7 @@ class Session {
         if (isset($_SESSION[$key])) {
             if ($this->isLocked($key)) {
                 if ($forceUnlock)
-                    $this->unlock($forceUnlock);
+                    $this->unlock($key);
                 else
                     throw new \Exception('Delete key : "' . $key . '" error, key is locked');
             }
@@ -208,6 +208,9 @@ class Session {
     }
 
     public function isLocked($key) {
+        if (!is_string($key) && !is_int($key))
+            throw new \Exception('The key must be a string or an integer');
+
         return array_key_exists($key, $this->_lockedKeys);
     }
 
@@ -246,7 +249,7 @@ class Session {
     public function increment($key, $offset = 1, $startValue = 1, $returnValue = false) {
         $this->_crement($key, $offset, true, $startValue);
         Logger::getInstance()->debug('Increment : "' . $key . '"', 'session');
-        
+
         if ($returnValue)
             return $this->get($key);
     }

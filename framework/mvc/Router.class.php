@@ -196,7 +196,7 @@ class Router {
                 foreach ($route->rules as &$rule) {
                     Logger::getInstance()->debug('Try rule: "' . $rule . '"', 'router');
                     if ($route->regex)
-                        $routeMatch = (boolean) \preg_match('`^' . $rule . '$`iu', $request, $vars);
+                        $routeMatch = (boolean) preg_match('`^' . $rule . '$`iu', $request, $vars);
                     else
                         $routeMatch = ($request == $rule);
 

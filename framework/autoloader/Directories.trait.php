@@ -104,8 +104,8 @@ trait Directories {
     }
 
     protected static function _writeCacheDirectory($directory, $directoryContents, $directoryFilemtime) {
-        self::getCache()->write('AutoloaderCacheDirectories-' . $directory . '-contents', $directoryContents);
-        self::getCache()->write('AutoloaderCacheDirectories-' . $directory . '-filemtime', $directoryFilemtime);
+        self::getCache()->write('AutoloaderCacheDirectories-' . $directory . '-contents', $directoryContents, true);
+        self::getCache()->write('AutoloaderCacheDirectories-' . $directory . '-filemtime', $directoryFilemtime, true);
         self::_addLog('Directory : "' . $directory . '" written on cache');
     }
 
@@ -116,8 +116,8 @@ trait Directories {
 
     public static function purgeCacheDirectory($directory) {
         if (self::getCache()) {
-            self::getCache()->delete('AutoloaderCacheDirectories-' . $directory . '-contents');
-            self::getCache()->delete('AutoloaderCacheDirectories-' . $directory . '-filemtime');
+            self::getCache()->delete('AutoloaderCacheDirectories-' . $directory . '-contents', true);
+            self::getCache()->delete('AutoloaderCacheDirectories-' . $directory . '-filemtime', true);
         }
     }
 

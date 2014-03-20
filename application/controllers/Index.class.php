@@ -30,7 +30,7 @@ class Index extends Controller {
         $this->addAjaxDatas('updated', true);
 
         //create cookie
-        new Cookie('language', $language, true, Cookie::EXPIRE_TIME_INFINITE, '/');
+        new Cookie('language', $language, true, Cookie::EXPIRE_TIME_INFINITE, str_replace(Http::getServer('SERVER_NAME'), '', $this->router->getHost()));
     }
 
     public function captcha($formName, $type) {
@@ -52,7 +52,9 @@ class Index extends Controller {
                 if (!$captcha->getAudio())
                     $this->router->show404(true);
                 $captcha->get('audio');
-            }
+            } else
+                $this->router->show404(true);
+            
             $this->setAutoCallDisplay(false);
         }
     }

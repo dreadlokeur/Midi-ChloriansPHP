@@ -6,6 +6,7 @@ Options +FollowSymlinks +SymLinksIfOwnerMatch
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-l
 RewriteCond %{REQUEST_URI} !index\.php
 RewriteRule . /Midi-ChloriansPHP/index.php [L,QSA]
 </IfModule>

@@ -2,10 +2,10 @@
 
 namespace framework\cache\drivers;
 
-use framework\cache\IDrivers;
 use framework\Logger;
-use framework\utility\Tools;
 use framework\Cache;
+use framework\cache\IDrivers;
+use framework\utility\Tools;
 
 class File extends Cache implements IDrivers {
 
@@ -89,7 +89,7 @@ class File extends Cache implements IDrivers {
 
     public function read($key, $default = null, $lockTime = false, $onlyExpireTime = false) {
         if (!is_string($key))
-            throw new \Exception('Key : "' . $key . '" must be a string');
+            throw new \Exception('Key must be a string');
 
         if ($this->exist($key)) {
             if ($this->isLocked($key)) {

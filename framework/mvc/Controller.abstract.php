@@ -54,7 +54,7 @@ abstract class Controller {
         $this->_template = $tpl;
         // Set langs/urls vars into tpl
         $this->_template->setVar('urls', Router::getUrls($this->language->getLanguage(), Http::isHttps()), false, true);
-        $this->_template->setVar('langs', $this->language->getVars(), false, true);
+        $this->_template->setVar('langs', $this->language->getVars(true), false, true);
         $this->_template->setVar('lang', $this->language->getLanguage(), false, true);
         //init assets
         if (!Http::isAjaxRequest())

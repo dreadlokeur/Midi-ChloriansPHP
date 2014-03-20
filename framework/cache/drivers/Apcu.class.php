@@ -2,9 +2,9 @@
 
 namespace framework\cache\drivers;
 
-use framework\cache\IDrivers;
-use framework\Logger;
 use framework\Cache;
+use framework\Logger;
+use framework\cache\IDrivers;
 
 class Apcu extends Cache implements IDrivers {
 

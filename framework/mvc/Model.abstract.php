@@ -3,11 +3,13 @@
 namespace framework\mvc;
 
 use framework\Database;
+use framework\database\IEngine;
 
 abstract class Model {
 
     protected $_modelDBName = '';
     protected $_modelDBTable = '';
+    protected $_engine;
 
     // Find type
     const FIND_LIKE = 'LIKE';
@@ -37,6 +39,7 @@ abstract class Model {
         $manager = $inst->newInstance();
         $manager->setModelDBName($dbName);
         $manager->setModelDBTable($dbTable);
+        $manager->setEngine($manager->getDb(true));
         return $manager;
     }
 
@@ -177,6 +180,10 @@ abstract class Model {
         return Database::getDatabase($this->_modelDBName, $returnEngine);
     }
 
+    public function setEngine(IEngine $engine) {
+        $this->_engine = $engine;
+    }
+
     public function setModelDBName($dbName) {
         $this->_modelDBName = $dbName;
     }
@@ -193,17 +200,20 @@ abstract class Model {
         return $this->_modelDBTable;
     }
 
-    public function execute($query, $parameters = array(), $returnLastInsertId = false, $closeStatement = false, $checkBindNumber = true) {
-        $engine = $this->getDb(true);
-        $engine->set($query);
-        foreach ($parameters as $paramValue => $paramType)
-            $engine->bind($paramValue, $paramType);
+    public function getEngine() {
+        return $this->_engine;
+    }
 
-        $engine->execute($closeStatement, $checkBindNumber);
+    public function execute($query, $parameters = array(), $returnLastInsertId = false, $closeStatement = false, $checkBindNumber = true) {
+        $this->_engine->set($query);
+        foreach ($parameters as $paramValue => $paramType)
+            $this->_engine->bind($paramValue, $paramType);
+
+        $this->_engine->execute($closeStatement, $checkBindNumber);
 
 
         if ($returnLastInsertId)
-            return $engine->lastInsertId();
+            return $this->_engine->lastInsertId();
     }
 
 }

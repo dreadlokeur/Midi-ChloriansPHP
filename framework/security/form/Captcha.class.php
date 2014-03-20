@@ -820,11 +820,7 @@ class Captcha implements IForm {
             }
         } elseif ($captchaType == 'audio') {
             Header::sentHeader('Content-Type', 'audio/x-wav');
-            // compress output if supported by browser
-            if (extension_loaded('zlib'))
-                ini_set('zlib.output_compression', true);
-            else
-                Header::sentHeader('Content-Length', strlen($this->_audioContents));
+            Header::sentHeader('Content-Length', (string) strlen($this->_audioContents));
             // display captcha
             echo $this->_audioContents;
         }
