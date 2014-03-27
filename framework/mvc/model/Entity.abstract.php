@@ -38,17 +38,15 @@ abstract class Entity {
             $this->$method($value);
         else {
             //is in columns
-            if ($this->existColumn($name)) {
-                if (!Column::isValidColumnValue($this->getColumn($name), $value))
-                    throw new \Exception('invalid type or  for column : "' . $name . '"');
-            } else {
+            if ($this->existColumn($name) && !Column::isValidColumnValue($this->getColumn($name), $value))
+                throw new \Exception('invalid type or  for column : "' . $name . '"');
+
+            if (property_exists($this, $name))
+                $this->$name = $value;
+            else {
+                $name = '_' . $name;
                 if (property_exists($this, $name))
                     $this->$name = $value;
-                else {
-                    $name = '_' . $name;
-                    if (property_exists($this, $name))
-                        $this->$name = $value;
-                }
             }
         }
 
@@ -267,5 +265,4 @@ abstract class Entity {
     }
 
 }
-
 ?>
