@@ -65,27 +65,27 @@ class Autoloader {
             return self::$_benchmarkMemory;
     }
 
-    public static function registerAutoloader($loaderName, $loaderArguments = array(), $throw = true, $prepend = false) {
+    public static function registerAutoloader($loaderName, $loaderArguments = array(), $throw = true, $prepend = false, $forceReplace = false) {
         if (!is_string($loaderName))
             throw new \Exception('LoaderName parameter must be a string');
 
-        if (class_exists('framework\autoloader\autoloaders\\' . $loaderName, false))
-            $loaderClass = 'framework\autoloader\autoloaders\\' . $loaderName;
+        if (class_exists('framework\autoloader\adaptaters\\' . $loaderName, false))
+            $loaderClass = 'framework\autoloader\adaptaters\\' . $loaderName;
         else
             $loaderClass = $loaderName;
 
 
         // Instantiate loader
         $loaderInstance = new \ReflectionClass($loaderClass);
-        if (!in_array('framework\autoloader\IAutoloaders', $loaderInstance->getInterfaceNames()))
-            throw new \Exception('Loader class must be implement framework\autoloader\IAutoloaders');
+        if (!in_array('framework\autoloader\IAdaptater', $loaderInstance->getInterfaceNames()))
+            throw new \Exception('Loader class must be implement framework\autoloader\IAdaptater');
         if ($loaderInstance->isAbstract())
             throw new \Exception('Loader class must be not abstract class');
         if ($loaderInstance->isInterface())
             throw new \Exception('Loader class must be not interface');
 
         // Check if is already registered
-        if (self::_isRegisteredAutoloader($loaderInstance->getShortName()))
+        if (self::isRegisteredAutoloader($loaderInstance->getShortName()) && !$forceReplace)
             throw new \Exception('Loader is already registered');
 
         // Checking arguments for create an instance with good parameters
@@ -117,8 +117,29 @@ class Autoloader {
         self::$_autoloaders[$loaderInstance->getShortName()] = $loader;
     }
 
+    public static function registerAutoloaders($autoloaders) {
+        if (!is_array($autoloaders))
+            throw new \Exception('autoloaders parameter must be an array');
+
+        foreach ($autoloaders as $autoloader => $autoloaderParameters) {
+            if (is_string($autoloader)) {
+                $loaderArguments = isset($autoloaderParameters['loaderArguments']) ? $autoloaderParameters['loaderArguments'] : array();
+                $throw = isset($autoloaderParameters['throw']) ? $autoloaderParameters['throw'] : true;
+                $prepend = isset($autoloaderParameters['prepend']) ? $autoloaderParameters['prepend'] : false;
+                $forceReplace = isset($forceReplace['forceReplace']) ? $autoloaderParameters['forceReplace'] : false;
+                self::registerAutoloader($autoloader, $loaderArguments, $throw, $prepend, $forceReplace);
+            } elseif (is_int($autoloader)) {
+                self::registerAutoloader($autoloaderParameters);
+            }
+        }
+    }
+
+    public static function isRegisteredAutoloader($autoloader) {
+        return (array_key_exists($autoloader, self::getAutoloaders()));
+    }
+
     public static function getAutoloader($loaderName) {
-        if (!self::_isRegisteredAutoloader($loaderName))
+        if (!self::isRegisteredAutoloader($loaderName))
             throw new \Exception('Loader isn\'t registered');
 
         return self::$_autoloaders[$loaderName];
@@ -129,7 +150,7 @@ class Autoloader {
     }
 
     public static function unregisterAutoloader($loaderName) {
-        if (!self::_isRegisteredAutoloader($loaderName))
+        if (!self::isRegisteredAutoloader($loaderName))
             throw new \Exception('Loader isn\'t registered');
         if (!function_exists('spl_autoload_unregister'))
             throw new \Exception('spl_autoload_unregister does not exists in this PHP installation');
@@ -166,10 +187,6 @@ class Autoloader {
         if (!is_string($log))
             throw new \Exception('log parameter must be a string');
         self::$_logs[] = $log;
-    }
-
-    protected static function _isRegisteredAutoloader($autoloader) {
-        return (array_key_exists($autoloader, self::getAutoloaders()));
     }
 
     protected static function _setBenchmark($time, $memory) {

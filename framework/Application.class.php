@@ -95,12 +95,12 @@ final class Application {
             if (self::getProfiler()) {
                 // Caches
                 foreach ($caches as $cache)
-                    Logger::getInstance()->debug('Driver : "' . get_class($cache) . '"', 'cache' . $cache->getName());
+                    Logger::getInstance()->debug('Adaptater : "' . get_class($cache) . '"', 'cache' . $cache->getName());
 
                 // Databases
                 $databases = Database::getDatabases();
                 foreach ($databases as $database) {
-                    Logger::getInstance()->debug('Engine : ' . get_class($database->getEngine()), 'database' . $database->getName());
+                    Logger::getInstance()->debug('Adaptater : ' . get_class($database->getAdaptater()), 'database' . $database->getName());
                     $stats = $database->getStats();
                     Logger::getInstance()->debug('Queries : ' . (string) $database->getQueryCount() . ' (Aproximately memory used  : ' . $stats['ram'] . ' KB in aproximately ' . $stats['time'] . ' ms)', 'database' . $database->getName());
                     Logger::getInstance()->debug('Servers : ' . $database->countServers() . ' (Masters : ' . $database->countServers(Server::TYPE_MASTER) . '  Slaves : ' . $database->countServers(Server::TYPE_SLAVE) . ')', 'database' . $database->getName());
@@ -109,7 +109,7 @@ final class Application {
                 // Templates
                 $templates = Template::getTemplates();
                 foreach ($templates as $template)
-                    Logger::getInstance()->debug('Driver : ' . get_class($template), 'template' . $template->getName());
+                    Logger::getInstance()->debug('Adaptater : ' . get_class($template), 'template' . $template->getName());
 
                 // Language
                 Logger::getInstance()->debug('Language default is : "' . Language::getInstance()->getDefaultLanguage() . '"', 'language');
@@ -117,8 +117,8 @@ final class Application {
 
                 // Router
                 Logger::getInstance()->debug('Current url : ' . Http::getCurrentUrl(), 'router');
-                Logger::getInstance()->debug('Current route : ' .  Router::getInstance()->getCurrentRoute(), 'router');
-                Logger::getInstance()->debug('Current route rule : ' .  Router::getInstance()->getCurrentRule(), 'router');
+                Logger::getInstance()->debug('Current route : ' . Router::getInstance()->getCurrentRoute(), 'router');
+                Logger::getInstance()->debug('Current route rule : ' . Router::getInstance()->getCurrentRule(), 'router');
                 Logger::getInstance()->debug('Request dispatched in aproximately : ' . Benchmark::getInstance('router')->stopTime()->getStatsTime() . ' ms', 'router');
                 Logger::getInstance()->debug('Aproximately memory used  : ' . Benchmark::getInstance('router')->stopRam()->getStatsRam() . ' KB', 'router');
 
@@ -134,7 +134,7 @@ final class Application {
                 $logs = Autoloader::getLogs();
                 foreach ($logs as &$log)
                     Logger::getInstance()->debug($log, 'autoloader');
-                Logger::getInstance()->debug(count(Autoloader::getAutoloaders()) . ' autoloader drivers, ' . count(Autoloader::getDirectories()) . ' directories and ' . count(Autoloader::getNamespaces()) . ' namespaces registered', 'autoloader');
+                Logger::getInstance()->debug(count(Autoloader::getAutoloaders()) . ' autoloader adaptaters, ' . count(Autoloader::getDirectories()) . ' directories and ' . count(Autoloader::getNamespaces()) . ' namespaces registered', 'autoloader');
                 Logger::getInstance()->debug('Loading ' . count(Autoloader::getClasses()) . ' classes (' . Autoloader::countGlobalizedClasses() . ' globalized classes)  in aproximately ' . round(Autoloader::getBenchmark('time') * 1000, 4) . ' ms', 'autoloader');
                 Logger::getInstance()->debug('Aproximately memory used  : ' . round(Autoloader::getBenchmark('memory') / 1024, 4) . ' KB', 'autoloader');
                 Autoloader::purgeLogs();

@@ -4,7 +4,7 @@ namespace framework\cache;
 
 use framework\Cache;
 
-interface IDrivers {
+interface IAdaptater {
 
     public function __construct($params = array());
 
@@ -15,7 +15,7 @@ interface IDrivers {
     public function checkGc($gc);
 
     public function writeGc($gc);
-    
+
     public function runGc();
 
     public function write($key, $data, $forceReplace = false, $expire = Cache::EXPIRE_INFINITE, $type = Cache::TYPE_TIME);

@@ -21,7 +21,7 @@ require_once PATH_FRAMEWORK . 'autoloader' . DS . 'Classes.trait.php';
 require_once PATH_FRAMEWORK . 'autoloader' . DS . 'Directories.trait.php';
 require_once PATH_FRAMEWORK . 'autoloader' . DS . 'Namespaces.trait.php';
 require_once PATH_FRAMEWORK . 'Autoloader.class.php';
-require_once PATH_FRAMEWORK . 'autoloader' . DS . 'IAutoloaders.interface.php';
+
 // Autoloader configuration
 $autoloader = new Autoloader();
 $autoloader->setAutoloadExtensions(array(
@@ -39,11 +39,10 @@ $autoloader->addNamespaces(array(
     'models' => PATH_MODELS)
 );
 
-// Include autoloaders drivers
-require_once PATH_FRAMEWORK . 'autoloader' . DS . 'autoloaders' . DS . 'Finder.class.php';
-require_once PATH_FRAMEWORK . 'autoloader' . DS . 'autoloaders' . DS . 'Cache.class.php';
-require_once PATH_FRAMEWORK . 'autoloader' . DS . 'autoloaders' . DS . 'Includer.class.php';
-$autoloader->registerAutoloader('Finder');
-$autoloader->registerAutoloader('Cache');
-$autoloader->registerAutoloader('Includer');
+// Include autoloaders adaptaters
+require_once PATH_FRAMEWORK . 'autoloader' . DS . 'IAdaptater.interface.php';
+require_once PATH_FRAMEWORK . 'autoloader' . DS . 'adaptaters' . DS . 'Finder.class.php';
+require_once PATH_FRAMEWORK . 'autoloader' . DS . 'adaptaters' . DS . 'Cache.class.php';
+require_once PATH_FRAMEWORK . 'autoloader' . DS . 'adaptaters' . DS . 'Includer.class.php';
+$autoloader->registerAutoloaders(array('Finder', 'Cache', 'Includer'));
 ?>

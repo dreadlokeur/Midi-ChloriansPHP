@@ -1,15 +1,15 @@
 <?php
 
-namespace framework\mvc\templates;
+namespace framework\mvc\template\adaptaters;
 
-use framework\mvc\ITemplate;
+use framework\mvc\template\IAdaptater;
 use framework\utility\Validate;
 use framework\mvc\Template;
 use framework\Logger;
 use framework\mvc\Router;
 use framework\network\Http;
 
-class Php extends Template implements ITemplate {
+class Php extends Template implements IAdaptater {
 
     protected $_name = null;
     protected $_path = null;

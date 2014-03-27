@@ -4,7 +4,7 @@ namespace framework;
 
 use framework\database\Server;
 use framework\Logger;
-use framework\database\IEngine;
+use framework\database\IAdaptater;
 
 class Database {
 
@@ -52,13 +52,13 @@ class Database {
     protected static $_databases = array();
     protected $_name = '';
     protected $_type = null;
-    protected $_engine = null;
+    protected $_adaptater = null;
     protected $_masters = array();
     protected $_slaves = array();
     protected $_stats = array('time' => 0, 'ram' => 0); //Queries totals stats
     protected $_queryCount = 0;
 
-    public static function getDatabase($name, $returnEngine = false) {
+    public static function getDatabase($name, $returnAdaptater = false) {
         if (!is_string($name))
             throw new \Exception('Database name must be a string');
 
@@ -66,8 +66,8 @@ class Database {
             return false;
 
         $db = self::$_databases[$name];
-        if ($returnEngine)
-            return $db->getEngine();
+        if ($returnAdaptater)
+            return $db->getAdaptater();
 
         return $db;
     }
@@ -100,16 +100,16 @@ class Database {
         $this->_stats['ram'] = $this->_stats['ram'] + $ram;
     }
 
-    public function __construct($name, $engine) {
+    public function __construct($name, $adaptater) {
         $this->setName($name);
-        $this->setEngine($engine);
+        $this->setAdaptater($adaptater);
         Logger::getInstance()->addGroup('database' . $this->_name, 'Database ' . $this->_name, true, true);
     }
 
     public function isValidDriver($driver) {
-        if (!$this->_engine)
-            throw new \Exception('Please set engine before check driver supported');
-        return $this->_engine->isValidDriver($driver);
+        if (!$this->_adaptater)
+            throw new \Exception('Please set adaptater before check driver supported');
+        return $this->_adaptater->isValidDriver($driver);
     }
 
     // Setters
@@ -117,8 +117,8 @@ class Database {
         $this->_name = $name;
     }
 
-    public function setEngine(IEngine $engine) {
-        $this->_engine = $engine;
+    public function setAdaptater(IAdaptater $adaptater) {
+        $this->_adaptater = $adaptater;
     }
 
     // Getters
@@ -126,8 +126,8 @@ class Database {
         return $this->_name;
     }
 
-    public function getEngine() {
-        return $this->_engine;
+    public function getAdaptater() {
+        return $this->_adaptater;
     }
 
     public function getQueryCount() {

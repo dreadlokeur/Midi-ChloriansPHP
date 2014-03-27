@@ -1,11 +1,11 @@
 <?php
 
-namespace framework\autoloader\autoloaders;
+namespace framework\autoloader\adaptaters;
 
 use framework\Autoloader;
-use framework\autoloader\IAutoloaders;
+use framework\autoloader\IAdaptater;
 
-class Cache extends Autoloader implements IAutoloaders {
+class Cache extends Autoloader implements IAdaptater {
 
     public function autoload($class) {
         if (!self::getCache())

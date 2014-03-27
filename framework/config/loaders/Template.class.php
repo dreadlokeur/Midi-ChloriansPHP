@@ -19,8 +19,8 @@ class Template extends Loader {
             //check required keys
             if (!isset($datas['path']))
                 throw new \Exception('Miss path config param for template : "' . $name . '"');
-            if (!isset($datas['driver']))
-                throw new \Exception('Miss driver config param for template : "' . $name . '"');
+            if (!isset($datas['adaptater']))
+                throw new \Exception('Miss adaptater config param for template : "' . $name . '"');
 
 
             // Cast global setting
@@ -66,9 +66,8 @@ class Template extends Loader {
                     }
                 }
             }
-
             // Add
-            TemplateManager::addTemplate($name, TemplateManager::factory($datas['driver'], $params), true);
+            TemplateManager::addTemplate($name, TemplateManager::factory($datas['adaptater'], $params, 'framework\mvc\template\adaptaters', 'framework\mvc\template\IAdaptater'), true);
         }
     }
 

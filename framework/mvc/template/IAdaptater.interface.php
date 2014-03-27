@@ -1,8 +1,8 @@
 <?php
 
-namespace framework\mvc;
+namespace framework\mvc\template;
 
-interface ITemplate {
+interface IAdaptater {
 
     public function __construct($params);
 

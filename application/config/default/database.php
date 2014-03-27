@@ -3,7 +3,7 @@
 $config = array(
     // database name => array(options)
     'default' => array(
-        'engine' => 'pdo',
+        'adaptater' => 'pdo',//class namme (implement \framework\database\IAdaptater)
         'server' => array(
             array(
                 'type' => 'master', //master / slave

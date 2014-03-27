@@ -1,11 +1,11 @@
 <?php
 
-namespace framework\autoloader\autoloaders;
+namespace framework\autoloader\adaptaters;
 
 use framework\Autoloader;
-use framework\autoloader\IAutoloaders;
+use framework\autoloader\IAdaptater;
 
-class Finder extends Autoloader implements IAutoloaders {
+class Finder extends Autoloader implements IAdaptater {
 
     public function autoload($class) {
         if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false))
@@ -22,8 +22,7 @@ class Finder extends Autoloader implements IAutoloaders {
                 self::_addLog('Class: "' . $class . '" find by cache');
 
             self::_setClassInfo($class, $classSourceFile['sourceFilePath'], $classSourceFile['isCached']);
-        }
-        else
+        } else
             self::_addLog('Can\'t find classSourceFile for class : "' . $class . '"');
 
         if (self::getDebug())

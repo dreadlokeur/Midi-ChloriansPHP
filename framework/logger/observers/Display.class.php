@@ -46,10 +46,10 @@ class Display implements \SplObserver {
             } else
                 $this->_displayLog($log->message, $log->level, $log->date, $log->isTrace);
         }
+        $this->_logs .= ob_get_clean();
+
         if (count($bottomLogs) > 0)
             $this->update($subject, $bottomLogs, $groups);
-
-        $this->_logs .= ob_get_clean();
     }
 
     private function _displayLog($message, $level, $date, $isTrace = false) {

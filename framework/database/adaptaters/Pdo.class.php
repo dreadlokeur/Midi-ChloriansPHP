@@ -1,8 +1,8 @@
 <?php
 
-namespace framework\database\engines;
+namespace framework\database\adaptaters;
 
-use framework\database\IEngine;
+use framework\database\IAdaptater;
 use framework\database\Server;
 use framework\utility\Benchmark;
 use framework\utility\Validate;
@@ -10,7 +10,7 @@ use framework\Database;
 use framework\Application;
 use framework\Logger;
 
-class Pdo implements IEngine {
+class Pdo implements IAdaptater {
 
     //Conn and config
     protected $_configName = null;

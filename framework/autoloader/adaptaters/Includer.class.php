@@ -1,11 +1,11 @@
 <?php
 
-namespace framework\autoloader\autoloaders;
+namespace framework\autoloader\adaptaters;
 
 use framework\Autoloader;
-use framework\autoloader\IAutoloaders;
+use framework\autoloader\IAdaptater;
 
-class Includer extends Autoloader implements IAutoloaders {
+class Includer extends Autoloader implements IAdaptater {
 
     public function autoload($class) {
         if (class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false))
@@ -20,11 +20,9 @@ class Includer extends Autoloader implements IAutoloaders {
             if (file_exists($classInfos['sourceFilePath'])) {
                 require_once $classInfos['sourceFilePath'];
                 self::_addLog('Class: "' . $class . '" was included by sourceFile : "' . $classInfos['sourceFilePath'] . '"');
-            }
-            else
+            } else
                 self::_addLog('Class : "' . $class . '" can\'t include by source file : "' . $classInfos['sourceFilePath'] . '"');
-        }
-        else
+        } else
             self::_addLog('Class : "' . $class . '" not found');
 
         if (self::getDebug())

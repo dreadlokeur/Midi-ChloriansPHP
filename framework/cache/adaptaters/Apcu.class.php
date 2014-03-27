@@ -1,12 +1,12 @@
 <?php
 
-namespace framework\cache\drivers;
+namespace framework\cache\adaptaters;
 
 use framework\Cache;
 use framework\Logger;
-use framework\cache\IDrivers;
+use framework\cache\IAdaptater;
 
-class Apcu extends Cache implements IDrivers {
+class Apcu extends Cache implements IAdaptater {
 
     public function __construct($params = array()) {
         if (!extension_loaded('apcu') && !extension_loaded('apc'))

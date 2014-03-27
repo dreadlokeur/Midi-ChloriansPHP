@@ -19,13 +19,13 @@ class Database extends Loader {
                 throw new \Exception('Name of database must be a valid variable name');
 
             // Check essential parameters
-            if (!isset($datas['engine']))
-                throw new \Exception('Miss engine config param for database : "' . $name . '"');
+            if (!isset($datas['adaptater']))
+                throw new \Exception('Miss adaptater config param for database : "' . $name . '"');
             if (!isset($datas['server']))
                 throw new \Exception('Miss server config param for database : "' . $name . '"');
 
             // Create database instance
-            $database = new DatabaseManager($name, DatabaseManager::factory($datas['engine'], $name, 'framework\database\engines', 'framework\database\IEngine'));
+            $database = new DatabaseManager($name, DatabaseManager::factory($datas['adaptater'], $name, 'framework\database\adaptaters', 'framework\database\IAdaptater'));
 
             // Fetch servers
             foreach ($datas['server'] as $server) {
@@ -54,9 +54,9 @@ class Database extends Loader {
                     throw new \Exception('Miss server charset type');
 
 
-                // Check driver is supported by database engine
+                // Check driver is supported by database adaptater
                 if (!$database->isValidDriver($driver))
-                    throw new \Exception('Invalid driver : "' . $driver . '", not supported database engine : "' . $datas['engine'] . '"');
+                    throw new \Exception('Invalid driver : "' . $driver . '", not supported database adaptater : "' . $datas['adaptater'] . '"');
 
                 // Create server instance
                 $serverInstance = new Server($type, $dbuser, $dbpassword, $driver, $host, $port, $dbname, $charset);

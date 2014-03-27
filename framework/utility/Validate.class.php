@@ -241,7 +241,6 @@ class Validate {
                 break;
             default:
                 throw new \Exception('UrlType parameter must be a string : http, javascript, ftp, file, mailto, telnet');
-                break;
         }
         $info = parse_url($value);
         switch ($info['scheme']) {

@@ -1,13 +1,13 @@
 <?php
 
-namespace framework\cache\drivers;
+namespace framework\cache\adaptaters;
 
 use framework\Logger;
 use framework\Cache;
-use framework\cache\IDrivers;
+use framework\cache\IAdaptater;
 use framework\utility\Tools;
 
-class File extends Cache implements IDrivers {
+class File extends Cache implements IAdaptater {
 
     public function __construct($params = array()) {
         parent::init($params);

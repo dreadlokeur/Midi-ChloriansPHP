@@ -19,12 +19,16 @@ trait Factory {
         if (is_null($classNamespace) && $strictNamespace)
             throw new \Exception('Cannot mixed null namespace and strictNamespace parameters');
 
+        //remove namespace into className
+        if (!is_null($classNamespace) && stripos($className, $classNamespace . '\\') !== false)
+            $className = str_replace($classNamespace . '\\', '', $className);
+
         // check class nampesace and define class
         if (!is_null($classNamespace) && class_exists($classNamespace . '\\' . ucfirst($className), $autoload))
             $class = $classNamespace . '\\' . ucfirst($className);
         else {
             if ($strictNamespace)
-                throw new \Exception($classNamespace . '\\' . ucfirst($className) . 'doesn\'t exists');
+                throw new \Exception($classNamespace . '\\' . ucfirst($className) . ' doesn\'t exists');
 
             $class = ucfirst($className);
             if (!class_exists($class, $autoload))
@@ -37,10 +41,10 @@ trait Factory {
             if (!in_array($interfaceName, $inst->getInterfaceNames()))
                 throw new \Exception('Class : "' . $class . '" must be implement "' . $interfaceName . '"');
         }
+        //check extended class
         if (!is_null($parentClass)) {
-            if (!is_subclass_of($className, $parentClass)) {
+            if (!is_subclass_of($class, $parentClass))
                 throw new \Exception('Class : "' . $class . '" must be extend "' . $parentClass . '"');
-            }
         }
 
 

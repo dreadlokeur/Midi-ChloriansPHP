@@ -2,12 +2,14 @@
 
 namespace framework\mvc;
 
-use framework\mvc\ITemplate;
+use framework\mvc\template\IAdaptater;
 use framework\utility\Minify;
 use framework\Logger;
 use framework\network\Http;
 
 abstract class Template {
+
+    use \framework\pattern\Factory;
 
     const ASSET_JS = 'js';
     const ASSET_CSS = 'css';
@@ -30,7 +32,7 @@ abstract class Template {
     protected $_js = '';
     protected $_autoSanitize = false;
 
-    public static function addTemplate($name, ITemplate $template, $forceReplace = false) {
+    public static function addTemplate($name, IAdaptater $template, $forceReplace = false) {
         if (!is_string($name) && !is_int($name))
             throw new \Exception('Template name must be string or integer');
 
@@ -65,21 +67,6 @@ abstract class Template {
             throw new \Exception('Trying to set template : "' . $templateName . '", but isn\'t setted');
 
         self::$_template = $templateName;
-    }
-
-    public static function factory($driverName, $params = array()) {
-        if (!is_string($driverName))
-            throw new \Exception('Driver name of template parameter must be a string');
-
-        if (!class_exists('\framework\mvc\templates\\' . ucfirst($driverName)))
-            throw new \Exception('Template drivers invalid');
-
-
-        $inst = new \ReflectionClass('\framework\mvc\templates\\' . ucfirst($driverName));
-        if (!in_array('framework\mvc\ITemplate', $inst->getInterfaceNames()))// check interface
-            throw new \Exception('Driver of template must be implement framework\mvc\ITemplate');
-
-        return $inst->newInstance($params);
     }
 
     public static function isValidAssetType($type) {

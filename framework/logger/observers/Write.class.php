@@ -56,10 +56,6 @@ class Write implements \SplObserver {
         }
     }
 
-    public function purgeLog() {
-        $this->_logs = '';
-    }
-
     public function update(\SplSubject $subject, $logs = array(), $groups = array()) {
         $bottomLogs = array();
         foreach ($logs as &$log) {
@@ -77,8 +73,7 @@ class Write implements \SplObserver {
                         $this->_addGroupBottom($l->date);
                     }
                 }
-            }
-            else
+            } else
                 $this->_addLog($log->message, $log->level, $log->date, $log->isTrace);
         }
         if (count($bottomLogs) > 0)

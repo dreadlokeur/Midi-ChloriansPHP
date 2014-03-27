@@ -31,15 +31,15 @@ class Cache extends Loader {
                 // add value into cache parameters
                 $params[$name] = $value;
             }
-            // check driver
-            if (!isset($params['driver']))
-                throw new \Exception('Miss driver parameter for cache : "' . $cacheName . '"');
+            // check adaptater
+            if (!isset($params['adaptater']))
+                throw new \Exception('Miss adaptaterr parameter for cache : "' . $cacheName . '"');
 
             // Add param name
             $params['name'] = $cacheName;
 
             // Add cache
-            CacheManager::addCache($cacheName, CacheManager::factory($params['driver'], $params, 'framework\cache\drivers', 'framework\cache\IDrivers'), true);
+            CacheManager::addCache($cacheName, CacheManager::factory($params['adaptater'], $params, 'framework\cache\adaptaters', 'framework\cache\IAdaptater'), true);
         }
     }
 

@@ -12,6 +12,13 @@ class Index extends Controller {
 
     public function __construct() {
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
+
+        //$article = \framework\mvc\Model::factoryEntity('article');
+        //\framework\Debugger::dump($article->user);
+        //\framework\Debugger::dump($article, true);
+        
+         //$user = \framework\mvc\Model::factoryEntity('user');
+         //\framework\Debugger::dump($user, true);
     }
 
     public function setAjax($check = false) {
@@ -54,7 +61,7 @@ class Index extends Controller {
                 $captcha->get('audio');
             } else
                 $this->router->show404(true);
-            
+
             $this->setAutoCallDisplay(false);
         }
     }

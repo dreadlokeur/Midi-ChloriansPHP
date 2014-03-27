@@ -4,7 +4,7 @@ namespace framework\database;
 
 use framework\Database;
 
-interface IEngine {
+interface IAdaptater {
 
     public function __construct($configName);
 

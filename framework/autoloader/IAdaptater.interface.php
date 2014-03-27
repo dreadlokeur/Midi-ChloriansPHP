@@ -2,7 +2,7 @@
 
 namespace framework\autoloader;
 
-interface IAutoloaders {
+interface IAdaptater {
 
     public function autoload($class);
 }

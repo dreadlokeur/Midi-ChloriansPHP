@@ -3,7 +3,7 @@
     <default>
         <path>[PATH_TEMPLATE_DEFAULT]</path>
         <charset>UTF-8</charset>
-        <driver>php</driver>
+        <adaptater>php</adaptater><!-- class name (must be implement \framework\mvc\template\IAdaptater)-->
         <autoSanitize>php</autoSanitize>
         <assets>
             <img>

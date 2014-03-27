@@ -5,7 +5,7 @@ namespace framework;
 use framework\utility\Validate;
 use framework\utility\Date;
 use framework\Logger;
-use framework\cache\IDrivers;
+use framework\cache\IAdaptater;
 
 abstract class Cache {
 
@@ -47,7 +47,7 @@ abstract class Cache {
         return self::$_caches;
     }
 
-    public static function addCache($name, IDrivers $driver, $forceReplace = false) {
+    public static function addCache($name, IAdaptater $adaptater, $forceReplace = false) {
         if (!is_string($name) && !is_int($name))
             throw new \Exception('Cache name must be string or integer');
 
@@ -59,7 +59,7 @@ abstract class Cache {
             Logger::getInstance()->debug('Cache : "' . $name . '" already defined, was overloaded');
         }
 
-        self::$_caches[$name] = $driver;
+        self::$_caches[$name] = $adaptater;
     }
 
     public function init($params) {
