@@ -115,13 +115,13 @@ class Column {
 
     public function setName($name) {
         if (!Validate::isVariableName($name))
-            throw new \Exception('Relation name : "' . $name . '" must be a valid variable name');
+            throw new \Exception('Column name : "' . $name . '" must be a valid variable name');
         $this->_name = $name;
     }
 
     public function setAlias($alias) {
         if (!Validate::isVariableName($alias))
-            throw new \Exception('Relation alias : "' . $alias . '" must be a valid variable name');
+            throw new \Exception('Column alias : "' . $alias . '" must be a valid variable name');
         $this->_alias = $alias;
     }
 
@@ -145,7 +145,7 @@ class Column {
             case self::TYPE_TIME:
                 break;
             default:
-                throw new \Exception('Relation type invalid');
+                throw new \Exception('Column type invalid');
         }
         $this->_type = $type;
     }
@@ -153,43 +153,43 @@ class Column {
     public function setLength($length) {
         //todo check by type...
         if (!is_int($length))
-            throw new \Exception('Relation length must be an integer');
+            throw new \Exception('Column length must be an integer');
         $this->_length = $length;
     }
 
     public function setUnique($unique) {
         if (!is_bool($unique))
-            throw new \Exception('Relation unique must be a boolean');
+            throw new \Exception('Column unique must be a boolean');
         $this->_unique = $unique;
     }
 
     public function setNotNull($notNull) {
         if (!is_bool($notNull))
-            throw new \Exception('Relation notNull must be a boolean');
+            throw new \Exception('Column notNull must be a boolean');
         $this->_notNull = $notNull;
     }
 
     public function setPrimary($primary) {
         if (!is_bool($primary))
-            throw new \Exception('Relation primary must be a boolean');
+            throw new \Exception('Column primary must be a boolean');
         $this->_primary = $primary;
     }
 
     public function setForeign($foreign) {
         if (!is_bool($foreign))
-            throw new \Exception('Relation foreign must be a boolean');
+            throw new \Exception('Column foreign must be a boolean');
         $this->_foreign = $foreign;
     }
 
     public function setRequired($required) {
         if (!is_bool($required))
-            throw new \Exception('Relation required must be a boolean');
+            throw new \Exception('Column required must be a boolean');
         $this->_required = $required;
     }
 
     public function setAutoIncrement($autoIncrement) {
         if (!is_bool($autoIncrement))
-            throw new \Exception('Relation autoIncrement must be a boolean');
+            throw new \Exception('Column autoIncrement must be a boolean');
         $this->_autoIncrement = $autoIncrement;
     }
 

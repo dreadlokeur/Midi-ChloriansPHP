@@ -32,8 +32,8 @@ class Article extends Entity {
     /**
      * @column(
      *      type="integer",
-     *      notNull="true"
-     *      foreign="true"
+     *      notNull="true",
+     *      foreign="true",
      *      required="true"
      * )
      */
