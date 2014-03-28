@@ -5,13 +5,13 @@ namespace framework\mvc\model;
 use framework\mvc\Model;
 use framework\mvc\model\Relation;
 use framework\mvc\model\Column;
-use framework\utility\Tools;
-use framework\utility\Validate;
 use framework\Logger;
 
 abstract class Entity {
 
-    protected $_name = null;
+    protected $_name;
+    protected $_repostery;
+    protected $_isMapped = false;
     protected $_columns = array();
     protected $_relations = array();
     protected $_parentName;
@@ -39,7 +39,7 @@ abstract class Entity {
         else {
             //is in columns
             if ($this->existColumn($name) && !Column::isValidColumnValue($this->getColumn($name), $value))
-                throw new \Exception('invalid type or  for column : "' . $name . '"');
+                throw new \Exception('Invalid type for column : "' . $name . '"');
 
             if (property_exists($this, $name))
                 $this->$name = $value;
@@ -55,7 +55,10 @@ abstract class Entity {
     }
 
     public function setName($name) {
-        $this->_name = (string) $name;
+        $name = explode('\\', (string)$name);
+        if (is_array($name))
+            $name = end($name);
+        $this->_name = strtolower((string) $name);
         return $this;
     }
 
@@ -94,38 +97,47 @@ abstract class Entity {
     }
 
     public function mapping($columns = true, $relations = true) {
-        if ($columns)
-            $this->loadColumns();
-        if ($relations)
-            $this->loadRelations();
-    }
-
-    public function loadColumns() {
-        Logger::getInstance()->debug('Try load columns on entity : "' . $this->getName() . '"');
+        if ($this->isMapped())
+            throw new \Exception('Entity : "' . $this->getName() . '" already mapped');
         $reflexionClass = new \ReflectionClass($this);
-        $properties = $reflexionClass->getProperties();
-        foreach ($properties as &$property) {
-            $doc = $property->getDocComment();
-            if (preg_match('/@column/', $doc)) {
-                //create instance of Column
-                $column = new Column($this->_getProprietyCleanedName($property));
-                // get column datas by annotation proprieties
-                $annotationKeys = $this->_getAnnotationKeys($doc);
-                foreach ($annotationKeys as $annotationKey) {
-                    //set column propriety value
-                    $methodName = 'set' . ucfirst($annotationKey['name']);
-                    if (!method_exists($column, $methodName))
-                        throw new \Exception('Invalid column propriety : "' . $annotationKey['name'] . '" on entity : "' . $this->getName() . '"');
-                    $column->$methodName($annotationKey['value']);
-                }
-
-                //add into columns list
-                $this->addColumn($column);
-                Logger::getInstance()->debug('Column : "' . $column->getName() . '" loaded on entity : "' . $this->getName() . '"');
+        $reposteryName = false;
+        //map default entity datas (repostery, table, tableAlias)
+        $doc = $reflexionClass->getDocComment();
+        if (preg_match('/@entity/', $doc)) {
+            $annotationKeys = Model::getAnnotationKeys($doc);
+            foreach ($annotationKeys as $annotationKey) {
+                if ($annotationKey['name'] != 'repository')
+                    continue;
+                $reposteryName = $annotationKey['value'];
             }
         }
+        // no repostery defined in entity annotation, set manualy, by entity name
+        if (!$reposteryName)
+            $reposteryName = $this->getName();
 
-        return $this;
+        //set repostery
+        $this->setRepostery(Model::getInstance()->getRepostery($reposteryName));
+        if ($columns || $relations) {
+            $properties = $reflexionClass->getProperties();
+            if ($columns)
+                $this->_mapColumns($properties);
+            if ($relations)
+                $this->_mapRelations($properties, $reflexionClass->name);
+        }
+
+        $this->_isMapped = true;
+    }
+
+    public function isMapped() {
+        return $this->_isMapped;
+    }
+
+    public function setRepostery(Repostery $repostery) {
+        $this->_repostery = $repostery;
+    }
+
+    public function getRepostery() {
+        return $this->_repostery;
     }
 
     public function addColumn(Column $column, $forceReplace = false) {
@@ -162,47 +174,6 @@ abstract class Entity {
         return array_key_exists((string) $columnName, $this->_columns);
     }
 
-    public function loadRelations() {
-        Logger::getInstance()->debug('Try load relations on entity : "' . $this->getName() . '"');
-        $reflexionClass = new \ReflectionClass($this);
-        $properties = $reflexionClass->getProperties();
-        foreach ($properties as &$property) {
-            $doc = $property->getDocComment();
-            if (preg_match('/@relation/', $doc)) {
-                $relationProprieties = array();
-                $annotationKeys = $this->_getAnnotationKeys($doc);
-                foreach ($annotationKeys as $annotationKey) {
-                    //create entityTarget object
-                    if ($annotationKey['name'] == 'entityTarget') {
-                        Logger::getInstance()->debug('Try load relation : "' . $annotationKey['value'] . '" on entity : "' . $this->getName() . '"');
-                        if ($this->getParentName() == $annotationKey['value'])
-                            $annotationKey['value'] = $this->getParentEntity();
-                        else {
-                            $annotationKey['value'] = Model::factoryEntity($annotationKey['value'], array(
-                                        'parentName' => $reflexionClass->name,
-                                        'parentEntity' => $this)
-                            );
-                        }
-                    }
-
-                    // add into proprieties list
-                    $relationProprieties[$annotationKey['name']] = $annotationKey['value'];
-                }
-                //check if proprieties defined
-                if (!isset($relationProprieties['type']) || !isset($relationProprieties['entityTarget']) || !isset($relationProprieties['columnTarget']) || !isset($relationProprieties['columnParent']))
-                    throw new \Exception('Relation annotation  : "' . $this->_getProprietyCleanedName($property) . '" invalid');
-
-                //create relation instance
-                $relation = new Relation($this->_getProprietyCleanedName($property), $relationProprieties['type'], $relationProprieties['entityTarget'], $this, $relationProprieties['columnTarget'], $relationProprieties['columnParent']);
-                //add into relations list
-                $this->addRelation($relation);
-                Logger::getInstance()->debug('Relation : "' . $relation->getName() . '" loaded on entity : "' . $this->getName() . '"');
-            }
-        }
-
-        return $this;
-    }
-
     public function addRelation(Relation $relation, $forceReplace = false) {
         if ($this->existRelation($relation->getName())) {
             if (!$forceReplace)
@@ -223,7 +194,7 @@ abstract class Entity {
     }
 
     public function getRelations() {
-        return $this->_columns;
+        return $this->_relations;
     }
 
     public function getRelation($relationName) {
@@ -237,32 +208,62 @@ abstract class Entity {
         return array_key_exists((string) $relationName, $this->_relations);
     }
 
-    private function _getAnnotationKeys($annotation) {
-        if (!is_string($annotation))
-            throw new \Exception('Annotation must be a string');
-        //clean
-        $keys = explode(',', preg_replace(array('/\*/', '/\s+/', '/\(/', '/\)/'), '', Tools::selectStringByDelimiter($annotation, '(', ')')));
-        $annotationKeys = array();
-        foreach ($keys as &$key) {
-            $keyDatas = explode('=', $key);
-            if (!$keyDatas || (!is_array($keyDatas) && count($keyDatas < 2)))
-                throw new \Exception('Invalid annotation : "' . $key . '"');
-            //check key name
-            if (!Validate::isVariableName($keyDatas[0]))
-                throw new \Exception('Annotation key : "' . $keyDatas[0] . '" must be a valid variable name');
+    private function _mapColumns($properties) {
+        foreach ($properties as &$property) {
+            $doc = $property->getDocComment();
+            if (preg_match('/@column/', $doc)) {
+                //create instance of Column
+                $column = new Column(Model::getProprietyCleanedName($property));
+                // get column datas by annotation proprieties
+                $annotationKeys = Model::getAnnotationKeys($doc);
+                foreach ($annotationKeys as $annotationKey) {
+                    //set column propriety value
+                    $methodName = 'set' . ucfirst($annotationKey['name']);
+                    if (!method_exists($column, $methodName))
+                        throw new \Exception('Invalid column propriety : "' . $annotationKey['name'] . '" on entity : "' . $this->getName() . '"');
+                    $column->$methodName($annotationKey['value']);
+                }
 
-            $annotationKeys [] = array(
-                'name' => $keyDatas[0],
-                'value' => Tools::castValue(preg_replace(array('/\"/'), '', $keyDatas[1]))
-            );
+                //add into columns list
+                $this->addColumn($column);
+            }
         }
-
-        return $annotationKeys;
     }
 
-    private function _getProprietyCleanedName(\ReflectionProperty $property) {
-        return preg_replace(array('/\_/'), '', $property->getName());
+    private function _mapRelations($properties, $parentName) {
+        foreach ($properties as &$property) {
+            $doc = $property->getDocComment();
+            if (preg_match('/@relation/', $doc)) {
+                $relationProprieties = array();
+                $annotationKeys = Model::getAnnotationKeys($doc);
+                foreach ($annotationKeys as $annotationKey) {
+                    //create entityTarget object
+                    if ($annotationKey['name'] == 'entityTarget') {
+                        if ($this->getParentName() == $annotationKey['value'])
+                            $annotationKey['value'] = $this->getParentEntity();
+                        else {
+                            $annotationKey['value'] = Model::getInstance()->getEntity($annotationKey['value'], array(
+                                'parentName' => $parentName,
+                                'parentEntity' => $this)
+                            );
+                        }
+                    }
+
+                    // add into proprieties list
+                    $relationProprieties[$annotationKey['name']] = $annotationKey['value'];
+                }
+                //check if proprieties defined
+                if (!isset($relationProprieties['type']) || !isset($relationProprieties['entityTarget']) || !isset($relationProprieties['columnTarget']) || !isset($relationProprieties['columnParent']))
+                    throw new \Exception('Relation annotation  : "' . Model::getProprietyCleanedName($property) . '" invalid');
+
+                //create relation instance
+                $relation = new Relation(Model::getProprietyCleanedName($property), $relationProprieties['type'], $relationProprieties['entityTarget'], $this, $relationProprieties['columnTarget'], $relationProprieties['columnParent']);
+                //add into relations list
+                $this->addRelation($relation);
+            }
+        }
     }
 
 }
+
 ?>

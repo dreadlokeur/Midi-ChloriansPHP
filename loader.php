@@ -3,7 +3,7 @@
 /**
  * Include necessary files, and setting class autoloader
  *
- * @copyright  Copyright 2013 - MidichlorianPHP and contributors
+ * @copyright  Copyright 2014 - MidichlorianPHP and contributors
  * @author     NAYRAND Jérémie (dreadlokeur) <dreadlokeur@gmail.com>
  * @version    1.0.1dev2
  * @license    GNU General Public License 3 http://www.gnu.org/licenses/gpl.html

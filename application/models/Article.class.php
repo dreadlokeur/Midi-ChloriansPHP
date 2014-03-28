@@ -4,6 +4,9 @@ namespace models;
 
 use framework\mvc\model\Entity;
 
+/**
+ * @entity(repository="models\ArticleRepostery")
+ */
 class Article extends Entity {
 
     /**
