@@ -1,9 +1,7 @@
 <?php
 
 /*
- * find, findBy, findByX, findAll, findOne, findOneBy, findOneByX
- * save, delete, count, exist
- * setDbConfig, getDb, getAdaptater...
+ * find, findBy, findByX, findAll, findOne, findOneBy, findOneByX, count, exist
  * load, loadLazy..., 
  * queryBuilder,
  * debug mode, benchmark, profiler
@@ -13,7 +11,6 @@
 namespace framework\mvc\model;
 
 use framework\Database;
-use framework\mvc\Model;
 use framework\mvc\model\Table;
 
 abstract class Repostery {
@@ -21,9 +18,18 @@ abstract class Repostery {
     protected $_name;
     protected $_isMapped = false;
     protected $_table;
-    protected $_databaseConfigName = 'default';
+    protected $_databaseConfigName;
     protected $_database = null;
     protected $_databaseAdaptater;
+    protected static $_databaseConfigNameDefault = 'default';
+
+    public static function setDatabaseConfigNameDefault($configName) {
+        self::$_databaseConfigNameDefault = $configName;
+    }
+
+    public static function getDatabaseConfigNameDefault() {
+        return self::$_databaseConfigNameDefault;
+    }
 
     public function setName($name) {
         $name = explode('\\', (string) $name);
@@ -51,7 +57,8 @@ abstract class Repostery {
         $tableName = false;
         $tableAlias = null;
         if (preg_match('/@repostery/', $doc)) {
-            $annotationKeys = Model::getAnnotationKeys($doc);
+            $annotation = new Annotation($doc);
+            $annotationKeys = $annotation->getKeys();
             foreach ($annotationKeys as $annotationKey) {
                 switch ($annotationKey['name']) {
                     case 'table':
@@ -72,12 +79,13 @@ abstract class Repostery {
         if (!$tableName)
             $tableName = $this->getName();
 
+        // set table instance
         $table = new Table($tableName, $tableAlias);
         $this->setTable($table);
 
         //set default database
         if (is_null($this->getDatabase()))
-            $this->setDatabase('default');
+            $this->setDatabase(self::getDatabaseConfigNameDefault());
 
         $this->_isMapped = true;
     }

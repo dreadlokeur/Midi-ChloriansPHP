@@ -3,8 +3,7 @@
 namespace framework\mvc;
 
 use framework\pattern\Factory;
-use framework\utility\Tools;
-use framework\utility\Validate;
+use framework\mvc\model\Entity;
 
 class Model {
 
@@ -16,46 +15,15 @@ class Model {
         
     }
 
-    public static function getAnnotationKeys($annotation) {
-        if (!is_string($annotation))
-            throw new \Exception('Annotation must be a string');
-        //clean
-        $keys = explode(',', preg_replace(array('/\*/', '/\s+/', '/\(/', '/\)/'), '', Tools::selectStringByDelimiter($annotation, '(', ')')));
-        $annotationKeys = array();
-        foreach ($keys as &$key) {
-            $keyDatas = explode('=', $key);
-            if (!$keyDatas || (!is_array($keyDatas) && count($keyDatas < 2)))
-                throw new \Exception('Invalid annotation : "' . $key . '"');
-            //check key name
-            if (!Validate::isVariableName($keyDatas[0]))
-                throw new \Exception('Annotation key : "' . $keyDatas[0] . '" must be a valid variable name');
-
-            $annotationKeys [] = array(
-                'name' => $keyDatas[0],
-                'value' => Tools::castValue(preg_replace(array('/\"/'), '', $keyDatas[1]))
-            );
-        }
-
-        return $annotationKeys;
-    }
-
-    public static function getProprietyCleanedName(\ReflectionProperty $property) {
-        return preg_replace(array('/\_/'), '', $property->getName());
-    }
-
-    public function getEntity($entityName, $entityDatas = array(), $mapColumns = true, $mapRelations = true) {
+    public static function factoryEntity($entityName, $entityDatas = array(), $mapColumns = true, $mapRelations = true) {
         $entity = Factory::factory($entityName, $entityDatas, 'models', null, false, true, 'framework\mvc\model\Entity', true);
         $entity->setName($entityName)->hydrate($entityDatas)->mapping($mapColumns, $mapRelations);
         return $entity;
     }
 
-    public function getRepostery($reposteryName, $reposteryDatas = array()) {
-        if (strripos($reposteryName, 'repostery') === false)
-            $reposteryName = $reposteryName . 'Repostery';
-
-        $repostery = Factory::factory($reposteryName, $reposteryDatas, 'models', null, false, true, 'framework\mvc\model\Repostery', true);
-        $repostery->setName($reposteryName)->mapping();
-        return $repostery;
+    public static function factoryRepostery($entityName, $entityDatas = array(), $mapColumns = true, $mapRelations = true) {
+        $entity = self::factoryEntity($entityName, $entityDatas = array(), $mapColumns = true, $mapRelations = true);
+        return $entity->getRepostery();
     }
 
     // enties manager...
@@ -91,6 +59,13 @@ class Model {
     }
 
     public function save($entity = null) {// save into bdd, update if exists (and if is modified) else create into bdd (and set primaryKey value)
+    }
+
+    public function flush() {// save and clear all attached entities
+    }
+
+    public function getEntities() {
+        return $this->_entities;
     }
 
 }

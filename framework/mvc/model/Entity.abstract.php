@@ -3,9 +3,11 @@
 namespace framework\mvc\model;
 
 use framework\mvc\Model;
+use framework\mvc\model\Annotation;
 use framework\mvc\model\Relation;
 use framework\mvc\model\Column;
 use framework\Logger;
+use framework\pattern\Factory;
 
 abstract class Entity {
 
@@ -55,7 +57,7 @@ abstract class Entity {
     }
 
     public function setName($name) {
-        $name = explode('\\', (string)$name);
+        $name = explode('\\', (string) $name);
         if (is_array($name))
             $name = end($name);
         $this->_name = strtolower((string) $name);
@@ -104,7 +106,8 @@ abstract class Entity {
         //map default entity datas (repostery, table, tableAlias)
         $doc = $reflexionClass->getDocComment();
         if (preg_match('/@entity/', $doc)) {
-            $annotationKeys = Model::getAnnotationKeys($doc);
+            $annotation = new Annotation($doc);
+            $annotationKeys = $annotation->getKeys();
             foreach ($annotationKeys as $annotationKey) {
                 if ($annotationKey['name'] != 'repository')
                     continue;
@@ -115,8 +118,14 @@ abstract class Entity {
         if (!$reposteryName)
             $reposteryName = $this->getName();
 
-        //set repostery
-        $this->setRepostery(Model::getInstance()->getRepostery($reposteryName));
+        // create repostery instance and set into entity
+        if (strripos($reposteryName, 'repostery') === false)
+            $reposteryName = $reposteryName . 'Repostery';
+        $repostery = Factory::factory($reposteryName, array(), 'models', null, false, true, 'framework\mvc\model\Repostery', true);
+        $repostery->setName($reposteryName)->mapping();
+        $this->setRepostery($repostery);
+
+
         if ($columns || $relations) {
             $properties = $reflexionClass->getProperties();
             if ($columns)
@@ -213,9 +222,10 @@ abstract class Entity {
             $doc = $property->getDocComment();
             if (preg_match('/@column/', $doc)) {
                 //create instance of Column
-                $column = new Column(Model::getProprietyCleanedName($property));
+                $column = new Column(self::_getProprietyCleanedName($property));
                 // get column datas by annotation proprieties
-                $annotationKeys = Model::getAnnotationKeys($doc);
+                $annotation = new Annotation($doc);
+                $annotationKeys = $annotation->getKeys();
                 foreach ($annotationKeys as $annotationKey) {
                     //set column propriety value
                     $methodName = 'set' . ucfirst($annotationKey['name']);
@@ -235,14 +245,15 @@ abstract class Entity {
             $doc = $property->getDocComment();
             if (preg_match('/@relation/', $doc)) {
                 $relationProprieties = array();
-                $annotationKeys = Model::getAnnotationKeys($doc);
+                $annotation = new Annotation($doc);
+                $annotationKeys = $annotation->getKeys();
                 foreach ($annotationKeys as $annotationKey) {
                     //create entityTarget object
                     if ($annotationKey['name'] == 'entityTarget') {
                         if ($this->getParentName() == $annotationKey['value'])
                             $annotationKey['value'] = $this->getParentEntity();
                         else {
-                            $annotationKey['value'] = Model::getInstance()->getEntity($annotationKey['value'], array(
+                            $annotationKey['value'] = Model::factoryEntity($annotationKey['value'], array(
                                 'parentName' => $parentName,
                                 'parentEntity' => $this)
                             );
@@ -254,14 +265,18 @@ abstract class Entity {
                 }
                 //check if proprieties defined
                 if (!isset($relationProprieties['type']) || !isset($relationProprieties['entityTarget']) || !isset($relationProprieties['columnTarget']) || !isset($relationProprieties['columnParent']))
-                    throw new \Exception('Relation annotation  : "' . Model::getProprietyCleanedName($property) . '" invalid');
+                    throw new \Exception('Relation annotation  : "' . self::_getProprietyCleanedName($property) . '" invalid');
 
                 //create relation instance
-                $relation = new Relation(Model::getProprietyCleanedName($property), $relationProprieties['type'], $relationProprieties['entityTarget'], $this, $relationProprieties['columnTarget'], $relationProprieties['columnParent']);
+                $relation = new Relation(self::_getProprietyCleanedName($property), $relationProprieties['type'], $relationProprieties['entityTarget'], $this, $relationProprieties['columnTarget'], $relationProprieties['columnParent']);
                 //add into relations list
                 $this->addRelation($relation);
             }
         }
+    }
+
+    protected static function _getProprietyCleanedName(\ReflectionProperty $property) {
+        return preg_replace(array('/\_/'), '', $property->getName());
     }
 
 }

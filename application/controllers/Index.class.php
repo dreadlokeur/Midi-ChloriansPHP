@@ -13,12 +13,13 @@ class Index extends Controller {
     public function __construct() {
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
 
-        //$article = \framework\mvc\Model::factoryEntity('article');
-        //\framework\Debugger::dump($article->user);
+        //$model = \framework\mvc\Model::getInstance();
+        //$article = $model->factoryEntity('article');
+        //$article->title = 'test';
+        //$model->attach($article);
+        //$model->flush();
+        //\framework\Debugger::dump($article->getRepostery()->getDatabase());
         //\framework\Debugger::dump($article, true);
-        
-         //$user = \framework\mvc\Model::factoryEntity('user');
-         //\framework\Debugger::dump($user, true);
     }
 
     public function setAjax($check = false) {

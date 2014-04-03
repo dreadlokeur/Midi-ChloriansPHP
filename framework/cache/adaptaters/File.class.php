@@ -235,16 +235,16 @@ class File extends Cache implements IAdaptater {
         Logger::getInstance()->debug('Cache cleared', 'cache' . $this->_name);
     }
 
-    public function purge($deleteCachePath = true) {
+    public function purge($deleteCachePath = true, $chmod = false) {
         $dir = Tools::cleanScandir($this->_path);
         foreach ($dir as &$f) {
             if (is_file($this->_path . $f))
                 unlink($this->_path . $f);
             if (is_dir($this->_path . $f))
-                Tools::deleteTreeDirectory($this->_path . $f);
+                Tools::deleteTreeDirectory($this->_path . $f, true, $chmod);
         }
         if ($deleteCachePath) {
-            chmod($this->_path, 0775);
+            chmod($this->_path, $chmod);
             rmdir($this->_path);
         }
         Logger::getInstance()->debug('Cache purged', 'cache' . $this->_name);
