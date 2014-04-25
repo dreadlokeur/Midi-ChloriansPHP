@@ -94,6 +94,10 @@ abstract class Repostery {
         $this->_table = $table;
     }
 
+    public function getTable() {
+        return $this->_table;
+    }
+
     public function setDatabase($configDatabaseName) {
         $database = Database::getDatabase($configDatabaseName);
         if (!$database)

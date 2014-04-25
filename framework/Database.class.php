@@ -2,9 +2,10 @@
 
 namespace framework;
 
-use framework\database\Server;
 use framework\Logger;
 use framework\database\IAdaptater;
+use framework\database\Server;
+use framework\utility\Benchmark;
 
 class Database {
 
@@ -18,11 +19,8 @@ class Database {
     const PARAM_BOOL = 5;
     const PARAM_INPUT_OUTPUT = 6;
     // bind order type
-    const PARAM_BIND_POSITIONAL = true;
-    const PARAM_BIND_NAMED = false;
-    // bind type
-    const BIND_TYPE_PARAM = 1;
-    const BIND_TYPE_VALUE = 2;
+    const PARAM_BIND_POSITIONAL = 0;
+    const PARAM_BIND_NAMED = 1;
     //fetch style
     const FETCH_LAZY = 1;
     const FETCH_ASSOC = 2;
@@ -49,6 +47,15 @@ class Database {
     const FETCH_ORI_ABS = 4;
     const FETCH_ORI_REL = 5;
 
+    //For debug message information
+    protected static $_paramTypeName = array(
+        self::PARAM_NULL => 'null',
+        self::PARAM_INT => 'int',
+        self::PARAM_STR => 'str',
+        self::PARAM_LOB => 'lob',
+        self::PARAM_STMT => 'stmt',
+        self::PARAM_BOOL => 'bool',
+        self::PARAM_INPUT_OUTPUT => 'input output');
     protected static $_databases = array();
     protected $_name = '';
     protected $_type = null;
@@ -217,6 +224,46 @@ class Database {
 
     public function incrementQueryCount() {
         $this->_queryCount++;
+    }
+
+    public function logQuery($query, $params = array(), $bindParamType = null, $lastError = null) {
+        if (!is_array($params))
+            throw new \Exception('Params must be an array');
+        // Query
+        Logger::getInstance()->debug('Query : ' . $query, 'database' . $this->getName());
+        if (count($params) > 0) {
+            // Parameters
+            Logger::getInstance()->debug('Params (' . count($params) . ') bind by ' . $this->_getBindParamType($bindParamType), 'database' . $this->getName());
+            if ($bindParamType == self::PARAM_BIND_POSITIONAL)
+                $i = 0;
+            foreach ($params as &$param) {
+                $key = $bindParamType == self::PARAM_BIND_POSITIONAL ? $i : $param['key'];
+                Logger::getInstance()->debug('Key : ' . $key . ', Value : ' . $param['value'] . ', Type : ' . (int) $param['type'] . ' (' . self::$_paramTypeName[$param['type']] . '), IsParam : ' . (int) $param['isParam'], 'database' . $this->getName());
+                if ($bindParamType == self::PARAM_BIND_POSITIONAL)
+                    $i++;
+            }
+        }
+        // Benchmark
+        $time = Benchmark::getInstance($this->getName())->stopTime()->getStatsTime();
+        $ram = Benchmark::getInstance($this->getName())->stopRam()->getStatsRam();
+        Logger::getInstance()->debug('Benchmark time : ' . $time . ' ms Ram : ' . $ram, 'database' . $this->getName());
+        // Error
+        if (!is_null($lastError))
+            Logger::getInstance()->debug('Error : ' . $lastError, 'database' . $this->getName());
+
+
+        // increment stats
+        $this->setStats($time, $ram);
+        $this->incrementQueryCount();
+    }
+
+    protected function _getBindParamType($bindParamType) {
+        if ($bindParamType == self::PARAM_BIND_POSITIONAL)
+            return 'positional';
+        elseif ($bindParamType == self::PARAM_BIND_NAMED)
+            return 'named';
+        else
+            return 'unknow';
     }
 
 }

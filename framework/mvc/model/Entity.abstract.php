@@ -2,6 +2,8 @@
 
 namespace framework\mvc\model;
 
+use framework\Application;
+use framework\Database;
 use framework\mvc\Model;
 use framework\mvc\model\Annotation;
 use framework\mvc\model\Relation;
@@ -98,7 +100,7 @@ abstract class Entity {
         return $this;
     }
 
-    public function mapping($columns = true, $relations = true) {
+    public function mapping($columns = true, $relations = true, $chekMap = false) {
         if ($this->isMapped())
             throw new \Exception('Entity : "' . $this->getName() . '" already mapped');
         $reflexionClass = new \ReflectionClass($this);
@@ -121,7 +123,7 @@ abstract class Entity {
         // create repostery instance and set into entity
         if (strripos($reposteryName, 'repostery') === false)
             $reposteryName = $reposteryName . 'Repostery';
-        $repostery = Factory::factory($reposteryName, array(), 'models', null, false, true, 'framework\mvc\model\Repostery', true);
+        $repostery = Factory::factory($reposteryName, array(), Model::getReposteriesNamespace(), null, false, true, 'framework\mvc\model\Repostery', true);
         $repostery->setName($reposteryName)->mapping();
         $this->setRepostery($repostery);
 
@@ -135,6 +137,49 @@ abstract class Entity {
         }
 
         $this->_isMapped = true;
+
+        if ($chekMap || Application::getDebug())
+            $this->checkMap();
+    }
+
+    public function checkMap($forceCheck = false) {
+        //already checked
+        if (Model::entityMapChecked($this->getName()) && !$forceCheck)
+            return;
+
+        // Describe table  (TODO rewrite with QueryBuilder)
+        $this->getRepostery()->getDatabaseAdaptater()->prepare('DESCRIBE ' . $this->getRepostery()->getTable()->getName())->execute();
+        //check if table exists
+        if ($this->getRepostery()->getDatabaseAdaptater()->getLastError())
+            throw new \Exception('Enity : "' . $this->getName() . '" no have table : "' . $this->getRepostery()->getTable()->getName() . '" on database');
+
+        $databaseColumns = $this->getRepostery()->getDatabaseAdaptater()->fetchAll(Database::FETCH_OBJ);
+        $entityColumns = $this->getColumns();
+        $missingEntiyColumns = array();
+        $missingDatabaseColumns = array();
+        foreach ($entityColumns as $entityColumn) {
+            $match = false;
+            foreach ($databaseColumns as &$databaseColumn) {
+                // check if entity column exists on database
+                if ($databaseColumn->Field == $entityColumn->getName())
+                    $match = true;
+
+                // check if database column exists on entity
+                if (!isset($entityColumns[$databaseColumn->Field]) && !in_array($databaseColumn->Field, $missingEntiyColumns))
+                    $missingEntiyColumns[$databaseColumn->Field] = $databaseColumn->Field;
+            }
+            if (!$match)
+                $missingDatabaseColumns[$entityColumn->getName()] = $entityColumn->getName();
+        }
+        //TODO check type, infos...
+
+        if (count($missingEntiyColumns) > 0)
+            throw new \Exception('Enity : "' . $this->getName() . '" some columns exist on database but not on entity : ' . implode(', ', $missingEntiyColumns));
+        if (count($missingDatabaseColumns) > 0)
+            throw new \Exception('Enity : "' . $this->getName() . '" some columns exist on entity but not on database : ' . implode(', ', $missingDatabaseColumns));
+
+        // add into checked list
+        Model::addEntityMapChecked($this->getName());
     }
 
     public function isMapped() {
@@ -222,7 +267,7 @@ abstract class Entity {
             $doc = $property->getDocComment();
             if (preg_match('/@column/', $doc)) {
                 //create instance of Column
-                $column = new Column(self::_getProprietyCleanedName($property));
+                $column = new Column($this->_getProprietyCleanedName($property));
                 // get column datas by annotation proprieties
                 $annotation = new Annotation($doc);
                 $annotationKeys = $annotation->getKeys();
@@ -254,8 +299,8 @@ abstract class Entity {
                             $annotationKey['value'] = $this->getParentEntity();
                         else {
                             $annotationKey['value'] = Model::factoryEntity($annotationKey['value'], array(
-                                'parentName' => $parentName,
-                                'parentEntity' => $this)
+                                        'parentName' => $parentName,
+                                        'parentEntity' => $this)
                             );
                         }
                     }
@@ -265,17 +310,17 @@ abstract class Entity {
                 }
                 //check if proprieties defined
                 if (!isset($relationProprieties['type']) || !isset($relationProprieties['entityTarget']) || !isset($relationProprieties['columnTarget']) || !isset($relationProprieties['columnParent']))
-                    throw new \Exception('Relation annotation  : "' . self::_getProprietyCleanedName($property) . '" invalid');
+                    throw new \Exception('Relation annotation  : "' . $this->_getProprietyCleanedName($property) . '" invalid');
 
                 //create relation instance
-                $relation = new Relation(self::_getProprietyCleanedName($property), $relationProprieties['type'], $relationProprieties['entityTarget'], $this, $relationProprieties['columnTarget'], $relationProprieties['columnParent']);
+                $relation = new Relation($this->_getProprietyCleanedName($property), $relationProprieties['type'], $relationProprieties['entityTarget'], $this, $relationProprieties['columnTarget'], $relationProprieties['columnParent']);
                 //add into relations list
                 $this->addRelation($relation);
             }
         }
     }
 
-    protected static function _getProprietyCleanedName(\ReflectionProperty $property) {
+    private function _getProprietyCleanedName(\ReflectionProperty $property) {
         return preg_replace(array('/\_/'), '', $property->getName());
     }
 

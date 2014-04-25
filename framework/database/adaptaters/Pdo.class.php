@@ -18,7 +18,8 @@ class Pdo implements IAdaptater {
     protected $_connection = null;
     //reqs
     protected $_query = null;
-    protected $_statement = null; //PdoStatement
+    protected $_statement = false; //PdoStatement
+    protected $_execute = false;
     protected $_params = array();
     protected $_paramsNumberNecesary = 0;
     protected $_namedParamOrder = array();
@@ -32,15 +33,6 @@ class Pdo implements IAdaptater {
         Database::PARAM_STMT => \PDO::PARAM_STMT,
         Database::PARAM_BOOL => \PDO::PARAM_BOOL,
         Database::PARAM_INPUT_OUTPUT => \PDO::PARAM_INPUT_OUTPUT);
-    //For debug message information
-    protected $_paramTypeName = array(
-        \PDO::PARAM_NULL => 'null',
-        \PDO::PARAM_INT => 'int',
-        \PDO::PARAM_STR => 'str',
-        \PDO::PARAM_LOB => 'lob',
-        \PDO::PARAM_STMT => 'stmt',
-        \PDO::PARAM_BOOL => 'bool',
-        \PDO::PARAM_INPUT_OUTPUT => 'input output');
     //fetch style
     protected $_fetchStyle = array(
         Database::FETCH_LAZY => \PDO::FETCH_LAZY,
@@ -110,8 +102,8 @@ class Pdo implements IAdaptater {
     }
 
     public function disconnect() {
-        if ($this->haveStatement())
-            $this->_closeStatement();
+        //reset query
+        $this->resetQuery();
 
         // Close connexion
         if ($this->_connection)
@@ -124,16 +116,60 @@ class Pdo implements IAdaptater {
         return $this;
     }
 
-    public function haveStatement() {
-        return ($this->_statement !== null && $this->_statement !== false);
+    public function resetQuery() {
+        if ($this->_statement)
+            $this->_statement->closeCursor();
+
+        $this->_query = null;
+        $this->_params = array();
+        $this->_paramsNumberNecesary = 0;
+        $this->_bindParamType = null;
+        $this->_namedParamOrder = array();
+        $this->_statement = false;
+        $this->_execute = false;
     }
 
-    public function set($query, $options = array()) {
+    public function quote($query, $paramType = Database::PARAM_STR) {
+        if (!is_string($paramType) && !is_int($paramType))
+            throw new \Exception('Type "' . $paramType . '" must be an integer or a string');
+        if (!array_key_exists($paramType, $this->_paramType))
+            throw new \Exception('Type "' . $paramType . '" don\'t exist');
+
+        if (is_null($this->_connection))
+            throw new \Exception('Connect before quote query');
+
+        return $this->_connection->quote($query, $paramType);
+    }
+
+    public function exec($query, $safe = false) {
+        if (Application::getDebug())
+            Benchmark::getInstance($this->_configName)->startTime()->startRam();
+
+        //Clean previous
+        $this->resetQuery();
+
+        if ($this->isReadQuery($query))
+            throw new \Exception('Read query cannot allow by exec function, use prepare and execute');
+        $this->connection(Server::TYPE_MASTER);
+
+        if ($safe)
+            $query = $this->quote($query);
+
+        $exec = $this->_connection->exec($query);
+
+        // Debug
+        if (Application::getDebug())
+            Database::getDatabase($this->_configName)->logQuery($query);
+
+        return $exec;
+    }
+
+    public function prepare($query, $options = array()) {
         if (!is_string($query))
             throw new \Exception('Query must be a string');
 
-        //Clean
-        $this->_closeStatement();
+        //Clean previous
+        $this->resetQuery();
 
         $this->_query = $query;
         $server = $this->isReadQuery($this->_query) ? Server::TYPE_SLAVE : Server::TYPE_MASTER;
@@ -164,9 +200,9 @@ class Pdo implements IAdaptater {
         return $this;
     }
 
-    public function bind($value, $type = Database::PARAM_STR, $key = false, $bindType = Database::BIND_TYPE_PARAM) {
-        if ($bindType != Database::BIND_TYPE_VALUE && $bindType != Database::BIND_TYPE_PARAM)
-            throw new \Exception('Invalid bind type');
+    public function bind($value, $type = Database::PARAM_STR, $key = false, $isParam = false) {
+        if (!is_bool($isParam))
+            throw new \Exception('Is param must be a boolean');
 
         if (!is_string($type) && !is_int($type))
             throw new \Exception('Type "' . $type . '" must be an integer or a string');
@@ -188,24 +224,26 @@ class Pdo implements IAdaptater {
             $this->_params[$key] = array(
                 'value' => $value,
                 'type' => $this->_paramType[$type],
-                'bindType' => $bindType
+                'key' => $key,
+                'isParam' => $isParam
             );
         } else {
             $this->_params[] = array(
                 'value' => $value,
                 'type' => $this->_paramType[$type],
-                'bindType' => $bindType
+                'key' => $key,
+                'isParam' => $isParam
             );
         }
         return $this;
     }
 
-    public function execute($closeStatement = false, $checkBindNumber = true) {
+    public function execute($checkBindNumber = true) {
         if (Application::getDebug())
             Benchmark::getInstance($this->_configName)->startTime()->startRam();
 
-        if ($this->_query === null || !$this->haveStatement())
-            throw new \Exception('Set query before execute...');
+        if (is_null($this->_query) || !$this->_statement)
+            throw new \Exception('Prepare query before execute');
 
         if ($checkBindNumber) {
             if (count($this->_params) < $this->_paramsNumberNecesary)
@@ -216,7 +254,7 @@ class Pdo implements IAdaptater {
         $i = 0;
         foreach ($this->_params as $param) {
             $bindName = $this->_bindParamType === Database::PARAM_BIND_POSITIONAL ? $i + 1 : ':' . $this->_namedParamOrder[$i];
-            if ($param['bindType'] == Database::BIND_TYPE_PARAM)
+            if ($param['isParam'])
                 $this->_statement->bindParam($bindName, $param['value'], $param['type']);
             else
                 $this->_statement->bindValue($bindName, $param['value'], $param['type']);
@@ -224,34 +262,22 @@ class Pdo implements IAdaptater {
             $i++;
         }
         // Execute
-        $this->_statement->execute();
+        $this->_execute = $this->_statement->execute();
+
+        //check error
+        $lastError = $this->getLastError(true);
+        if (!is_null($lastError))
+            Logger::getInstance()->error('Sql query : ' . $this->_query . ' has error : ' . $lastError);
 
         // Debug
-        if (Application::getDebug()) {
-            $error = $this->_statement->errorInfo();
-            $errorMessage = $error && isset($error[2]) ? $error[2] : 'void';
+        if (Application::getDebug())
+            Database::getDatabase($this->_configName)->logQuery($this->_query, $this->_params, $this->_bindParamType, $lastError);
 
-            $parameters = '';
-            foreach ($this->_params as $param)
-                $parameters .=
-                        (string) $param['value'] . ' (Type ' . $this->_paramTypeName[$param['type']] . ') ';
-
-            $time = Benchmark::getInstance($this->_configName)->stopTime()->getStatsTime();
-            $ram = Benchmark::getInstance($this->_configName)->stopRam()->getStatsRam();
-            Logger::getInstance()->debug('Query : ' . $this->_query . ' with parameters values : "' . trim($parameters, ' ') . '" Time : ' . $time . ' ms Ram : ' . $ram . ' KB Error : ' . $errorMessage, 'database' . $this->_configName);
-            Database::getDatabase($this->_configName)->setStats($time, $ram);
-            Database::getDatabase($this->_configName)->incrementQueryCount();
-        }
-
-        // Close
-        if ($closeStatement)
-            $this->_closeStatement();
-
-        return $this;
+        return $this->_execute;
     }
 
     public function fetch($fetchStyle = Database::FETCH_BOTH, $cursorOrientation = Database::FETCH_ORI_NEXT, $offset = 0) {
-        if (!$this->haveStatement())
+        if (!$this->_execute)
             throw new \Exception('You must execute query before fetch result');
 
         if (!array_key_exists($fetchStyle, $this->_fetchStyle))
@@ -264,7 +290,7 @@ class Pdo implements IAdaptater {
     }
 
     public function fetchAll($fetchStyle = Database::FETCH_BOTH, $fetchArgument = false, $ctorArgs = false) {
-        if (!$this->haveStatement())
+        if (!$this->_execute)
             throw new \Exception('You must execute query before fetch result');
 
         if (!array_key_exists($fetchStyle, $this->_fetchStyle))
@@ -286,29 +312,42 @@ class Pdo implements IAdaptater {
         return null;
     }
 
-    public function count() {
-        if (!$this->haveStatement())
-            throw new \Exception('You must execute query before see count result');
+    public function rowCount() {
+        if (!$this->_execute)
+            throw new \Exception('You must execute query before see row count result');
 
-        return $this->_statement->rowCount();
+        return $this->statement->rowCount();
+    }
+
+    public function columnCount() {
+        if (!$this->_statement)
+            throw new \Exception('You must prepare query before see column count result');
+
+        return $this->_statement->columnCount();
     }
 
     public function isReadQuery($query) {
         return stripos($query, 'select') !== false || stripos($query, 'show') !== false || stripos($query, 'describe') !== false;
     }
 
-    protected function _closeStatement() {
-        if ($this->haveStatement())
-            $this->_statement->closeCursor();
+    public function getLastError($onlyMsg = false) {
+        if ($this->_statement) {
+            $errorInfos = $this->_statement->errorInfo();
+            // no error
+            if ($errorInfos[0] === '00000')
+                return null;
+            if ($onlyMsg)
+                return $errorInfos[2];
 
-        $this->_query = null;
-        $this->_params = array();
-        $this->_paramsNumberNecesary = 0;
-        $this->_bindParamType = null;
-        $this->_namedParamOrder = array();
-        $this->_statement = null;
+            $error = new \stdClass();
+            $error->sqlstate = $errorInfos[0];
+            $error->code = $errorInfos[1];
+            $error->msg = $errorInfos[2];
+            return $error;
+        }
+
+        return null;
     }
 
 }
-
 ?>

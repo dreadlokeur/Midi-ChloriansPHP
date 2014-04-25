@@ -14,9 +14,13 @@ interface IAdaptater {
 
     public function disconnect();
 
-    public function haveStatement();
+    public function resetQuery();
 
-    public function set($query);
+    public function quote($query, $paramType = Database::PARAM_STR);
+
+    public function exec($query, $safe = false);
+
+    public function prepare($query);
 
     public function bind($value, $type = Database::PARAM_STR, $key = false, $bindType = Database::BIND_TYPE_PARAM);
 
@@ -28,9 +32,13 @@ interface IAdaptater {
 
     public function lastInsertId();
 
-    public function count();
+    public function rowCount();
+
+    public function columnCount();
 
     public function isReadQuery($query);
+
+    public function getLastError($onlyMsg = false);
 }
 
 ?>

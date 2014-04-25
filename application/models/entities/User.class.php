@@ -1,10 +1,10 @@
 <?php
 
-namespace models;
+namespace models\entities;
 
 use framework\mvc\model\Entity;
 
-class Comment extends Entity {
+class User extends Entity {
 
     /**
      * @column(
@@ -21,30 +21,32 @@ class Comment extends Entity {
     /**
      * @column(
      *      type="string",
-     *      required="true"
-     * )
-     */
-    protected $_content;
-
-    /**
-     * @column(
-     *      type="integer",
+     *      length="255",
      *      notNull="true",
-     *      foreign="true",
      *      required="true"
      * )
      */
-    protected $_userId;
+    protected $_name;
 
     /**
      * @relation(
-     *      type="manyToOne",
-     *      entityTarget="models\User",
-     *      columnTarget="id",
-     *      columnParent="userId"
+     *      type="oneToMany",
+     *      entityTarget="models\entities\Article",
+     *      columnTarget="userId",
+     *      columnParent="id"
      * )
      */
-    protected $_user;
+    protected $_articles;
+    
+    /**
+     * @relation(
+     *      type="oneToMany",
+     *      entityTarget="models\entities\Comment",
+     *      columnTarget="userId",
+     *      columnParent="id"
+     * )
+     */
+    protected $_comments;
 
     public function __construct() {
         

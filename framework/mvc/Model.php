@@ -9,14 +9,47 @@ class Model {
 
     use \framework\pattern\Singleton;
 
+    protected static $_entitiesNamespace = 'models\entities';
+    protected static $_reposteriesNamespace = 'models\reposteries';
     protected $_entities = array();
+    protected static $_entitiesChecked = array();
 
     protected function __construct() {
         
     }
 
+    public static function setEntitiesNamespace($namespace) {
+        self::$_entitiesNamespace = $namespace;
+    }
+
+    public static function getEntitiesNamespace() {
+        return self::$_entitiesNamespace;
+    }
+
+    public static function setReposteriesNamespace($namespace) {
+        self::$_reposteriesNamespace = $namespace;
+    }
+
+    public static function getReposteriesNamespace() {
+        return self::$_reposteriesNamespace;
+    }
+
+    public static function entityMapChecked($entityName) {
+        if (!is_string($entityName))
+            throw new \Exception('Entity name must be a string');
+
+        return isset(self::$_entitiesChecked[$entityName]);
+    }
+
+    public static function addEntityMapChecked($entityName) {
+        if (!is_string($entityName))
+            throw new \Exception('Entity name must be a string');
+
+        self::$_entitiesChecked[$entityName] = true;
+    }
+
     public static function factoryEntity($entityName, $entityDatas = array(), $mapColumns = true, $mapRelations = true) {
-        $entity = Factory::factory($entityName, $entityDatas, 'models', null, false, true, 'framework\mvc\model\Entity', true);
+        $entity = Factory::factory($entityName, $entityDatas, self::getEntitiesNamespace(), null, false, true, 'framework\mvc\model\Entity', true);
         $entity->setName($entityName)->hydrate($entityDatas)->mapping($mapColumns, $mapRelations);
         return $entity;
     }

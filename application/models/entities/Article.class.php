@@ -1,11 +1,11 @@
 <?php
 
-namespace models;
+namespace models\entities;
 
 use framework\mvc\model\Entity;
 
 /**
- * @entity(repository="models\ArticleRepostery")
+ * @entity(repository="models\reposteries\ArticleRepostery")
  */
 class Article extends Entity {
 
@@ -26,8 +26,7 @@ class Article extends Entity {
 
     /**
      * @column(
-     *      type="string",
-     *      required="true"
+     *      type="string"
      * )
      */
     protected $_content;
@@ -45,7 +44,7 @@ class Article extends Entity {
     /**
      * @relation(
      *      type="manyToOne",
-     *      entityTarget="models\User",
+     *      entityTarget="models\entities\User",
      *      columnTarget="id",
      *      columnParent="userId"
      * )

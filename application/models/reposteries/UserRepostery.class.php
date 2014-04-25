@@ -1,10 +1,10 @@
 <?php
 
-namespace models;
+namespace models\reposteries;
 
 use framework\mvc\model\Repostery;
 
-class CommentRepostery extends Repostery {
+class UserRepostery extends Repostery {
 
     public function __construct() {
         
