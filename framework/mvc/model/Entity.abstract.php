@@ -105,7 +105,7 @@ abstract class Entity {
             throw new \Exception('Entity : "' . $this->getName() . '" already mapped');
         $reflexionClass = new \ReflectionClass($this);
         $reposteryName = false;
-        //map default entity datas (repostery, table, tableAlias)
+        //map default entity datas (repostery)
         $doc = $reflexionClass->getDocComment();
         if (preg_match('/@entity/', $doc)) {
             $annotation = new Annotation($doc);
@@ -117,13 +117,18 @@ abstract class Entity {
             }
         }
         // no repostery defined in entity annotation, set manualy, by entity name
-        if (!$reposteryName)
+        $noAnnotation = false;
+        if (!$reposteryName) {
             $reposteryName = $this->getName();
+            $noAnnotation = true;
+        }
 
-        // create repostery instance and set into entity
-        if (strripos($reposteryName, 'repostery') === false)
-            $reposteryName = $reposteryName . 'Repostery';
-        $repostery = Factory::factory($reposteryName, array(), Model::getReposteriesNamespace(), null, false, true, 'framework\mvc\model\Repostery', true);
+        // create repostery instance ( if no repostery exist, base respostery instance)
+        if ($noAnnotation && !class_exists('\\' . Model::getReposteriesNamespace() . '\\' . ucfirst($reposteryName)))
+            $repostery = new Repostery();
+        else
+            $repostery = Factory::factory($reposteryName, array(), Model::getReposteriesNamespace(), null, false, true, 'framework\mvc\model\Repostery', true);
+        // set name and mapping
         $repostery->setName($reposteryName)->mapping();
         $this->setRepostery($repostery);
 

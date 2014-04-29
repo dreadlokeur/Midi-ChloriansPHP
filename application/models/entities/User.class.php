@@ -12,7 +12,6 @@ class User extends Entity {
      *      unique="true",
      *      notNull="true",
      *      primary="true",
-     *      required="true",
      *      autoIncrement="true"
      * )
      */
@@ -22,8 +21,7 @@ class User extends Entity {
      * @column(
      *      type="string",
      *      length="255",
-     *      notNull="true",
-     *      required="true"
+     *      notNull="true"
      * )
      */
     protected $_name;
@@ -37,7 +35,7 @@ class User extends Entity {
      * )
      */
     protected $_articles;
-    
+
     /**
      * @relation(
      *      type="oneToMany",

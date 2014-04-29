@@ -5,12 +5,12 @@ namespace models\entities;
 use framework\mvc\model\Entity;
 
 /**
- * @entity(repository="models\reposteries\ArticleRepostery")
+ * @entity(repository="models\reposteries\Article")
  */
 class Article extends Entity {
 
     /**
-     * @column(type="integer",unique="true",notNull="true",primary="true",required="true",autoIncrement="true")
+     * @column(type="integer",unique="true",notNull="true",primary="true",autoIncrement="true")
      */
     protected $_id;
 
@@ -18,8 +18,7 @@ class Article extends Entity {
      * @column(
      *      type="string",
      *      length="255",
-     *      notNull="true",
-     *      required="true"
+     *      notNull="true"
      * )
      */
     protected $_title;
@@ -35,8 +34,7 @@ class Article extends Entity {
      * @column(
      *      type="integer",
      *      notNull="true",
-     *      foreign="true",
-     *      required="true"
+     *      foreign="true"
      * )
      */
     protected $_userId;

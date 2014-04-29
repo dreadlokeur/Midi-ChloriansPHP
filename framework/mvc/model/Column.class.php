@@ -11,7 +11,6 @@
  *  foreign="true|false", (optional : default = false)
  *  name="a name value", (optional)
  *  alias="a alias value", (optional)
- *  required="true|false", (optional : default = false)
  *  autoIncrement="true|false" (optional : default = false)
  * )
  */
@@ -181,12 +180,6 @@ class Column {
         $this->_foreign = $foreign;
     }
 
-    public function setRequired($required) {
-        if (!is_bool($required))
-            throw new \Exception('Column required must be a boolean');
-        $this->_required = $required;
-    }
-
     public function setAutoIncrement($autoIncrement) {
         if (!is_bool($autoIncrement))
             throw new \Exception('Column autoIncrement must be a boolean');
@@ -215,10 +208,6 @@ class Column {
 
     public function isUnique() {
         return $this->_unique;
-    }
-
-    public function isRequired() {
-        return $this->_required;
     }
 
     public function isForeign() {

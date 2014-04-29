@@ -13,8 +13,8 @@ class Index extends Controller {
     public function __construct() {
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
 
-        //$model = \framework\mvc\Model::getInstance();
-        //$article = $model->factoryEntity('article');
+        $model = \framework\mvc\Model::getInstance();
+        $article = $model->factoryEntity('article');
         //$article->title = 'test';
         //$model->attach($article);
         //$model->flush();

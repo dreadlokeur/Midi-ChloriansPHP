@@ -13,7 +13,7 @@ namespace framework\mvc\model;
 use framework\Database;
 use framework\mvc\model\Table;
 
-abstract class Repostery {
+class Repostery {
 
     protected $_name;
     protected $_isMapped = false;
@@ -35,11 +35,8 @@ abstract class Repostery {
         $name = explode('\\', (string) $name);
         if (is_array($name))
             $name = end($name);
-        $name = (string) $name;
-        if (stripos($name, 'Repostery') !== false)
-            $name = str_replace('Repostery', '', $name);
 
-        $this->_name = strtolower($name);
+        $this->_name = strtolower((string) $name);
         return $this;
     }
 

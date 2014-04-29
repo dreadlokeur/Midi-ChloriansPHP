@@ -12,7 +12,6 @@ class Comment extends Entity {
      *      unique="true",
      *      notNull="true",
      *      primary="true",
-     *      required="true",
      *      autoIncrement="true"
      * )
      */
@@ -20,8 +19,7 @@ class Comment extends Entity {
 
     /**
      * @column(
-     *      type="string",
-     *      required="true"
+     *      type="string"
      * )
      */
     protected $_content;
@@ -30,8 +28,7 @@ class Comment extends Entity {
      * @column(
      *      type="integer",
      *      notNull="true",
-     *      foreign="true",
-     *      required="true"
+     *      foreign="true"
      * )
      */
     protected $_userId;

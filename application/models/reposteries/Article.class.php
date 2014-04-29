@@ -4,7 +4,10 @@ namespace models\reposteries;
 
 use framework\mvc\model\Repostery;
 
-class CommentRepostery extends Repostery {
+/**
+ * @repostery(table="article", tableAlias="A", databaseConfigName="default")
+ */
+class Article extends Repostery {
 
     public function __construct() {
         

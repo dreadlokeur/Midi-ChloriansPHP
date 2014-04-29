@@ -4,7 +4,7 @@ namespace models\reposteries;
 
 use framework\mvc\model\Repostery;
 
-class UserRepostery extends Repostery {
+class Comment extends Repostery {
 
     public function __construct() {
         
