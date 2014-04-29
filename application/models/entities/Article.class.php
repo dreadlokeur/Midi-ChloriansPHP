@@ -18,8 +18,7 @@ class Article extends Entity {
      * @column(
      *      type="string",
      *      length="255",
-     *      notNull="true",
-     * primary="true"
+     *      notNull="true"
      * )
      */
     protected $_title;
