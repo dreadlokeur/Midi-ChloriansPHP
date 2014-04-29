@@ -100,9 +100,10 @@ abstract class Entity {
         return $this;
     }
 
-    public function mapping($columns = true, $relations = true, $chekMap = false) {
-        if ($this->isMapped())
+    public function mapping($columns = true, $relations = true, $forceMap = false, $chekMap = false) {
+        if ($this->isMapped() && !$forceMap)
             throw new \Exception('Entity : "' . $this->getName() . '" already mapped');
+
         $reflexionClass = new \ReflectionClass($this);
         $reposteryName = false;
         //map default entity datas (repostery)

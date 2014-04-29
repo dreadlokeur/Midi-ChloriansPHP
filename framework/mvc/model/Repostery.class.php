@@ -44,8 +44,8 @@ class Repostery {
         return $this->_name;
     }
 
-    public function mapping() {
-        if ($this->isMapped())
+    public function mapping($forceMap = false) {
+        if ($this->isMapped() && !$forceMap)
             throw new \Exception('Repostery : "' . $this->getName() . '" already mapped');
 
         $reflexionClass = new \ReflectionClass($this);
