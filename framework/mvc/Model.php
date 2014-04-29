@@ -11,6 +11,7 @@ class Model {
 
     protected static $_entitiesNamespace = 'models\entities';
     protected static $_reposteriesNamespace = 'models\reposteries';
+    protected static $_queryBuilderNamespace = 'framework\mvc\model\queryBuilder\adaptaters';
     protected $_entities = array();
     protected static $_entitiesChecked = array();
 
@@ -19,6 +20,8 @@ class Model {
     }
 
     public static function setEntitiesNamespace($namespace) {
+        if (!is_string($namespace))
+            throw new \Exception('EntitiesNamespace must be a string');
         self::$_entitiesNamespace = $namespace;
     }
 
@@ -27,11 +30,23 @@ class Model {
     }
 
     public static function setReposteriesNamespace($namespace) {
+        if (!is_string($namespace))
+            throw new \Exception('ReposteriesNamespace must be a string');
         self::$_reposteriesNamespace = $namespace;
     }
 
     public static function getReposteriesNamespace() {
         return self::$_reposteriesNamespace;
+    }
+
+    public static function setQueryBuilderNamespace($namespace) {
+        if (!is_string($namespace))
+            throw new \Exception('QueryBuilderNamespace must be a string');
+        self::$_queryBuilderNamespace = $namespace;
+    }
+
+    public static function getQueryBuilderNamespace() {
+        return self::$_queryBuilderNamespace;
     }
 
     public static function entityMapChecked($entityName) {
@@ -69,7 +84,7 @@ class Model {
     public function isAttached($entity) {// check if entity identifier is in entities list
     }
 
-    public function find($entity) {// retrieve entity by identifier if is in entities list
+    public function get($entity) {// retrieve entity by identifier if is in entities list
     }
 
     public function clear($entity = null) {// detach all entities
@@ -85,7 +100,28 @@ class Model {
     }
 
     // transactional into bdd
-    public function delete($entity = null) {//delete into bdd
+    public function delete(Entity $entity = null) {//delete into bdd
+        if (!is_null($entity)) {
+            $builder = $entity->getRepostery()->getQueryBuilder();
+            $table = $entity->getRepostery()->getTable();
+            $builder->delete()->from($table->getName(), $table->getAlias());
+            foreach ($entity->getColumns() as $column) {
+                if ($column->isPrimary())
+                    $builder->addWhere($column->getName(), ':' . $column->getName());
+            }
+
+            $db = $entity->getRepostery()->getDatabaseAdaptater();
+            $db->prepare($builder->getQuery());
+            foreach ($entity->getColumns() as $column) {
+                if ($column->isPrimary()) {
+                    $columnName = $column->getName();
+                    $columnType = $entity->getRepostery()->getColumnBindType($column->getType());
+                    $db->bind($entity->$columnName, $columnType, $columnName);
+                }
+            }
+            $db->execute();
+            return $db->rowCount();
+        }
     }
 
     public function refresh($entity = null) {//cancel object update, and restore bdd info

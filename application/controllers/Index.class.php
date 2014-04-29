@@ -7,16 +7,23 @@ use framework\Security;
 use framework\security\Form;
 use framework\network\Http;
 use framework\utility\Cookie;
+use framework\mvc\Model;
 
 class Index extends Controller {
 
     public function __construct() {
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
 
-        $model = \framework\mvc\Model::getInstance();
+        $model = Model::getInstance();
+        //$article = $model->factoryRepostery('article')->find(10);
+        //$model->delete($article);
+        //$article = $model->factoryRepostery('article')->find(10);
+        //$article->title = 'test';
+        //$model->save($article);
         $article = $model->factoryEntity('article');
         //$article->title = 'test';
         //$model->attach($article);
+        $model->delete($article);
         //$model->flush();
         //\framework\Debugger::dump($article->getRepostery()->getDatabase());
         //\framework\Debugger::dump($article, true);

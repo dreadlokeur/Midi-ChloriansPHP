@@ -3,7 +3,8 @@
 $config = array(
     // database name => array(options)
     'default' => array(
-        'adaptater' => 'pdo',//class namme (implement \framework\database\IAdaptater)
+        'adaptater' => 'pdo', //class name (implement \framework\database\IAdaptater)
+        'type' => 'sql', //database type (sql, cobol etc...)
         'server' => array(
             array(
                 'type' => 'master', //master / slave
@@ -14,7 +15,7 @@ $config = array(
             ),
             array(
                 'type' => 'slave',
-                //No dsn 
+                //No dsn
                 'driver' => 'mysql',
                 'dbname' => 'test',
                 'host' => '127.0.0.1',

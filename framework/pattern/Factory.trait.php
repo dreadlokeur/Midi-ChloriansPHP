@@ -7,7 +7,7 @@ trait Factory {
     public static function factory($className, $args, $classNamespace = null, $interfaceName = null, $multiArgs = false, $strictNamespace = false, $parentClass = null, $autoload = true) {
         if (!is_string($className))
             throw new \Exception('Class name parameter must be a string');
-        if (!is_null($interfaceName) && !is_string($classNamespace))
+        if (!is_null($classNamespace) && !is_string($classNamespace))
             throw new \Exception('Class namespace parameter must be a string or null');
         if (!is_bool($strictNamespace))
             throw new \Exception('strictNamespace parameter must be a boolean');
@@ -32,7 +32,7 @@ trait Factory {
 
             $class = ucfirst($className);
             if (!class_exists($class, $autoload))
-                throw new \Exception($class . 'doesn\'t exists');
+                throw new \Exception($class . ' doesn\'t exists');
         }
 
         // new Reflection, and check interface

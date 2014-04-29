@@ -21,11 +21,13 @@ class Database extends Loader {
             // Check essential parameters
             if (!isset($datas['adaptater']))
                 throw new \Exception('Miss adaptater config param for database : "' . $name . '"');
+            if (!isset($datas['type']))
+                throw new \Exception('Miss type config param for database : "' . $name . '"');
             if (!isset($datas['server']))
                 throw new \Exception('Miss server config param for database : "' . $name . '"');
 
             // Create database instance
-            $database = new DatabaseManager($name, DatabaseManager::factory($datas['adaptater'], $name, 'framework\database\adaptaters', 'framework\database\IAdaptater'));
+            $database = new DatabaseManager($name, $datas['type'], DatabaseManager::factory($datas['adaptater'], $name, 'framework\database\adaptaters', 'framework\database\IAdaptater'));
 
             // Fetch servers
             foreach ($datas['server'] as $server) {

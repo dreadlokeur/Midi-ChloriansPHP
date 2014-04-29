@@ -316,7 +316,7 @@ class Pdo implements IAdaptater {
         if (!$this->_execute)
             throw new \Exception('You must execute query before see row count result');
 
-        return $this->statement->rowCount();
+        return $this->_statement->rowCount();
     }
 
     public function columnCount() {

@@ -57,8 +57,8 @@ class Database {
         self::PARAM_BOOL => 'bool',
         self::PARAM_INPUT_OUTPUT => 'input output');
     protected static $_databases = array();
-    protected $_name = '';
-    protected $_type = null;
+    protected $_name;
+    protected $_type;
     protected $_adaptater = null;
     protected $_masters = array();
     protected $_slaves = array();
@@ -107,8 +107,9 @@ class Database {
         $this->_stats['ram'] = $this->_stats['ram'] + $ram;
     }
 
-    public function __construct($name, $adaptater) {
+    public function __construct($name, $type, $adaptater) {
         $this->setName($name);
+        $this->setType($type);
         $this->setAdaptater($adaptater);
         Logger::getInstance()->addGroup('database' . $this->_name, 'Database ' . $this->_name, true, true);
     }
@@ -121,7 +122,16 @@ class Database {
 
     // Setters
     public function setName($name) {
+        if (!is_string($name))
+            throw new \Exception('Name must be a string');
         $this->_name = $name;
+    }
+
+    public function setType($type) {
+        if (!is_string($type))
+            throw new \Exception('Type must be a string');
+
+        $this->_type = $type;
     }
 
     public function setAdaptater(IAdaptater $adaptater) {
@@ -131,6 +141,10 @@ class Database {
     // Getters
     public function getName() {
         return $this->_name;
+    }
+
+    public function getType() {
+        return $this->_type;
     }
 
     public function getAdaptater() {

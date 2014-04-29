@@ -100,6 +100,7 @@ final class Application {
                 // Databases
                 $databases = Database::getDatabases();
                 foreach ($databases as $database) {
+                    Logger::getInstance()->debug('Type : ' . $database->getType(), 'database' . $database->getName());
                     Logger::getInstance()->debug('Adaptater : ' . get_class($database->getAdaptater()), 'database' . $database->getName());
                     $stats = $database->getStats();
                     Logger::getInstance()->debug('Queries : ' . (string) $database->getQueryCount() . ' (Aproximately memory used  : ' . $stats['ram'] . ' KB in aproximately ' . $stats['time'] . ' ms)', 'database' . $database->getName());

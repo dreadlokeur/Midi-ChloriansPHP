@@ -15,14 +15,10 @@ class Table {
 
     public function setName($name) {
         $this->_name = $name;
-
-        return $this;
     }
 
     public function setAlias($alias) {
         $this->_alias = $alias;
-
-        return $this;
     }
 
     public function getName() {

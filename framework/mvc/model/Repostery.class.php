@@ -11,13 +11,17 @@
 namespace framework\mvc\model;
 
 use framework\Database;
+use framework\mvc\Model;
 use framework\mvc\model\Table;
+use framework\pattern\Factory;
+use framework\mvc\model\queryBuilder\IAdaptater;
 
 class Repostery {
 
     protected $_name;
     protected $_isMapped = false;
     protected $_table;
+    protected $_queryBuilder;
     protected $_databaseConfigName;
     protected $_database = null;
     protected $_databaseAdaptater;
@@ -49,10 +53,11 @@ class Repostery {
             throw new \Exception('Repostery : "' . $this->getName() . '" already mapped');
 
         $reflexionClass = new \ReflectionClass($this);
-        //map default repostery datas (table, tableAlias, databaseConfigName)
+        //map default repostery datas (table, tableAlias, databaseConfigName, queryBuilder)
         $doc = $reflexionClass->getDocComment();
         $tableName = false;
         $tableAlias = null;
+        $queryBuilderName = false;
         if (preg_match('/@repostery/', $doc)) {
             $annotation = new Annotation($doc);
             $annotationKeys = $annotation->getKeys();
@@ -66,6 +71,9 @@ class Repostery {
                         break;
                     case 'databaseConfigName':
                         $this->setDatabase($annotationKey['value']);
+                        break;
+                    case 'queryBuilder':
+                        $queryBuilderName = $annotationKey['value'];
                         break;
                     default:
                         break;
@@ -83,6 +91,18 @@ class Repostery {
         //set default database
         if (is_null($this->getDatabase()))
             $this->setDatabase(self::getDatabaseConfigNameDefault());
+
+
+        //set query builder
+        if ($queryBuilderName) {
+            $queryBuilderNs = null;
+        } else {
+            $queryBuilderName = $this->getDatabase()->getType();
+            $queryBuilderNs = Model::getQueryBuilderNamespace();
+        }
+        $queryBuilder = Factory::factory($queryBuilderName, array(), $queryBuilderNs, 'framework\mvc\model\queryBuilder\IAdaptater');
+        $this->setQueryBuilder($queryBuilder);
+
 
         $this->_isMapped = true;
     }
@@ -119,8 +139,31 @@ class Repostery {
         return $this->_databaseConfigName;
     }
 
+    public function setQueryBuilder(IAdaptater $queryBuilder) {
+        $this->_queryBuilder = $queryBuilder;
+    }
+
+    public function getQueryBuilder() {
+        return $this->_queryBuilder;
+    }
+
     public function isMapped() {
         return $this->_isMapped;
+    }
+
+    public function getColumnBindType($type) {
+        switch ($type) {
+            case Column::TYPE_INTEGER:
+            case Column::TYPE_SMALLINT:
+            case Column::TYPE_BIGINT:
+            case Column::TYPE_DECIMAL:
+            case Column::TYPE_FLOAT:
+                return Database::PARAM_INT;
+            case Column::TYPE_BOOLEAN:
+                return Database::PARAM_BOOL;
+            default:
+                return Database::PARAM_STR;
+        }
     }
 
     // transactional into bdd

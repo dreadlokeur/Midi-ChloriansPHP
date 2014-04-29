@@ -43,7 +43,6 @@ class Column {
     protected $_notNull = false;
     protected $_primary = false;
     protected $_foreign = false;
-    protected $_required = false;
     protected $_autoIncrement = false;
 
     public static function isValidColumnValue(Column $column, $value) {

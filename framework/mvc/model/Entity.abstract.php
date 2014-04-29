@@ -4,11 +4,12 @@ namespace framework\mvc\model;
 
 use framework\Application;
 use framework\Database;
+use framework\Logger;
 use framework\mvc\Model;
 use framework\mvc\model\Annotation;
-use framework\mvc\model\Relation;
 use framework\mvc\model\Column;
-use framework\Logger;
+use framework\mvc\model\Relation;
+use framework\mvc\model\Repostery;
 use framework\pattern\Factory;
 
 abstract class Entity {
@@ -62,6 +63,7 @@ abstract class Entity {
         $name = explode('\\', (string) $name);
         if (is_array($name))
             $name = end($name);
+
         $this->_name = strtolower((string) $name);
         return $this;
     }

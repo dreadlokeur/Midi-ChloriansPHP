@@ -16,9 +16,8 @@ class Annotation {
 
         $this->_annotation = $annotation;
 
-        if ($setKeys) {
+        if ($setKeys)
             $this->setKeys();
-        }
     }
 
     public function getAnnotation() {
