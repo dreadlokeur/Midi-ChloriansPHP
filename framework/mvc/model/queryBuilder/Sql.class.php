@@ -1,11 +1,24 @@
 <?php
 
-namespace framework\mvc\model\queryBuilder\adaptaters;
+namespace framework\mvc\model\queryBuilder;
 
-use framework\mvc\model\queryBuilder\IAdaptater;
+use framework\mvc\model\IQueryBuilder;
+use framework\mvc\model\QueryBuilder;
 
-class Sql implements IAdaptater {
+class Sql implements IQueryBuilder {
 
+    protected $_equality = array(
+        QueryBuilder::EQUALITY_LIKE => 'LIKE',
+        QueryBuilder::EQUALITY_EQUAL => '=',
+        QueryBuilder::EQUALITY_LT => '<',
+        QueryBuilder::EQUALITY_LTE => '<=',
+        QueryBuilder::EQUALITY_GT => '>',
+        QueryBuilder::EQUALITY_GTE => '>='
+    );
+    protected $_conditions = array(
+        QueryBuilder::CONDITION_AND => 'AND',
+        QueryBuilder::CONDITION_OR => 'OR'
+    );
     protected $_primaryClause = '';
     protected $_fromTable = '';
     protected $_fromTableAlias = null;
@@ -21,15 +34,15 @@ class Sql implements IAdaptater {
 
         if (!empty($this->_whereClauses))
             $query .= 'WHERE ';
-        $lastClauseType = '';
+        $lastClauseCondition = '';
         foreach ($this->_whereClauses as &$clause) {
-            $query .= (!empty($lastClauseType)) ? ' ' . $lastClauseType . ' ' : '';
-            $query .= $this->_fromTable . '.`' . $clause['field'] . '` ' . $clause['equality'] . ' ' . $clause['value'];
-            $lastClauseType = $clause['type'];
+            $query .= (!empty($lastClauseCondition)) ? ' ' . $lastClauseCondition . ' ' : '';
+            $query .= $this->_fromTable . '.`' . $clause['field'] . '` ' . $this->_equality[$clause['equality']] . ' ' . $clause['value'];
+            $lastClauseCondition = $this->_conditions[$clause['condition']];
         }
         if ($reset)
             $this->resetQuery();
-        
+
         return $query;
     }
 
@@ -78,24 +91,32 @@ class Sql implements IAdaptater {
                 throw new \Exception('Invalid clause, miss field');
             if (!isset($clause['value']))
                 throw new \Exception('Invalid clause, miss value');
-            $equality = isset($clause['equality']) ? $clause['equality'] : self::EQUALITY_EQUAL;
-            $type = isset($clause['type']) ? $clause['type'] : $type = self::WHERE_AND;
+            $equality = isset($clause['equality']) ? $clause['equality'] : QueryBuilder::EQUALITY_EQUAL;
+            $condition = isset($clause['condition']) ? $clause['condition'] : $condition = QueryBuilder::CONDITION_AND;
 
-            $this->addWhere($clause['field'], $clause['value'], $equality, $type);
+            $this->addWhere($clause['field'], $clause['value'], $equality, $condition);
         }
     }
 
-    public function addWhere($field, $value, $equality = self::EQUALITY_EQUAL, $type = self::WHERE_AND) {
+    public function addWhere($field, $value, $equality = QueryBuilder::EQUALITY_EQUAL, $condition = QueryBuilder::CONDITION_AND) {
         if (!is_string($field))
             throw new \Exception('Field name must be a string');
-        if ($equality != self::EQUALITY_EQUAL && $equality != self::EQUALITY_GT && $equality != self::EQUALITY_GTE && $equality != self::EQUALITY_LIKE && $equality != self::EQUALITY_LT && $equality != self::EQUALITY_LTE)
+
+        if (!is_string($equality) && !is_int($equality))
+            throw new \Exception('Equality must be an integer or a string');
+        if (!array_key_exists($equality, $this->_equality))
             throw new \Exception('Invalid equality');
+
+        if (!is_string($condition) && !is_int($condition))
+            throw new \Exception('Condition must be an integer or a string');
+        if (!array_key_exists($condition, $this->_conditions))
+            throw new \Exception('Invalid condition');
 
         $this->_whereClauses[] = array(
             'field' => $field,
             'value' => $value,
             'equality' => $equality,
-            'type' => $type
+            'condition' => $condition
         );
     }
 

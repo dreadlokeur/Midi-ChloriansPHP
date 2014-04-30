@@ -11,7 +11,7 @@ class Model {
 
     protected static $_entitiesNamespace = 'models\entities';
     protected static $_reposteriesNamespace = 'models\reposteries';
-    protected static $_queryBuilderNamespace = 'framework\mvc\model\queryBuilder\adaptaters';
+    protected static $_queryBuilderNamespace = 'framework\mvc\model\queryBuilder';
     protected $_entities = array();
     protected static $_entitiesChecked = array();
 
@@ -76,6 +76,7 @@ class Model {
 
     // enties manager...
     public function attach(Entity $entity) {//attach entity into entities list
+        $hash = spl_object_hash($entity);
     }
 
     public function detach(Entity $entity) {//detach entity into entities list
@@ -100,28 +101,29 @@ class Model {
     }
 
     // transactional into bdd
-    public function delete(Entity $entity = null) {//delete into bdd
-        if (!is_null($entity)) {
-            $builder = $entity->getRepostery()->getQueryBuilder();
-            $table = $entity->getRepostery()->getTable();
-            $builder->delete()->from($table->getName(), $table->getAlias());
-            foreach ($entity->getColumns() as $column) {
-                if ($column->isPrimary())
-                    $builder->addWhere($column->getName(), ':' . $column->getName());
-            }
-
-            $db = $entity->getRepostery()->getDatabaseAdaptater();
-            $db->prepare($builder->getQuery());
-            foreach ($entity->getColumns() as $column) {
-                if ($column->isPrimary()) {
-                    $columnName = $column->getName();
-                    $columnType = $entity->getRepostery()->getColumnBindType($column->getType());
-                    $db->bind($entity->$columnName, $columnType, $columnName);
-                }
-            }
-            $db->execute();
-            return $db->rowCount();
+    public function delete(Entity $entity) {//delete into bdd
+        $builder = $entity->getRepostery()->getQueryBuilder();
+        $table = $entity->getRepostery()->getTable();
+        $builder->delete()->from($table->getName(), $table->getAlias());
+        //each columns for add where clause
+        foreach ($entity->getColumns() as $column) {
+            if ($column->isPrimary())
+                $builder->addWhere($column->getName(), ':' . $column->getName());
         }
+        //prepare query
+        $db = $entity->getRepostery()->getDatabaseAdaptater();
+        $db->prepare($builder->getQuery());
+        //bind parameters
+        foreach ($entity->getColumns() as $column) {
+            if ($column->isPrimary()) {
+                $columnName = $column->getName();
+                $columnType = $entity->getRepostery()->getColumnBindType($column->getType());
+                $db->bind($entity->$columnName, $columnType, $columnName);
+            }
+        }
+        //exec query and return affected count
+        $db->execute();
+        return $db->rowCount();
     }
 
     public function refresh($entity = null) {//cancel object update, and restore bdd info

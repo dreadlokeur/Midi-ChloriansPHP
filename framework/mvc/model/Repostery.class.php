@@ -14,7 +14,7 @@ use framework\Database;
 use framework\mvc\Model;
 use framework\mvc\model\Table;
 use framework\pattern\Factory;
-use framework\mvc\model\queryBuilder\IAdaptater;
+use framework\mvc\model\QueryBuilder;
 
 class Repostery {
 
@@ -94,14 +94,12 @@ class Repostery {
 
 
         //set query builder
-        if ($queryBuilderName) {
-            $queryBuilderNs = null;
-        } else {
+        $queryBuilderNs = $queryBuilderName ? null : Model::getQueryBuilderNamespace();
+        if (!$queryBuilderName)
             $queryBuilderName = $this->getDatabase()->getType();
-            $queryBuilderNs = Model::getQueryBuilderNamespace();
-        }
-        $queryBuilder = Factory::factory($queryBuilderName, array(), $queryBuilderNs, 'framework\mvc\model\queryBuilder\IAdaptater');
-        $this->setQueryBuilder($queryBuilder);
+
+        $builder = Factory::factory($queryBuilderName, array(), $queryBuilderNs, 'framework\mvc\model\IQueryBuilder');
+        $this->setQueryBuilder(new QueryBuilder($builder));
 
 
         $this->_isMapped = true;
@@ -139,8 +137,8 @@ class Repostery {
         return $this->_databaseConfigName;
     }
 
-    public function setQueryBuilder(IAdaptater $queryBuilder) {
-        $this->_queryBuilder = $queryBuilder;
+    public function setQueryBuilder(QueryBuilder $queryBuilder) {
+        $this->_queryBuilder = $queryBuilder->getBuilder();
     }
 
     public function getQueryBuilder() {

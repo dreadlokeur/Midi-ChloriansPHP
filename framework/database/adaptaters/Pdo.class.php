@@ -205,7 +205,7 @@ class Pdo implements IAdaptater {
             throw new \Exception('Is param must be a boolean');
 
         if (!is_string($type) && !is_int($type))
-            throw new \Exception('Type "' . $type . '" must be an integer or a string');
+            throw new \Exception('Type must be an integer or a string');
         if (!array_key_exists($type, $this->_paramType))
             throw new \Exception('Type "' . $type . '" don\'t exist');
 
@@ -350,4 +350,5 @@ class Pdo implements IAdaptater {
     }
 
 }
+
 ?>
