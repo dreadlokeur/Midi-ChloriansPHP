@@ -155,11 +155,18 @@ class Model {
             } else
                 throw new \Exception('Entity must be a string or an object');
 
-            return $this->_deleteEntity($entity);
+            $deleted = $this->_deleteEntity($entity);
+            if ($deleted && $this->isAttached($entity))
+                $this->detach($entity);
+            return $deleted;
         } else { // delete all entities
             $entityDeletedCount = 0;
-            foreach ($this->_entities as &$entity)
-                $entityDeletedCount = $entityDeletedCount + $this->_deleteEntity($entity);
+            foreach ($this->_entities as &$entity) {
+                $deleted = $this->_deleteEntity($entity);
+                $entityDeletedCount = $entityDeletedCount + $deleted;
+                if ($deleted)
+                    $this->detach($entity);
+            }
         }
     }
 
@@ -174,6 +181,10 @@ class Model {
 
     public function getEntities() {
         return $this->_entities;
+    }
+
+    public function countEntities() {
+        return count($this->_entities);
     }
 
     protected function _deleteEntity(Entity $entity) {
