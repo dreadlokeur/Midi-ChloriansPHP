@@ -4,12 +4,13 @@ namespace framework\mvc;
 
 use framework\mvc\Template;
 use framework\Config;
-use framework\Logger;
-use framework\mvc\Router;
-use framework\network\http\Header;
-use framework\Session;
 use framework\Language;
+use framework\Logger;
+use framework\Session;
+use framework\mvc\Model;
+use framework\mvc\Router;
 use framework\network\Http;
+use framework\network\http\Header;
 
 abstract class Controller {
 
@@ -80,6 +81,8 @@ abstract class Controller {
             return Logger::getInstance();
         if ($name == 'language')
             return Language::getInstance();
+        if ($name == 'model')
+            return Model::getInstance();
     }
 
     public function display() {

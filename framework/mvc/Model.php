@@ -167,6 +167,8 @@ class Model {
                 if ($deleted)
                     $this->detach($entity);
             }
+
+            return $entityDeletedCount;
         }
     }
 

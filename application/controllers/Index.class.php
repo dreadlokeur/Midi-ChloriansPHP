@@ -7,33 +7,32 @@ use framework\Security;
 use framework\security\Form;
 use framework\network\Http;
 use framework\utility\Cookie;
-use framework\mvc\Model;
 
 class Index extends Controller {
 
     public function __construct() {
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
 
-        $model = Model::getInstance();
-        //$article = $model->factoryRepostery('article')->find(10);
-        //$model->delete($article);
-        //$article = $model->factoryRepostery('article')->find(10);
+        //for tests
+        //$article = $this->model->factoryRepostery('article')->find(10);
+        //$this->model->delete($article);
+        //$article = $this->model->factoryRepostery('article')->find(10);
         //$article->title = 'test';
-        //$model->save($article);
-        //$article = $model->factoryEntity('article');
-        //$article2 = $model->factoryEntity('article');
+        //$this->model->save($article);
+        //$article = $this->model->factoryEntity('article');
+        //$article2 = $this->model->factoryEntity('article');
         //\framework\Debugger::dump($article);
-        //\framework\Debugger::dump($model->countEntities());
-        //$model->attach($article);
-        //\framework\Debugger::dump($model->countEntities());
-        //$model->attach($article);
+        //\framework\Debugger::dump($this->model->countEntities());
+        //$this->model->attach($article);
+        //\framework\Debugger::dump($this->model->countEntities());
+        //$this->model->attach($article);
         //$article->title = 'test';
-        //$model->attach($article);
-        //$model->attach($article2);
-        //$model->delete($article);
-        //\framework\Debugger::dump($model->delete());
-        //\framework\Debugger::dump($model->countEntities());
-        //$model->flush();
+        //$this->model->attach($article);
+        //$this->model->attach($article2);
+        //$this->model->delete($article);
+        //\framework\Debugger::dump($this->model->delete());
+        //\framework\Debugger::dump($this->model->countEntities());
+        //$this->model->flush();
         //\framework\Debugger::dump($article->getRepostery()->getDatabase());
         //\framework\Debugger::dump($article, true);
     }
