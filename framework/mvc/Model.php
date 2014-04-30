@@ -74,21 +74,61 @@ class Model {
         return $entity->getRepostery();
     }
 
-    // enties manager...
-    public function attach(Entity $entity) {//attach entity into entities list
-        $hash = spl_object_hash($entity);
+    public function getEntityHash(Entity $entity) {
+        return spl_object_hash($entity);
     }
 
-    public function detach(Entity $entity) {//detach entity into entities list
+    //attach entity into entities list
+    public function attach(Entity $entity, $forceReplace = false) {
+        $hash = $this->getEntityHash($entity);
+        if ($this->isAttached($hash) && !$forceReplace)
+            throw new \Exception('Entity "' . $entity->getName() . ' (' . $hash . ')" already attached');
+
+        $this->_entities[$hash] = $entity;
     }
 
-    public function isAttached($entity) {// check if entity identifier is in entities list
+    //detach entity into entities list
+    public function detach($entity) {
+        if (!is_string($entity) && !is_object($entity))
+            throw new \Exception('Entity must be a string or an object');
+
+        if (is_object($entity)) {
+            if (!$entity instanceof Entity)
+                throw new \Exception('Entity must an instance of framework\mvc\model\Entity');
+
+            $entity = $this->getEntityHash($entity);
+        }
+
+        if ($this->isAttached($entity))
+            unset($this->_entities[$entity]);
     }
 
-    public function get($entity) {// retrieve entity by identifier if is in entities list
+    // check if entity identifier is in entities list
+    public function isAttached($entity) {
+        if (!is_string($entity) && !is_object($entity))
+            throw new \Exception('Entity must be a string or an object');
+
+        if (is_object($entity)) {
+            if (!$entity instanceof Entity)
+                throw new \Exception('Entity must an instance of framework\mvc\model\Entity');
+
+            $entity = $this->getEntityHash($entity);
+        }
+
+        return array_key_exists($entity, $this->_entities);
     }
 
-    public function clear($entity = null) {// detach all entities
+    // retrieve entity by identifier if is in entities list
+    public function getEntity($entity) {
+        if ($this->isAttached($entity))
+            return $this->_entities[$entity];
+
+        return null;
+    }
+
+    // detach all entities
+    public function clear() {
+        $this->_entities = array();
     }
 
     public function lock($entity) {// lock an entitie, read or write
@@ -100,8 +140,43 @@ class Model {
     public function isLocked($entity) {// check if entitie is locked
     }
 
-    // transactional into bdd
-    public function delete(Entity $entity) {//delete into bdd
+    /* transactional into bdd */
+
+    //delete into bdd
+    public function delete($entity = null) {
+        if (!is_null($entity)) {
+            if (is_string($entity)) {
+                $entity = $this->getEntity($entity);
+                if (is_null($entity))
+                    return false;
+            } elseif (is_object($entity)) {
+                if (!$entity instanceof Entity)
+                    throw new \Exception('Entity must an instance of framework\mvc\model\Entity');
+            } else
+                throw new \Exception('Entity must be a string or an object');
+
+            return $this->_deleteEntity($entity);
+        } else { // delete all entities
+            $entityDeletedCount = 0;
+            foreach ($this->_entities as &$entity)
+                $entityDeletedCount = $entityDeletedCount + $this->_deleteEntity($entity);
+        }
+    }
+
+    public function refresh($entity = null) {//cancel object update, and restore bdd info
+    }
+
+    public function save($entity = null) {// save into bdd, update if exists (and if is modified) else create into bdd (and set primaryKey value)
+    }
+
+    public function flush() {// save and clear all attached entities
+    }
+
+    public function getEntities() {
+        return $this->_entities;
+    }
+
+    protected function _deleteEntity(Entity $entity) {
         $builder = $entity->getRepostery()->getQueryBuilder();
         $table = $entity->getRepostery()->getTable();
         $builder->delete()->from($table->getName(), $table->getAlias());
@@ -124,19 +199,6 @@ class Model {
         //exec query and return affected count
         $db->execute();
         return $db->rowCount();
-    }
-
-    public function refresh($entity = null) {//cancel object update, and restore bdd info
-    }
-
-    public function save($entity = null) {// save into bdd, update if exists (and if is modified) else create into bdd (and set primaryKey value)
-    }
-
-    public function flush() {// save and clear all attached entities
-    }
-
-    public function getEntities() {
-        return $this->_entities;
     }
 
 }

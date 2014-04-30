@@ -14,16 +14,23 @@ class Index extends Controller {
     public function __construct() {
         $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
 
-        $model = Model::getInstance();
+        //$model = Model::getInstance();
         //$article = $model->factoryRepostery('article')->find(10);
         //$model->delete($article);
         //$article = $model->factoryRepostery('article')->find(10);
         //$article->title = 'test';
         //$model->save($article);
-        $article = $model->factoryEntity('article');
+        //$article = $model->factoryEntity('article');
+        //$article2 = $model->factoryEntity('article');
+        //\framework\Debugger::dump($article);
+        //\framework\Debugger::dump($article2);
+        //$model->attach($article);
+        //$model->attach($article);
         //$article->title = 'test';
         //$model->attach($article);
-        $model->delete($article);
+        //$model->attach($article2);
+        //\framework\Debugger::dump($model->delete($article));
+        //\framework\Debugger::dump($model->delete());
         //$model->flush();
         //\framework\Debugger::dump($article->getRepostery()->getDatabase());
         //\framework\Debugger::dump($article, true);
