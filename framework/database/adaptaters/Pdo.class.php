@@ -195,7 +195,7 @@ class Pdo implements IAdaptater {
         $this->_statement = $this->_connection->prepare($this->_query, $options);
 
         if (!$this->_statement)
-            throw new \Exception('Error when prepare your query : ' . $this->error);
+            throw new \Exception('Error : "' . $this->_connection->errorInfo()[2] . '" when prepare your query : "' . $this->_query . '"');
 
         return $this;
     }
