@@ -3,8 +3,8 @@
 namespace framework\autoloader;
 
 use framework\Autoloader;
-use framework\autoloader\autoloaders\Finder;
-use framework\autoloader\autoloaders\Cache;
+use framework\autoloader\adaptaters\Finder;
+use framework\autoloader\adaptaters\Cache;
 
 class Globalizer extends Autoloader {
 
