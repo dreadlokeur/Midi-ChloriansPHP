@@ -226,12 +226,20 @@ class Router {
     }
 
     public function runController($controller, $methods = array(), $vars = array()) {
-        $controller = (string) ucfirst($controller);
+        $controllerExplode = explode($this->getNamespaceSeparator(), (string) $controller);
+        if (is_array($controllerExplode) && count($controllerExplode) > 1) {
+            $controllerName = $this->getNamespaceSeparator() . ucfirst(array_pop($controllerExplode));
+            $controller = implode($this->getNamespaceSeparator(), $controllerExplode) . $controllerName;
+        } else
+            $controller = (string) ucfirst($controller);
+
         Logger::getInstance()->debug('Run controller : "' . $controller . '"', 'router');
+        $controllerClass = $this->getControllersNamespace(true) . $controller;
+
         // Check if controller exists (with controllers namespace)
-        if (!class_exists($this->getControllersNamespace(true) . $controller))
-            throw new \Exception('Controller "' . $controller . '" not found');
-        $controller = $this->getControllersNamespace(true) . $controller;
+        if (!class_exists($controllerClass))
+            throw new \Exception('Controller "' . $controllerClass . '" not found');
+        $controller = $controllerClass;
 
         if (!is_array($vars))
             throw new \Exception('Controller : "' . $controller . '" vars must be an array');

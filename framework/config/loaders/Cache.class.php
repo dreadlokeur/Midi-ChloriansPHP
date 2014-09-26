@@ -33,7 +33,7 @@ class Cache extends Loader {
             }
             // check adaptater
             if (!isset($params['adaptater']))
-                throw new \Exception('Miss adaptaterr parameter for cache : "' . $cacheName . '"');
+                throw new \Exception('Miss adaptater parameter for cache : "' . $cacheName . '"');
 
             // Add param name
             $params['name'] = $cacheName;
