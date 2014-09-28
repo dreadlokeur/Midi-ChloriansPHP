@@ -32,6 +32,7 @@
                 <loadLangs>true</loadLangs>
                 <cache>
                     <compress>true</compress>
+                    <rewriteUrls>true</rewriteUrls>
                     <name>default</name><!-- cache name -->
                 </cache>
             </js>

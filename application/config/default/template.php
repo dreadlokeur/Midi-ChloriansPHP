@@ -33,6 +33,7 @@ $config = array(
                 'loadLangs' => true,
                 'cache' => array(
                     'compress' => true,
+                    'rewriteUrls' => true,
                     'name' => 'default'//cache config name
                 )
             )
