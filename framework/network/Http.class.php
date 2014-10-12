@@ -42,7 +42,7 @@ class Http {
      * @return Mixed
      */
     public static function getQuery($key = null, $default = null, $allowHtmlTags = false) {
-        return self::getDataFromArray($_GET, $key, $default, $allowHtmlTags);
+        return self::_getDataFromArray($_GET, $key, $default, $allowHtmlTags);
     }
 
     /**
@@ -57,7 +57,7 @@ class Http {
      * @return Mixed
      */
     public static function getPost($key = null, $default = null, $allowHtmlTags = false) {
-        return self::getDataFromArray($_POST, $key, $default, $allowHtmlTags);
+        return self::_getDataFromArray($_POST, $key, $default, $allowHtmlTags);
     }
 
     /**
@@ -72,7 +72,7 @@ class Http {
      * @return Mixed
      */
     public static function getCookie($key = null, $default = null, $allowHtmlTags = false) {
-        return self::getDataFromArray($_COOKIE, $key, $default, $allowHtmlTags);
+        return self::_getDataFromArray($_COOKIE, $key, $default, $allowHtmlTags);
     }
 
     /**
@@ -87,7 +87,7 @@ class Http {
      * @return Mixed
      */
     public static function getServer($key = null, $default = null, $allowHtmlTags = false) {
-        return self::getDataFromArray($_SERVER, $key, $default, $allowHtmlTags);
+        return self::_getDataFromArray($_SERVER, $key, $default, $allowHtmlTags);
     }
 
     /**
@@ -102,7 +102,7 @@ class Http {
      * @return Mixed
      */
     public static function getFile($key = null, $default = null, $allowHtmlTags = false) {
-        return self::getDataFromArray($_FILES, $key, $default, $allowHtmlTags);
+        return self::_getDataFromArray($_FILES, $key, $default, $allowHtmlTags);
     }
 
     /**
@@ -117,7 +117,7 @@ class Http {
      * @return Mixed
      */
     public static function getEnv($key = null, $default = null, $allowHtmlTags = false) {
-        return self::getDataFromArray($_ENV, $key, $default, $allowHtmlTags);
+        return self::_getDataFromArray($_ENV, $key, $default, $allowHtmlTags);
     }
 
     /**
@@ -136,66 +136,24 @@ class Http {
         foreach (self::$_requestOrder as &$adata) {
             switch ($adata) {
                 case Superglobals::POST:
-                    $data = self::getDataFromArray($_POST, $key, $default, $allowHtmlTags);
+                    $data = self::_getDataFromArray($_POST, $key, $default, $allowHtmlTags);
                     break;
                 case Superglobals::GET:
-                    $data = self::getDataFromArray($_GET, $key, $default, $allowHtmlTags);
+                    $data = self::_getDataFromArray($_GET, $key, $default, $allowHtmlTags);
                     break;
                 case Superglobals::REQUEST:
-                    $data = self::getDataFromArray($_REQUEST, $key, $default, $allowHtmlTags);
+                    $data = self::_getDataFromArray($_REQUEST, $key, $default, $allowHtmlTags);
                     break;
                 case Superglobals::COOKIE:
-                    $data = self::getDataFromArray($_COOKIE, $key, $default, $allowHtmlTags);
+                    $data = self::_getDataFromArray($_COOKIE, $key, $default, $allowHtmlTags);
                     break;
                 default:
                     throw new \Exception('Whats happening ?');
-                    break;
             }
             if ($data !== $default)
                 return $data;
         }
         return $default;
-    }
-
-    /**
-     * Get a data from a reference array
-     *
-     * @access private
-     * @static
-     * @param Array $array
-     * @param String $key
-     * @param Mixed $default
-     * @param Mixed $allowHtmlTags By default false : Remove all HTML tags, can be true : allow all html tags, can be a list of accepted HTML tags (see strip_tags documentation)
-     * @return Mixed
-     */
-    protected static function getDataFromArray(&$array, $key = false, $default = null, $allowHtmlTags = false) {
-        if ($key === null)
-            return !$allowHtmlTags ? self::secure($array, $allowHtmlTags) : $array;
-        else {
-            if (!array_key_exists($key, $array))
-                return $default;
-
-            return !$allowHtmlTags ? self::secure($array[$key], $allowHtmlTags) : $array[$key];
-        }
-    }
-
-    /**
-     * Secure a value, remove all, or allow html tags
-     *
-     * @access private
-     * @static
-     * @param Mixed $value Value to secure
-     * @param Mixed $allowHtmlTags It can be a string with HTML tags to allow (see strip_tags documentation)
-     * @see http://www.php.net/strip_tags
-     * @return Mixed
-     */
-    protected static function secure($value, $allowHtmlTags) {
-        if (is_array($value)) {
-            foreach ($value as &$v)
-                $v = self::secure($v, $allowHtmlTags);
-        } elseif (is_string($value))
-            $value = htmlspecialchars(strip_tags($value, ((is_string($allowHtmlTags) && !empty($allowHtmlTags)) ? $allowHtmlTags : null)), ENT_QUOTES);
-        return $value;
     }
 
     /**
@@ -254,7 +212,7 @@ class Http {
      * Check if this is an ajx request
      * @return Boolean
      */
-    public static function isAjaxRequest() {
+    public static function isAjax() {
         return (self::getServer('HTTP_X_REQUESTED_WITH') && (stripos(self::getServer('HTTP_X_REQUESTED_WITH'), 'XMLHttpRequest') !== false));
     }
 
@@ -269,6 +227,10 @@ class Http {
      */
     public static function isHttps() {
         return (self::getServer('HTTPS') && (stripos(self::getServer('HTTPS'), 'on') !== false));
+    }
+
+    public static function getMethod() {
+        return self::getServer('REQUEST_METHOD');
     }
 
     public static function getRootRequest($withPort = true) {
@@ -305,6 +267,47 @@ class Http {
         }
 
         return $url . self::getServer('REQUEST_URI');
+    }
+    
+    /**
+     * Get a data from a reference array
+     *
+     * @access protected
+     * @static
+     * @param Array $array
+     * @param String $key
+     * @param Mixed $default
+     * @param Mixed $allowHtmlTags By default false : Remove all HTML tags, can be true : allow all html tags, can be a list of accepted HTML tags (see strip_tags documentation)
+     * @return Mixed
+     */
+    protected static function _getDataFromArray(&$array, $key = false, $default = null, $allowHtmlTags = false) {
+        if ($key === null)
+            return !$allowHtmlTags ? self::_secure($array, $allowHtmlTags) : $array;
+        else {
+            if (!array_key_exists($key, $array))
+                return $default;
+
+            return !$allowHtmlTags ? self::_secure($array[$key], $allowHtmlTags) : $array[$key];
+        }
+    }
+    
+    /**
+     * Secure a value, remove all, or allow html tags
+     *
+     * @access protected
+     * @static
+     * @param Mixed $value Value to secure
+     * @param Mixed $allowHtmlTags It can be a string with HTML tags to allow (see strip_tags documentation)
+     * @see http://www.php.net/strip_tags
+     * @return Mixed
+     */
+    protected static function _secure($value, $allowHtmlTags) {
+        if (is_array($value)) {
+            foreach ($value as &$v)
+                $v = self::_secure($v, $allowHtmlTags);
+        } elseif (is_string($value))
+            $value = htmlspecialchars(strip_tags($value, ((is_string($allowHtmlTags) && !empty($allowHtmlTags)) ? $allowHtmlTags : null)), ENT_QUOTES);
+        return $value;
     }
 
 }

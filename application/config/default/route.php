@@ -1,7 +1,28 @@
 <?php
 
 $config = array(
-    // route name => array(options)
+    /*
+     * 'routeName' => array(
+     *      //controller name class  (case-insensitive), based on controllers namespace
+     *      'controller' => 'index',
+     *      //optionals
+     *      //rules
+     *      'rules' => array(
+     *          'ruleName',
+     *          'ruleName/([0-9a-zA-Z]+)/([a-z]+)/([0-9]+)'
+     *      ),
+     *      //methods into controller called... (possibility pass arguments)
+     *      'methods' => array(
+     *          'captcha' => array('[[1]]', '[[2]]', '[[3]]')
+     *      ),
+     *      'regex' => true, (true|false, check regex into rules default is false)
+     *      'requireSsl' => false,  (true|false, default is false)
+     *      'requireAjax' => false,  (true|false, default is false)
+     *      'autoSetAjax' => true,  (true|false, turn on ajax controller, when request is ajax, optional default is true)
+     *      'requireHttpMethod' => 0 (0 => 'GET', 1 => 'HEAD', 2 => 'POST', 3 => 'PUT', 4 => 'DELETE', 5 => 'TRACE', 6 => 'OPTIONS', 7 => 'CONNECT', 8 => 'PATCH', optional default is null (all))
+     * 
+     *  ),
+     */
     'index' => array(
         'controller' => 'index',
     ),
@@ -23,7 +44,6 @@ $config = array(
         ),
         'controller' => 'index',
         'methods' => array(
-            'setAjax' => true,
             'language' => array('[[1]]')
         )
     ),

@@ -37,20 +37,13 @@ class Index extends Controller {
         //\framework\Debugger::dump($article, true);
     }
 
-    public function setAjax($check = false) {
-        if (!Http::isAjaxRequest() && $check)
-            Http::redirect($this->router->getUrl('index'));
-
-        if (Http::isAjaxRequest())
-            $this->setAjaxController();
-    }
-
     public function language($language) {
         if (!is_string($language))
             $language = (string) $language;
 
         $this->session->add('language', $language, true, false);
         $this->addAjaxDatas('updated', true);
+
 
         //create cookie
         new Cookie('language', $language, true, Cookie::EXPIRE_TIME_INFINITE, str_replace(Http::getServer('SERVER_NAME'), '', $this->router->getHost()));
@@ -62,7 +55,6 @@ class Index extends Controller {
             $this->router->show404(true);
 
         if ($type == 'refresh') {
-            $this->setAjaxController();
             $captcha->flush();
             $this->addAjaxDatas('imageUrl', $captcha->get('image', true));
             $this->addAjaxDatas('audioUrl', $captcha->get('audio', true));

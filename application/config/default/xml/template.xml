@@ -4,7 +4,7 @@
         <path>[PATH_TEMPLATE_DEFAULT]</path>
         <charset>UTF-8</charset>
         <adaptater>php</adaptater><!-- class name (must be implement \framework\mvc\template\IAdaptater)-->
-        <autoSanitize>php</autoSanitize>
+        <autoSanitize>false</autoSanitize>
         <assets>
             <img>
                 <directory>[PATH_TEMPLATE_DEFAULT_ASSETS]images[DS]</directory>

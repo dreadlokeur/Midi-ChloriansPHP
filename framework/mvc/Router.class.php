@@ -10,6 +10,8 @@ use framework\utility\Benchmark;
 use framework\mvc\Template;
 use framework\Application;
 use framework\Language;
+use framework\network\http\Method;
+use framework\Cli;
 
 class Router {
 
@@ -31,7 +33,7 @@ class Router {
         Logger::getInstance()->addGroup('router', 'Router Benchmark and Informations', true);
     }
 
-    public static function addRoute($name, $controller, $rules = array(), $methods = array(), $forceSsl = false, $regex = false, $forceReplace = false) {
+    public static function addRoute($name, $controller, $rules = array(), $methods = array(), $requireSsl = false, $regex = false, $requireAjax = false, $autoSetAjax = true, $requireHttpMethod = null, $forceReplace = false) {
         if (!is_string($name) && !is_int($name))
             throw new \Exception('Route name must be string or integer');
 
@@ -46,10 +48,30 @@ class Router {
 
         self::$_routes->$name = new \stdClass();
         self::$_routes->$name->name = $name;
-        self::$_routes->$name->forceSsl = $forceSsl;
-        self::$_routes->$name->regex = $regex;
+
+        if (!is_string($controller))
+            throw new \Exception('Route controller parameter must be a string');
         self::$_routes->$name->controller = $controller;
+        if (!is_bool($requireSsl))
+            throw new \Exception('Route requireSsl parameter must be a boolean');
+        self::$_routes->$name->requireSsl = $requireSsl;
+        if (!is_bool($regex))
+            throw new \Exception('Route regex parameter must be a boolean');
+        self::$_routes->$name->regex = $regex;
+        if (!is_bool($requireAjax))
+            throw new \Exception('Route requireAjax parameter must be a boolean');
+        self::$_routes->$name->requireAjax = $requireAjax;
+        if (!is_bool($autoSetAjax))
+            throw new \Exception('Route autoSetAjax parameter must be a boolean');
+        self::$_routes->$name->autoSetAjax = $autoSetAjax;
+        if (!is_null($requireHttpMethod) && !Method::isValidMethod($requireHttpMethod))
+            throw new \Exception('Route requireHttpMethod parameter must null or a valid HTTP METHOD');
+        self::$_routes->$name->requireHttpMethod = $requireHttpMethod;
+        if (!is_array($rules))
+            throw new \Exception('Route rules parameter must be an array');
         self::$_routes->$name->rules = $rules;
+        if (!is_array($methods))
+            throw new \Exception('Route methods parameter must be an array');
         self::$_routes->$name->methods = $methods;
     }
 
@@ -72,7 +94,7 @@ class Router {
                 throw new \Exception('Route : "' . $routeName . '" missing datas : controller');
 
             Logger::getInstance()->debug('Run route : "' . $routeName . '"', 'router');
-            $this->runController($route->controller, $route->methods, $vars);
+            $this->runController($route->controller, $route->methods, $vars, $route->requireSsl, $route->requireAjax, $route->autoSetAjax, $route->requireHttpMethod);
         }
         if ($die)
             exit();
@@ -91,7 +113,7 @@ class Router {
         //config lang and ssl
         if ($lang === null)
             $lang = Language::getInstance()->getLanguage();
-        if ($route->forceSsl)
+        if ($route->requireSsl)
             $ssl = true;
 
         if (empty($route->rules))
@@ -225,7 +247,7 @@ class Router {
         }
     }
 
-    public function runController($controller, $methods = array(), $vars = array()) {
+    public function runController($controller, $methods = array(), $vars = array(), $requireSsl = false, $requireAjax = false, $autoSetAjax = true, $requireHttpMethod = null) {
         $controllerExplode = explode($this->getNamespaceSeparator(), (string) $controller);
         if (is_array($controllerExplode) && count($controllerExplode) > 1) {
             $controllerName = $this->getNamespaceSeparator() . ucfirst(array_pop($controllerExplode));
@@ -256,6 +278,25 @@ class Router {
                 throw new \Exception('Controller "' . $controller . '" must be implement method "Diplay');
             if (!$inst->hasMethod('initTemplate'))
                 throw new \Exception('Controller "' . $controller . '" must be implement method "initTemplate');
+        }
+
+        if (!Cli::isCli()) {
+            if (!Http::isHttps() && $requireSsl) {
+                Logger::getInstance()->debug('Controller "' . $controller . '" need ssl http request', 'router');
+                $this->show400(true);
+            }
+            if (!is_null($requireHttpMethod)) {
+                if (Method::isValidMethod($requireHttpMethod) && ($requireHttpMethod != Http::getMethod())) {
+                    Logger::getInstance()->debug('Controller "' . $controller . '" invalid http method');
+                    $this->show405(true);
+                }
+            }
+            if (!Http::isAjax() && $requireAjax) {
+                Logger::getInstance()->debug('Controller "' . $controller . '" need ajax http request');
+                $this->show400(true);
+            }
+            if (Http::isAjax() && $autoSetAjax)
+                $ctrl->setAjaxController();
         }
 
         if ($methods) {
@@ -356,7 +397,7 @@ class Router {
         $args = preg_split('#(\(.+\))#iuU', $rule);
         foreach ($args as $key => $value) {
             //match by lang
-            if ($lang !== null && $key == 0 && (stripos($value, $lang . $varsSeparator) !== false  || $lang . $varsSeparator == $value || $lang == $value))
+            if ($lang !== null && $key == 0 && (stripos($value, $lang . $varsSeparator) !== false || $lang . $varsSeparator == $value || $lang == $value))
                 $matched = true;
             // only one rule or rule number
             elseif (count($route->rules) == 1 || $ruleNumber === $ruleCount)

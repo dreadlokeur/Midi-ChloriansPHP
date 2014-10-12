@@ -40,7 +40,7 @@
                 dataType: 'json',
                 success: function(datas) {
                     if (datas.updated === true)
-                        window.location.replace(urls['index']);
+                        window.location.reload();
                 }
             });
             return false;
