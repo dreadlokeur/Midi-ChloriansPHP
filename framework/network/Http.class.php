@@ -7,29 +7,6 @@ use framework\network\http\Method;
 
 class Http {
 
-    const PROTOCOL_VERSION_0_9 = '0.9';
-    const PROTOCOL_VERSION_1_0 = '1.0';
-    const PROTOCOL_VERSION_1_1 = '1.1';
-    const PROTOCOL_VERSION_2_0 = '2.0';
-
-    protected static $_protocolVersionList = array(
-        self::PROTOCOL_VERSION_0_9,
-        self::PROTOCOL_VERSION_1_0,
-        self::PROTOCOL_VERSION_1_1,
-        self::PROTOCOL_VERSION_2_0
-    );
-    protected static $_requestOrder = array('REQUEST');
-
-    public static function existsHttpProtocolVersion($httpProtocolVersion) {
-        if (!is_string($httpProtocolVersion))
-            throw new \Exception('httpProtocolVersion parameter must be a string');
-        return in_array($httpProtocolVersion, self::$_protocolVersionList);
-    }
-
-    public static function getServerHttpProtocolVersion() {
-        return self::getServer('SERVER_PROTOCOL');
-    }
-
     /**
      * Get a Query request by key ($_GET)
      *
@@ -217,7 +194,7 @@ class Http {
     }
 
     public static function isPost() {
-        return (Method::isPostMethod(self::getServer('REQUEST_METHOD')));
+        return (Method::isPost(self::getServer('REQUEST_METHOD')));
     }
 
     /**
@@ -268,7 +245,7 @@ class Http {
 
         return $url . self::getServer('REQUEST_URI');
     }
-    
+
     /**
      * Get a data from a reference array
      *
@@ -290,7 +267,7 @@ class Http {
             return !$allowHtmlTags ? self::_secure($array[$key], $allowHtmlTags) : $array[$key];
         }
     }
-    
+
     /**
      * Secure a value, remove all, or allow html tags
      *

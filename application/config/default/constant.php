@@ -10,13 +10,13 @@ $config = array(
     'LANGUAGE_DEFAULT' => 'fr_FR',
     //Optional
     'SITE_MAINTENANCE' => false, // true/false (if true, running route "error" with param : "503")
-    'SMTP_SERVER' => '',
+    'SMTP_SERVER' => null,
     'TIMEZONE' => 'Europe/Paris',
     'TEMPLATE_DEFAULT' => 'default', //template name
     'AUTOLOADER_CACHE' => 'core', //cache name/ false
     'AUTOLOADER_GLOBALIZER' => true, //autoloader cache must be activated)
-    'GOOGLE_VERIFICATION' => '',
-    'GOOGLE_UA' => '',
+    'GOOGLE_VERIFICATION' => null,
+    'GOOGLE_UA' => null,
     //logger
     'LOGGER_LEVEL' => 4, // EMERGENCY = 0,  ALERT = 1, CRITICAL = 2, ERROR = 3, WARNING = 4, NOTICE = 5, INFO = 6, DEBUG = 7
     'LOGGER_BACKTRACE' => false,

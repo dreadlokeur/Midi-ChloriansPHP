@@ -20,6 +20,8 @@ $config = array(
      *      'requireAjax' => false,  (true|false, default is false)
      *      'autoSetAjax' => true,  (true|false, turn on ajax controller, when request is ajax, optional default is true)
      *      'requireHttpMethod' => 0 (0 => 'GET', 1 => 'HEAD', 2 => 'POST', 3 => 'PUT', 4 => 'DELETE', 5 => 'TRACE', 6 => 'OPTIONS', 7 => 'CONNECT', 8 => 'PATCH', optional default is null (all))
+     *      'httpResponseStatusCode' => code (must be an integer, default is null),
+     *      'httpProtocol' => protocol (must be a string, default is null)
      * 
      *  ),
      */
