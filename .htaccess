@@ -8,18 +8,18 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-l
 RewriteCond %{REQUEST_URI} !index\.php
-RewriteRule . /Midi-ChloriansPHP/index.php [L,QSA]
+RewriteRule . index.php [L,QSA]
 </IfModule>
 
 #Errors document
-ErrorDocument 400 /Midi-ChloriansPHP/error/400
-ErrorDocument 401 /Midi-ChloriansPHP/error/401
-ErrorDocument 403 /Midi-ChloriansPHP/error/403
-ErrorDocument 404 /Midi-ChloriansPHP/error/404
-ErrorDocument 405 /Midi-ChloriansPHP/error/405
-ErrorDocument 500 /Midi-ChloriansPHP/error/500
-ErrorDocument 502 /Midi-ChloriansPHP/error/502
-ErrorDocument 503 /Midi-ChloriansPHP/error/503
+ErrorDocument 400 /error/400
+ErrorDocument 401 /error/401
+ErrorDocument 403 /error/403
+ErrorDocument 404 /error/404
+ErrorDocument 405 /error/405
+ErrorDocument 500 /Merror/500
+ErrorDocument 502 /error/502
+ErrorDocument 503 /error/503
 
 # Protect hidden files from being viewed
 <Files .*>
