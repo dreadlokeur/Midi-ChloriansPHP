@@ -24,7 +24,7 @@ interface IAdaptater {
 
     public function bind($value, $type = Database::PARAM_STR, $key = false, $bindType = Database::BIND_TYPE_PARAM);
 
-    public function execute($closeStatement = false);
+    public function execute($checkBindNumber = false);
 
     public function fetch($fetchStyle = Database::FETCH_BOTH, $cursorOrientation = Database::FETCH_ORI_NEXT, $offset = 0);
 

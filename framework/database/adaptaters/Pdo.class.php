@@ -238,7 +238,7 @@ class Pdo implements IAdaptater {
         return $this;
     }
 
-    public function execute($checkBindNumber = true) {
+    public function execute($checkBindNumber = false) {
         if (Application::getDebug())
             Benchmark::getInstance($this->_configName)->startTime()->startRam();
 
