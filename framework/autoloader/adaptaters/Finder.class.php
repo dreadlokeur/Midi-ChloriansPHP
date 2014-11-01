@@ -40,16 +40,20 @@ class Finder extends Autoloader implements IAdaptater {
         $namespace = self::_getRootNamespace($class);
         $namespaces = self::getNamespaces();
         if ($namespace && array_key_exists($namespace['namespaceValue'], $namespaces)) {
-            $classFile = self::_getClassFile(str_replace(array($namespace['namespaceValue'] . $namespace['namespaceSeparator'], $namespace['namespaceSeparator']), array($namespaces[$namespace['namespaceValue']], DS), $class));
+            $classFile = self::_getClassFile(str_replace(array(
+                        $namespace['namespaceValue'] . $namespace['namespaceSeparator'],
+                        $namespace['namespaceSeparator']), array($namespaces[$namespace['namespaceValue']], DS), $class)
+            );
             if (!$classFile)
                 return false;
             return array('isCached' => false, 'sourceFilePath' => $classFile);
         } else {
             $directories = self::getDirectories();
             foreach ($directories as &$directory) {
-                $fileClass = self::_getClassFile($directory . DS . $class);
-                if ($fileClass)
-                    return array('isCached' => false, 'sourceFilePath' => $fileClass);
+                $className = str_replace(self::getNamespacesSeparators(), DS, $class);
+                $classFile = self::_getClassFile($directory . DS . $className);
+                if ($classFile)
+                    return array('isCached' => false, 'sourceFilePath' => $classFile);
             }
             return false;
         }
