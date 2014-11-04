@@ -43,7 +43,7 @@ class Date extends \DateTime {
     public static function dateFromUsFormat($value) {
         $temp = explode(' ', $value);
         $temp2 = array_reverse(explode('-', $temp[0]));
-        return $temp2[0] . '/' . $temp2[1] . '/' . $temp2[2] . ' à ' . $temp[1];
+        return $temp2[0] . '/' . $temp2[1] . '/' . $temp2[2] . (isset($temp[1]) ? ' à ' . $temp[1] : '');
     }
 
     /**
