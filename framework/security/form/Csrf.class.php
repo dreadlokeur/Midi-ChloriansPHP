@@ -15,6 +15,7 @@ class Csrf implements IForm {
     protected $_timeValidity = 0;
     protected $_urlsReferer = array();
     protected $_token = null;
+    protected $_allowMultiple = true;
 
     public function __construct($options = array()) {
         if (isset($options['timeValidity']))
@@ -27,6 +28,8 @@ class Csrf implements IForm {
             } else
                 $this->_urlsReferer[] = Router::getUrl($options['urlReferer']);
         }
+        if (isset($options['allowMultiple']))
+            $this->_allowMultiple = (bool) $options['allowMultiple'];
     }
 
     public function setFormName($name) {
@@ -51,12 +54,21 @@ class Csrf implements IForm {
             return;
         }
 
-        Session::getInstance()->add($this->getFormName() . 'CsrfToken', $this->_token, true, true);
+        $token = array();
+        if ($this->_allowMultiple)
+            $token = Session::getInstance()->get($this->getFormName() . 'CsrfToken', array());
+
+        $token[$this->_token] = $this->_token;
+        Session::getInstance()->add($this->getFormName() . 'CsrfToken', $token, true, true);
         Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" set token value : "' . $this->_token . '" into session', 'security');
         if ($this->_timeValidity > 0) {
-            $time = time();
+            $time = array();
+            if ($this->_allowMultiple)
+                $time = Session::getInstance()->get($this->getFormName() . 'CsrfTokenTime', array());
+
+            $time[$this->_token] = time();
             Session::getInstance()->add($this->getFormName() . 'CsrfTokenTime', $time, true, true);
-            Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" set token time value : "' . $time . '"', 'security');
+            Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" set token time', 'security');
         }
     }
 
@@ -68,16 +80,16 @@ class Csrf implements IForm {
     public function check($checkingValue, $flush = false) {
         if (is_null($this->_token))
             return false;
-        $tokenRealValue = Session::getInstance()->get($this->getFormName() . 'CsrfToken');
-        $tokenTimeRealValue = Session::getInstance()->get($this->getFormName() . 'CsrfTokenTime');
+        $tokenRealValue = Session::getInstance()->get($this->getFormName() . 'CsrfToken', array());
+        $tokenTimeRealValue = Session::getInstance()->get($this->getFormName() . 'CsrfTokenTime', array());
         if ($flush)
             $this->flush();
 
-        if (is_null($tokenRealValue)) {
+        if (empty($tokenRealValue)) {
             Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" token miss"', 'security');
             return false;
         }
-        if ($this->_timeValidity > 0 && is_null($tokenTimeRealValue)) {
+        if ($this->_timeValidity > 0 && empty($tokenTimeRealValue)) {
             Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" tokenTime miss"', 'security');
             return false;
         }
@@ -93,13 +105,19 @@ class Csrf implements IForm {
                 return false;
             }
         }
-        if ($tokenRealValue != $checkingValue) {
-            Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" token : "' . $checkingValue . '" invalid, need : "' . $tokenRealValue . '" value', 'security');
+
+        // check value
+        if (!array_key_exists($checkingValue, $tokenRealValue)) {
+            Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" token : "' . (string) $checkingValue . '" invalid', 'security');
             return false;
         }
-        if ($tokenTimeRealValue <= time() - $this->_timeValidity) {
-            Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" tokenTime too old"', 'security');
-            return false;
+
+        //check time
+        if ($this->_timeValidity > 0) {
+            if (!array_key_exists($checkingValue, $tokenTimeRealValue) || $tokenTimeRealValue[$checkingValue] <= time() - $this->_timeValidity) {
+                Logger::getInstance()->debug('Crsf : "' . $this->getFormName() . '" tokenTime too old"', 'security');
+                return false;
+            }
         }
 
         return true;

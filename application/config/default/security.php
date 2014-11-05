@@ -9,7 +9,8 @@ $config = array(
                 'protection' => array(
                     'csrf' => array(
                         'urlReferer' => array('index', 'captcha'), //routes name
-                        'timeValidity' => 60 //second
+                        'timeValidity' => 60, //second
+                        'allowMultiple' => true // (allow multiple pages open, optional, default is true)
                     ),
                     'captcha' => array(
                         'dataFile' => '[PATH_DATA]captcha[DS]captcha-full.xml'
