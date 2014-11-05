@@ -7,7 +7,7 @@ $config = array(
     'HOSTNAME' => 'localhost/Midi-ChloriansPHP', // your hostname
     'ADMIN_NAME' => 'your admin name', // administrator name
     'ADMIN_EMAIL' => 'youadminemail@mail.com', // administrator email
-    'LANGUAGE_DEFAULT' => 'fr_FR',
+    'LANGUAGE_DEFAULT' => 'fr-FR',
     //Optional
     'SITE_MAINTENANCE' => false, // true/false (if true, running route "error" with param : "503")
     'SMTP_SERVER' => null,
