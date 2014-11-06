@@ -18,6 +18,7 @@ class Route {
     protected $_requireHttpMethod = null;
     protected $_httpResponseStatusCode = null;
     protected $_httpProtocol = null;
+    protected $_security = array();
     protected $_rules = array();
     protected $_methods = array();
 
@@ -126,6 +127,17 @@ class Route {
         return $this->_httpProtocol;
     }
 
+    public function setSecurity($security) {
+        if (!is_array($security))
+            throw new \Exception('Route security parameter must an array');
+
+        $this->_security = $security;
+    }
+
+    public function getSecurity() {
+        return $this->_security;
+    }
+
     public function setRules($rules) {
         if (!is_array($rules))
             throw new \Exception('Route rules parameter must be an array');
@@ -149,3 +161,5 @@ class Route {
     }
 
 }
+
+?>

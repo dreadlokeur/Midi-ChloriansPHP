@@ -4,7 +4,6 @@ namespace controllers;
 
 use framework\mvc\Controller;
 use framework\Security;
-use framework\security\Form;
 use framework\network\Http;
 use framework\utility\Cookie;
 
@@ -49,12 +48,13 @@ class Index extends Controller {
         new Cookie('language', $language, true, Cookie::EXPIRE_TIME_INFINITE, str_replace(Http::getServer('SERVER_NAME'), '', $this->router->getHost()));
     }
 
-    public function captcha($formName, $type) {
-        $captcha = Security::getSecurity(Security::TYPE_FORM)->getProtection($formName, Form::PROTECTION_CAPTCHA);
+    public function captcha($securityName, $type) {
+        $captcha = Security::getSecurity($securityName);
         if (!$captcha)
             $this->router->show404(true);
 
         if ($type == 'refresh') {
+            $this->setAjaxController();
             $captcha->flush();
             $this->addAjaxDatas('imageUrl', $captcha->get('image', true));
             $this->addAjaxDatas('audioUrl', $captcha->get('audio', true));

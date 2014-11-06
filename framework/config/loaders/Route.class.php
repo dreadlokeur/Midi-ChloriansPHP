@@ -47,6 +47,14 @@ class Route extends Loader {
             if (isset($datas['httpProtocol']))
                 $route->setHttpProtocol(Tools::castValue($datas['httpProtocol']));
 
+            if (isset($datas['security'])) {
+                if (is_array($datas['security'])) {
+                    if (isset($datas['security']['form']) && is_array($datas['security']['form']))
+                        $datas['security'] = $datas['security']['form'];
+                }
+                $route->setSecurity($datas['security']);
+            }
+
             if (isset($datas['rules'])) {
                 if (is_array($datas['rules'])) {
                     if (isset($datas['rules']['rule']) && is_array($datas['rules']['rule']))

@@ -5,21 +5,23 @@
 // TODO implement api externe support ? : http://www.solvemedia.com/ && recaptcha
 // TODO Ajout d'une securité contre le pompage en masse des contenu captchas, ou utilisation externe see: http://fr.wikipedia.org/wiki/CAPTCHA#Contournement and http://www.xmco.fr/article-captcha.html
 
-namespace framework\security\form;
+namespace framework\security\adaptaters;
 
-use framework\security\IForm;
-use framework\utility\Tools;
-use framework\utility\Validate;
-use framework\Session;
-use framework\mvc\Router;
-use framework\network\http\Header;
-use framework\utility\Color;
 use framework\Logger;
 use framework\Language;
+use framework\Session;
+use framework\mvc\Router;
+use framework\network\Http;
+use framework\network\http\Header;
+use framework\utility\Tools;
+use framework\utility\Validate;
+use framework\utility\Color;
+use framework\security\IAdaptater;
 
-class Captcha implements IForm {
+class Captcha implements IAdaptater {
 
-    protected $_formName = '';
+    protected $_name = null;
+    protected $_autorun = false;
     protected $_image = false; //true/false
     protected $_audio = false; //true/false
     // generale infos
@@ -96,6 +98,13 @@ class Captcha implements IForm {
     protected $_audioDegrade = false;
 
     public function __construct($options = array()) {
+        if (!isset($options['name']))
+            throw new \Exception('Miss param name');
+        $this->setName($options['name']);
+
+        if (isset($options['autorun']))
+            $this->setAutorun($options['autorun']);
+
         if (isset($options['dataFile'])) {
             if (!file_exists($options['dataFile']) || !Validate::isFileMimeType('xml', $options['dataFile']))
                 throw new \Exception('Security captcha invalid data file');
@@ -129,17 +138,63 @@ class Captcha implements IForm {
         // Audio options
         if (isset($options['audio']))
             $this->setAudio($options['audio'], $options);
+
+        if (isset($options['name']))
+            $this->setName($options['name']);
+
+        if (isset($options['errorRedirect']))
+            $this->setErrorRedirect($options['errorRedirect']);
+
+        Logger::getInstance()->addGroup('security' . $this->getName(), 'Security ' . $this->getName(), true, true);
     }
 
-    public function setFormName($name) {
+    public function setName($name) {
         if (!Validate::isVariableName($name))
-            throw new \Exception('Form name must be a valid variable name');
+            throw new \Exception('name must be a valid variable name');
 
-        $this->_formName = $name;
+        $this->_name = $name;
     }
 
-    public function getFormName() {
-        return $this->_formName;
+    public function getName() {
+        return $this->_name;
+    }
+
+    public function setAutorun($autorun) {
+        if (!is_bool($autorun))
+            throw new \Exception('Autorun must be a boolean');
+
+        $this->_autorun = $autorun;
+    }
+
+    public function getAutorun() {
+        return $this->_autorun;
+    }
+
+    public function run() {
+        $controller = Router::getInstance()->getControllerInstance();
+        if ($controller) {
+            $controller->tpl->setVar($this->getName() . 'ImageUrl', $this->get('image', true), false, true);
+            $controller->addAjaxDatas($this->getName() . 'ImageUrl', $this->get('image', true));
+            $controller->tpl->setVar($this->getName() . 'AudioUrl', $this->get('audio', true), false, true);
+            $controller->addAjaxDatas($this->getName() . 'AudioUrl', $this->get('audio', true));
+            $controller->tpl->setVar($this->getName() . 'RefreshUrl', $this->getRefreshUrl(), false, true);
+            $controller->addAjaxDatas($this->getName() . 'RefreshUrl', $this->getRefreshUrl());
+
+            // check
+            if (Http::isPost() && !$this->check(Http::getPost($this->getName()))) {
+                // add error
+                $controller->addError('Captcha invalid', 'captcha');
+                if ($this->getErrorRedirect())
+                    Router::getInstance()->show403(true);
+            }
+
+            Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
+        }
+    }
+
+    public function stop() {
+        $this->flush();
+        Logger::getInstance()->debug('Security was stopped', 'security' . $this->getName());
     }
 
     public function create($key = null, $captchaType = 'image') {
@@ -155,8 +210,8 @@ class Captcha implements IForm {
             $this->_createAudio();
 
         // Put into session (locked)
-        $session->add($this->getFormName() . 'Captcha', $this->_key, true, true);
-        Logger::getInstance()->debug('Captcha : "' . $this->getFormName() . '" create key value : "' . $this->_key . '"', 'security');
+        $session->add($this->getName() . 'Captcha', $this->_key, true, true);
+        Logger::getInstance()->debug('Captcha : "' . $this->getName() . '" create key value : "' . $this->_key . '"', 'security' . $this->getName());
     }
 
     public function set() {
@@ -169,38 +224,49 @@ class Captcha implements IForm {
                 throw new \Exception('Security captcha image parameter not allowed');
 
             if ($url)
-                return Router::getUrl($this->_imageUrl, array($this->getFormName(), 'image'));
+                return Router::getUrl($this->_imageUrl, array($this->getName(), 'image'));
 
             $this->_display($type);
         } elseif ($type == 'audio') {
             if (!$this->_audio)
                 throw new \Exception('Security captcha audio parameter not allowed');
             if ($url)
-                return Router::getUrl($this->_imageUrl, array($this->getFormName(), 'audio'));
+                return Router::getUrl($this->_imageUrl, array($this->getName(), 'audio'));
 
             $this->_display($type);
         }
     }
 
+    public function check($checkingValue, $flush = false) {
+        $realValue = Session::getInstance()->get($this->getName() . 'Captcha');
+        if ($flush)
+            $this->flush();
+
+        if (is_null($realValue) || $realValue != $checkingValue) {
+            Logger::getInstance()->debug('Captcha : "' . $this->getName() . '" invalid captcha value : "' . $checkingValue . '" need value : "' . $realValue . '"', 'security' . $this->getName());
+            return false;
+        }
+        Logger::getInstance()->debug('Captcha : "' . (string) $realValue . '" valid', 'security' . $this->getName());
+        return true;
+    }
+
     public function flush() {
         // destruct key, session and contents
-        Session::getInstance()->delete($this->getFormName() . 'Captcha', true);
+        Session::getInstance()->delete($this->getName() . 'Captcha', true);
         $this->_key = null;
         $this->_imageContents = null;
         $this->_audioContents = null;
     }
 
-    public function check($checkingValue, $flush = false) {
-        $realValue = Session::getInstance()->get($this->getFormName() . 'Captcha');
-        if ($flush)
-            $this->flush();
+    public function setErrorRedirect($errorRedirect) {
+        if (!is_bool($errorRedirect))
+            throw new \Exception('errorRedirect must be a boolean');
 
-        if (is_null($realValue) || $realValue != $checkingValue) {
-            Logger::getInstance()->debug('Captcha : "' . $this->getFormName() . '" invalid captcha value : "' . $checkingValue . '" need value : "' . $realValue . '"', 'security');
-            return false;
-        }
+        $this->_errorRedirect = $errorRedirect;
+    }
 
-        return true;
+    public function getErrorRedirect() {
+        return $this->_errorRedirect;
     }
 
     public function setLength($lengh) {
@@ -217,7 +283,7 @@ class Captcha implements IForm {
     }
 
     public function getRefreshUrl() {
-        return Router::getUrl($this->_refreshUrl, array($this->getFormName(), 'refresh'));
+        return Router::getUrl($this->_refreshUrl, array($this->getName(), 'refresh'));
     }
 
     public function setImage($activate, $options = array()) {
@@ -791,7 +857,7 @@ class Captcha implements IForm {
 
             unset($globalWavFile);
         } catch (\Exception $e) {
-            Logger::getInstance()->debug('Security captcha generate audio file for form : "' . $this->getFormName() . '" error : "' . $e . '"', 'security');
+            Logger::getInstance()->debug('Security captcha generate audio file for form : "' . $this->getName() . '" error : "' . $e . '"', 'security' . $this->getName());
 
             if (file_exists($this->_audioLangDirectory . 'error.wav'))
                 $this->_audioContents = file_get_contents($this->_audioLangDirectory . 'error.wav');
@@ -799,7 +865,7 @@ class Captcha implements IForm {
     }
 
     protected function _display($captchaType) {
-        $this->create(Session::getInstance()->get($this->getFormName() . 'Captcha'), $captchaType);
+        $this->create(Session::getInstance()->get($this->getName() . 'Captcha'), $captchaType);
         Header::sentHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
         Header::sentHeader('Cache-Control', 'post-check=0, pre-check=0', false);
         Header::sentHeader('Pragma', 'no-cache');

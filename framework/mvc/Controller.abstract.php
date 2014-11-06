@@ -25,12 +25,10 @@ abstract class Controller {
     protected $_ajaxDatas = array();
     protected $_ajaxDatasType = self::JSON;
     protected $_ajaxDatasCache = false;
-    protected $_ajaxAutoAddDatas = array(
-        'content' => false,
-        'post' => false,
-        'query' => false,
-        'cookie' => false,
-    );
+    protected $_ajaxDatasContent = true;
+    protected $_ajaxDatasPosts = false;
+    protected $_ajaxDatasQuery = false;
+    protected $_ajaxDatasCookies = false;
     protected $_errors = array();
     //http
     protected $_request = null;
@@ -102,14 +100,16 @@ abstract class Controller {
         if ($this->_isAjax) {
             if ($this->hasErrors())
                 $this->addAjaxDatas('errors', $this->getErrors());
-            if ($this->_ajaxAutoAddDatas['post'] && !array_key_exists('post', $this->_ajaxDatas))
-                $this->addAjaxDatas('post', Http::getPost());
-            if ($this->_ajaxAutoAddDatas['query'] && !array_key_exists('query', $this->_ajaxDatas))
+
+            if ($this->_ajaxDatasPosts && !array_key_exists('posts', $this->_ajaxDatas))
+                $this->addAjaxDatas('posts', Http::getPost());
+            if ($this->_ajaxDatasQuery && !array_key_exists('query', $this->_ajaxDatas))
                 $this->addAjaxDatas('query', Http::getQuery());
-            if ($this->_ajaxAutoAddDatas['cookie'] && !array_key_exists('cookie', $this->_ajaxDatas))
+            if ($this->_ajaxDatasCookies && !array_key_exists('cookie', $this->_ajaxDatas))
                 $this->addAjaxDatas('cookie', Http::getCookie());
-            if ($this->_ajaxAutoAddDatas['content'] && !array_key_exists('content', $this->_ajaxDatas))
+            if ($this->_ajaxDatasContent && !array_key_exists('content', $this->_ajaxDatas))
                 $this->addAjaxDatas('content', $this->tpl->getContent());
+
             if (!array_key_exists('notifyInformation', $this->_ajaxDatas))
                 $this->addAjaxDatas('notifyInformation', $this->session->get('notifyInformation'));
             if (!array_key_exists('notifyError', $this->_ajaxDatas))
@@ -182,23 +182,6 @@ abstract class Controller {
         $this->log->debug('Set controller in ajax', 'router');
     }
 
-    public function setAjaxAutoAddDatas($content = false, $post = false, $query = false, $cookie = false) {
-        if (!$this->isAjaxController())
-            return;
-
-        if (!is_bool($content) || !is_bool($post) || !is_bool($query) || !is_bool($cookie))
-            throw new \Exception('ajaxAutoAddDatas parameters must be a boolean');
-
-        if ($content)
-            $this->_ajaxAutoAddDatas['content'] = $content;
-        if ($post)
-            $this->_ajaxAutoAddDatas['post'] = $content;
-        if ($query)
-            $this->_ajaxAutoAddDatas['query'] = $content;
-        if ($cookie)
-            $this->_ajaxAutoAddDatas['cookie'] = $content;
-    }
-
     public function isAjaxController() {
         return $this->_isAjax;
     }
@@ -206,6 +189,42 @@ abstract class Controller {
     public function addAjaxDatas($key, $datas) {
         $this->_ajaxDatas[$key] = $datas;
         return $this;
+    }
+
+    public function setAjaxDatasContent($bool) {
+        if (!$this->isAjaxController())
+            return;
+
+        if (!is_bool($bool))
+            throw new \Exception('ajaxDatasContent must be a boolean');
+        $this->_ajaxDatasContent = $bool;
+    }
+
+    public function setAjaxDatasPosts($bool) {
+        if (!$this->isAjaxController())
+            return;
+
+        if (!is_bool($bool))
+            throw new \Exception('ajaxDatasPosts must be a boolean');
+        $this->_ajaxDatasPosts = $bool;
+    }
+
+    public function setAjaxDatasQuery($bool) {
+        if (!$this->isAjaxController())
+            return;
+
+        if (!is_bool($bool))
+            throw new \Exception('ajaxDatasQuery must be a boolean');
+        $this->_ajaxDatasQuery = $bool;
+    }
+
+    public function setAjaxDatasCookies($bool) {
+        if (!$this->isAjaxController())
+            return;
+
+        if (!is_bool($bool))
+            throw new \Exception('ajaxDatasCookies must be a boolean');
+        $this->_ajaxDatasCookies = $bool;
     }
 
     public function notifyInformation($title, $details = array()) {

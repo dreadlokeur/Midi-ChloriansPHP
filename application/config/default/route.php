@@ -22,6 +22,7 @@ $config = array(
      *      'requireHttpMethod' => 'POST', (GET, HEAD, POST, PUT', DELETE, TRACE, OPTIONS, CONNECT, PATCH, optional default is null (all))
      *      'httpResponseStatusCode' => code (must be an integer, default is null),
      *      'httpProtocol' => protocol (must be a string, default is null)
+     *      'security' => array('name', 'name') (Security names, must be a array, default is empty)
      * 
      *  ),
      */

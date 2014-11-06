@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <form>
+    <csrf>
+        <adaptater>csrf</adaptater><!-- class name (implement \framework\security\IAdaptater) -->
         <autorun>false</autorun>
-        <form>
-            <formName>
-                <protection>
-                    <csrf>
-                        <urlReferer>root</urlReferer><!--route name -->
-                        <urlReferer>captcha</urlReferer><!--route name -->
-                        <timeValidity>60</timeValidity><!--second -->
-                        <allowMultiple>true</allowMultiple><!--allow multiple pages open, optional, default is true -->
-                    </csrf>
-                    <captcha>
-                        <dataFile>[PATH_DATA]captcha[DS]captcha-full.xml</dataFile>
-                        <!--possible to override ooption value defined into dataFile-->
-                    </captcha>
-                </protection>
-            </formName>
-        </form>
-    </form>
+        <urlsReferer>
+            <urlReferer>root</urlReferer><!-- route name -->
+        </urlsReferer>
+        <timeValidity>60</timeValidity><!-- second -->
+        <allowMultiple>true</allowMultiple><!-- allow multiple pages open, optional, default is true -->
+        <errorRedirect>true</errorRedirect><!-- (redirect 403 if is invalid, optional, default is false) -->
+    </csrf>
+    <captcha>
+        <adaptater>captcha</adaptater><!-- class name (implement \framework\security\IAdaptater) -->
+        <dataFile>[PATH_DATA]captcha[DS]captcha-full.xml</dataFile><!--possible to override ooption value defined into dataFile-->
+        <errorRedirect>true</errorRedirect><!-- (redirect 403 if is invalid, optional, default is false) -->
+    </captcha>
     <sniffer>
+        <adaptater>sniffer</adaptater><!-- class name (implement \framework\security\IAdaptater) -->
         <autorun>true</autorun>
         <trapName>badbottrap</trapName>
         <badCrawlerFile>[PATH_DATA]sniffer[DS]crawlerBad.xml</badCrawlerFile>

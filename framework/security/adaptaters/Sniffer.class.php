@@ -1,23 +1,23 @@
 <?php
 
-namespace framework\security;
+namespace framework\security\adaptaters;
 
-use framework\security\ISecurity;
-use framework\Security;
 use framework\Logger;
+use framework\Session;
+use framework\mvc\Router;
 use framework\utility\Validate;
 use framework\utility\Tools;
 use framework\network\Http;
-use framework\Session;
-use framework\mvc\Router;
+use framework\security\IAdaptater;
 
-class Sniffer extends Security implements ISecurity {
+class Sniffer implements IAdaptater {
 
     const CRAWLER_BAD = 'bad';
     const CRAWLER_GOOD = 'good';
     const CRAWLER_UNKNOWN = 'unknown';
 
-    protected static $_isRun = false;
+    protected $_name = null;
+    protected $_autorun = false;
     protected $_trapName = 'trap';
     protected $_badCrawlerFile = null;
     protected $_goodCrawlerFile = null;
@@ -26,6 +26,13 @@ class Sniffer extends Security implements ISecurity {
     protected $_logUnknownCrawler = false;
 
     public function __construct($options = array()) {
+        if (!isset($options['name']))
+            throw new \Exception('Miss param name');
+        $this->setName($options['name']);
+
+        if (isset($options['autorun']))
+            $this->setAutorun($options['autorun']);
+
         if (isset($options['trapName']) && Validate::isVariableName($options['trapName']))
             $this->_trapName = $options['trapName'];
         if (isset($options['badCrawlerFile'])) {
@@ -58,6 +65,30 @@ class Sniffer extends Security implements ISecurity {
                 throw new \Exception('logUnknownCrawler parameter must be a boolean');
             $this->_logUnknownCrawler = $options['logUnknownCrawler'];
         }
+
+        Logger::getInstance()->addGroup('security' . $this->getName(), 'Security ' . $this->getName(), true, true);
+    }
+
+    public function setName($name) {
+        if (!Validate::isVariableName($name))
+            throw new \Exception('name must be a valid variable name');
+
+        $this->_name = $name;
+    }
+
+    public function getName() {
+        return $this->_name;
+    }
+
+    public function setAutorun($autorun) {
+        if (!is_bool($autorun))
+            throw new \Exception('Autorun must be a boolean');
+
+        $this->_autorun = $autorun;
+    }
+
+    public function getAutorun() {
+        return $this->_autorun;
     }
 
     public function run() {
@@ -68,7 +99,32 @@ class Sniffer extends Security implements ISecurity {
             Router::getInstance()->show403(true);
 
         $this->_check($ip, $userAgent);
-        Logger::getInstance()->debug('Sniffer security was run', 'security');
+        Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
+    }
+
+    public function stop() {
+        $this->flush();
+        Logger::getInstance()->debug('Security was stopped', 'security' . $this->getName());
+    }
+
+    public function create() {
+        
+    }
+
+    public function set() {
+        
+    }
+
+    public function get() {
+        
+    }
+
+    public function check($checkingValue, $flush = false) {
+        
+    }
+
+    public function flush() {
+        
     }
 
     protected function _check($ip, $userAgent) {
@@ -134,11 +190,6 @@ class Sniffer extends Security implements ISecurity {
 
         if ($log)
             Logger::getInstance()->warning($type . ' crawler detected, ip : "' . $ip . '" and user-agent : "' . $userAgent . '"');
-    }
-
-    public function stop() {
-        self::$_isRun = false;
-        Logger::getInstance()->debug('Sniffer security was stopped', 'security');
     }
 
 }

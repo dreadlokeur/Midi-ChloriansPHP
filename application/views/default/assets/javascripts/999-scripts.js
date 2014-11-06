@@ -1,7 +1,7 @@
-(function($) {
-    $(document).ready(function() {
+(function ($) {
+    $(document).ready(function () {
         //refresh captcha
-        $("body").on("click", ".refresh-captcha", function() {
+        $("body").on("click", ".refresh-captcha", function () {
             refreshCaptcha($(this).find(".captach-image"), $(this).attr('href'));
             return false;
         });
@@ -10,7 +10,7 @@
                 type: 'GET',
                 url: url,
                 dataType: 'json',
-                success: function(datas) {
+                success: function (datas) {
                     if (datas.imageUrl && img !== "undefined")
                         img.attr("src", datas.imageUrl + '/' + Math.floor(Math.random() * 100));
                 }
@@ -18,7 +18,7 @@
         }
 
         //refresh audio captcha
-        $("body").on("click", ".play-captcha", function() {
+        $("body").on("click", ".play-captcha", function () {
             $(this).find(".captach-audio").remove();
             if ($.browser.msie) {
                 $(this).append('<embed src="' + $(this).attr('href') + '/' + Math.floor(Math.random() * 100) + '" hidden="true" class="captach-audio">').appendTo('body');
@@ -30,7 +30,7 @@
         });
 
         // language updater
-        $('.updateLanguage').click(function() {
+        $('.updateLanguage').click(function () {
             var language = $(this).attr('id');
             if (language === $('html').attr("lang"))
                 return false;
@@ -38,9 +38,12 @@
                 type: 'GET',
                 url: urls['language'] + '/' + language,
                 dataType: 'json',
-                success: function(datas) {
+                success: function (datas) {
                     if (datas.updated === true)
                         window.location.reload();
+                },
+                error: function () {
+                    window.location.reload();
                 }
             });
             return false;
