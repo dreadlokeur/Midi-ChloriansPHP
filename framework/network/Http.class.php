@@ -246,6 +246,12 @@ class Http {
         return $url . self::getServer('REQUEST_URI');
     }
 
+    public static function isGoogleBot() {
+        if (stripos(Http::getServer('HTTP_USER_AGENT'), 'Googlebot') !== false)
+            return true;
+        return false;
+    }
+
     /**
      * Get a data from a reference array
      *

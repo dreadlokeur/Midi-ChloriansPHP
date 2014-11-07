@@ -86,12 +86,14 @@ abstract class Controller {
     public function display() {
         if ($this->hasErrors())
             $this->tpl->setVar('errors', $this->getErrors());
+
         if ($this->tpl->post === null)
             $this->tpl->setVar('post', Http::getPost(), false, true);
         if ($this->tpl->query === null)
             $this->tpl->setVar('query', Http::getQuery(), false, true);
         if ($this->tpl->cookie === null)
             $this->tpl->setVar('cookie', Http::getCookie(), false, true);
+
         $this->tpl->setVar('notifyInformation', $this->session->get('notifyInformation'), false, true);
         $this->tpl->setVar('notifyError', $this->session->get('notifyError'), false, true);
         $this->tpl->setVar('notifySuccess', $this->session->get('notifySuccess'), false, true);

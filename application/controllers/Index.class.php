@@ -41,8 +41,7 @@ class Index extends Controller {
             $language = (string) $language;
 
         $this->session->add('language', $language, true, false);
-        $this->addAjaxDatas('updated', true);
-
+        $this->notifySuccess('Language updated');
 
         //create cookie
         new Cookie('language', $language, true, Cookie::EXPIRE_TIME_INFINITE, str_replace(Http::getServer('SERVER_NAME'), '', $this->router->getHost()));

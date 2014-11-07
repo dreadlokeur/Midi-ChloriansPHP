@@ -2,27 +2,43 @@
 <config>
     <csrf>
         <adaptater>csrf</adaptater><!-- class name (implement \framework\security\IAdaptater) -->
-        <autorun>false</autorun>
+        <autorun>false</autorun><!-- autorun (optionnal default is false) -->
         <urlsReferer>
-            <urlReferer>root</urlReferer><!-- route name -->
+            <urlReferer>index</urlReferer><!-- routes name -->
         </urlsReferer>
-        <timeValidity>60</timeValidity><!-- second -->
-        <allowMultiple>true</allowMultiple><!-- allow multiple pages open, optional, default is true -->
+        <timeValidity>600</timeValidity><!-- token time validity in second (optional default is : 0 (no limit)) -->
+        <allowMultiple>true</allowMultiple><!-- (allow multiple pages open, optional, default is true) -->
         <errorRedirect>true</errorRedirect><!-- (redirect 403 if is invalid, optional, default is false) -->
+        <sessionKeyTokenName>csrfToken</sessionKeyTokenName><!-- subfix session token name (optional, default is csrfToken) -->
+        <sessionKeyTokenTimeName>csrfTokenTime</sessionKeyTokenTimeName><!-- subfix session token time name (optional, default is csrfTokenTime) -->
+        <tokenName>csrf</tokenName><!-- token name (optional, default is security name) -->
     </csrf>
     <captcha>
         <adaptater>captcha</adaptater><!-- class name (implement \framework\security\IAdaptater) -->
-        <dataFile>[PATH_DATA]captcha[DS]captcha-full.xml</dataFile><!--possible to override ooption value defined into dataFile-->
-        <errorRedirect>true</errorRedirect><!-- (redirect 403 if is invalid, optional, default is false) -->
+        <autorun>false</autorun><!-- autorun (optionnal default is false) -->
+        <dataFile>[PATH_DATA]captcha[DS]captcha-full.xml </dataFile><!-- (optional, possible to override option value defined into dataFile) -->
+        <errorRedirect>false</errorRedirect><!-- redirect 403 if is invalid (optional, default is false -->
+        <sessionKeyName>captcha</sessionKeyName><!-- subfix session key name (optional, default is captcha) -->
     </captcha>
-    <sniffer>
-        <adaptater>sniffer</adaptater><!-- class name (implement \framework\security\IAdaptater) -->
-        <autorun>true</autorun>
-        <trapName>badbottrap</trapName>
-        <badCrawlerFile>[PATH_DATA]sniffer[DS]crawlerBad.xml</badCrawlerFile>
-        <goodCrawlerFile>[PATH_DATA]sniffer[DS]crawlerGood.xml</goodCrawlerFile>
-        <logBadCrawler>true</logBadCrawler>
-        <logGoodCrawler>true</logGoodCrawler>
-        <logUnknownCrawler>true</logUnknownCrawler>
-    </sniffer>
+    <flooder>
+        <adaptater>flooder</adaptater><!-- class name (implement \framework\security\IAdaptater) -->
+        <autorun>false</autorun><!-- autorun (optionnal default is false) -->
+        <maxAttempts>10</maxAttempts><!-- attemps fail max (optional, default is 10)  -->
+        <errorRedirect>true</errorRedirect><!-- (redirect 403 if is blacklisted, optional, default is true)  -->
+        <cache>core</cache><!-- cache name  -->
+    </flooder>
+    <crawler>
+        <adaptater>crawler</adaptater><!-- class name (implement \framework\security\IAdaptater) -->
+        <autorun>false</autorun><!-- autorun (optionnal default is false) -->
+        <queryName>crawlertrap</queryName><!-- query name (optionnal default is "crawlertrap") -->
+        <sessionKeyName>crawler</sessionKeyName><!-- subfix session key name (optional, default is crawler) -->
+        <badCrawlers>[PATH_DATA]crawler[DS]bad.xml</badCrawlers><!-- datas file -->
+        <goodCrawlers>[PATH_DATA]crawler[DS]good.xml</goodCrawlers><!-- datas file -->
+        <badCrawlerBan>true</badCrawlerBan><!-- redirect 403 if is catched (optionnal default is "true") -->
+        <goodCrawlerBan>false</goodCrawlerBan><!-- redirect 403 if is catched (optionnal default is "false") -->
+        <unknownCrawlerBan>true</unknownCrawlerBan><!-- redirect 403 if is catched (optionnal default is "true") -->
+        <badCrawlerLog>true</badCrawlerLog><!-- log if is catched (optionnal default is "true") -->
+        <goodCrawlerLog>true</goodCrawlerLog><!-- log if is catched (optionnal default is "true") -->
+        <unknownCrawlerLog>true</unknownCrawlerLog><!-- log if is catched (optionnal default is "true") -->
+    </crawler>
 </config>

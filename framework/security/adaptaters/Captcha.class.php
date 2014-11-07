@@ -21,6 +21,7 @@ use framework\security\IAdaptater;
 class Captcha implements IAdaptater {
 
     protected $_name = null;
+    protected $_sessionKeyName = 'captcha';
     protected $_autorun = false;
     protected $_image = false; //true/false
     protected $_audio = false; //true/false
@@ -124,6 +125,8 @@ class Captcha implements IAdaptater {
         }
         if (!isset($options['refreshUrl']))
             throw new \Exception('Miss refresh url name');
+        if (!is_string($options['refreshUrl']))
+            throw new \Exception('RefreshUrl must be a string');
         $this->_refreshUrl = $options['refreshUrl'];
 
         if (isset($options['charsList']))
@@ -144,6 +147,9 @@ class Captcha implements IAdaptater {
 
         if (isset($options['errorRedirect']))
             $this->setErrorRedirect($options['errorRedirect']);
+
+        if (isset($options['sessionKeyName']))
+            $this->setSessionKeyName($options['sessionKeyName']);
 
         Logger::getInstance()->addGroup('security' . $this->getName(), 'Security ' . $this->getName(), true, true);
     }
@@ -171,7 +177,7 @@ class Captcha implements IAdaptater {
     }
 
     public function run() {
-        $controller = Router::getInstance()->getControllerInstance();
+        $controller = Router::getInstance()->getCurrentController();
         if ($controller) {
             $controller->tpl->setVar($this->getName() . 'ImageUrl', $this->get('image', true), false, true);
             $controller->addAjaxDatas($this->getName() . 'ImageUrl', $this->get('image', true));
@@ -179,17 +185,18 @@ class Captcha implements IAdaptater {
             $controller->addAjaxDatas($this->getName() . 'AudioUrl', $this->get('audio', true));
             $controller->tpl->setVar($this->getName() . 'RefreshUrl', $this->getRefreshUrl(), false, true);
             $controller->addAjaxDatas($this->getName() . 'RefreshUrl', $this->getRefreshUrl());
-
-            // check
-            if (Http::isPost() && !$this->check(Http::getPost($this->getName()))) {
-                // add error
-                $controller->addError('Captcha invalid', 'captcha');
-                if ($this->getErrorRedirect())
-                    Router::getInstance()->show403(true);
-            }
-
-            Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
         }
+        // check
+        if (Http::isPost() && !$this->check(Http::getPost($this->getName()), true)) {
+            // add error
+            if ($controller)
+                $controller->addError('Captcha invalid', 'captcha');
+
+            if ($this->getErrorRedirect())
+                Router::getInstance()->show403(true);
+        }
+
+        Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
     }
 
     public function stop() {
@@ -197,25 +204,29 @@ class Captcha implements IAdaptater {
         Logger::getInstance()->debug('Security was stopped', 'security' . $this->getName());
     }
 
-    public function create($key = null, $captchaType = 'image') {
-        $session = Session::getInstance();
-
+    public function create() {
+        $key = Session::getInstance()->get($this->getName() . $this->getSessionKeyName());
         $this->_key = is_null($key) ? Tools::generateString($this->_length, $this->_charsList) : $key;
 
-        if ($this->_image && $captchaType == 'image')
+        if ($this->_image && is_null($this->_imageContents))
             $this->_createImage();
 
 
-        if ($this->_audio && $captchaType == 'audio')
+        if ($this->_audio && is_null($this->_audioContents))
             $this->_createAudio();
 
-        // Put into session (locked)
-        $session->add($this->getName() . 'Captcha', $this->_key, true, true);
-        Logger::getInstance()->debug('Captcha : "' . $this->getName() . '" create key value : "' . $this->_key . '"', 'security' . $this->getName());
+        Logger::getInstance()->debug('Create key value : "' . $this->_key . '"', 'security' . $this->getName());
+
+        $this->set();
     }
 
     public function set() {
-        
+        if (is_null($this->_key)) {
+            Logger::getInstance()->debug('Trying set uncreated captcha', 'security' . $this->getName());
+            return;
+        }
+        Session::getInstance()->add($this->getName() . $this->getSessionKeyName(), $this->_key, true, true);
+        Logger::getInstance()->debug('Set captcha value : "' . $this->_key . '" into session', 'security' . $this->getName());
     }
 
     public function get($type = 'image', $url = false) {
@@ -238,12 +249,12 @@ class Captcha implements IAdaptater {
     }
 
     public function check($checkingValue, $flush = false) {
-        $realValue = Session::getInstance()->get($this->getName() . 'Captcha');
+        $realValue = Session::getInstance()->get($this->getName() . $this->getSessionKeyName());
         if ($flush)
             $this->flush();
 
         if (is_null($realValue) || $realValue != $checkingValue) {
-            Logger::getInstance()->debug('Captcha : "' . $this->getName() . '" invalid captcha value : "' . $checkingValue . '" need value : "' . $realValue . '"', 'security' . $this->getName());
+            Logger::getInstance()->debug('Captcha value : "' . $checkingValue . '" invalid', 'security' . $this->getName());
             return false;
         }
         Logger::getInstance()->debug('Captcha : "' . (string) $realValue . '" valid', 'security' . $this->getName());
@@ -252,7 +263,7 @@ class Captcha implements IAdaptater {
 
     public function flush() {
         // destruct key, session and contents
-        Session::getInstance()->delete($this->getName() . 'Captcha', true);
+        Session::getInstance()->delete($this->getName() . $this->getSessionKeyName(), true);
         $this->_key = null;
         $this->_imageContents = null;
         $this->_audioContents = null;
@@ -284,6 +295,17 @@ class Captcha implements IAdaptater {
 
     public function getRefreshUrl() {
         return Router::getUrl($this->_refreshUrl, array($this->getName(), 'refresh'));
+    }
+
+    public function setSessionKeyName($name) {
+        if (!Validate::isVariableName($name))
+            throw new \Exception('sessionKeyName must be a valid variable name');
+
+        $this->_sessionKeyName = $name;
+    }
+
+    public function getSessionKeyName() {
+        return $this->_sessionKeyName;
     }
 
     public function setImage($activate, $options = array()) {
@@ -644,7 +666,7 @@ class Captcha implements IAdaptater {
     }
 
     public function setAudioLangDirectory($path) {
-        $path = realpath($path . Language::getInstance()->getLanguage());
+        $path = realpath($path);
         if (!is_dir($path))
             throw new \Exception('Invalid audio language path : "' . $path . '"');
         // TODO check if have all wav files (charslist)
@@ -797,6 +819,15 @@ class Captcha implements IAdaptater {
         //http://www.gilles-joyeux.fr/MP3/NEn.mp3 letters
         //http://www.gilles-joyeux.fr/MP3/ten.mp3 numbers
         // revoir les sons S et F en anglais ...
+        // set audio path with language
+        if (is_dir($this->_audioLangDirectory . Language::getInstance()->getLanguage() . DS))
+            $this->_audioLangDirectory = $this->_audioLangDirectory . Language::getInstance()->getLanguage() . DS;
+        else
+            $this->_audioLangDirectory = $this->_audioLangDirectory . Language::getInstance()->getDefaultLanguage() . DS;
+
+        if (!is_dir($this->_audioLangDirectory))
+            throw new \Exception('Invalid audio language path, please set datas');
+
         try {
             $globalWavFile = new \WavFile();
             // Set sample rate, bits/sample, and Num of channels // TODO setter and getter this params ?
@@ -857,7 +888,7 @@ class Captcha implements IAdaptater {
 
             unset($globalWavFile);
         } catch (\Exception $e) {
-            Logger::getInstance()->debug('Security captcha generate audio file for form : "' . $this->getName() . '" error : "' . $e . '"', 'security' . $this->getName());
+            Logger::getInstance()->debug('generate audio file error : "' . $e . '"', 'security' . $this->getName());
 
             if (file_exists($this->_audioLangDirectory . 'error.wav'))
                 $this->_audioContents = file_get_contents($this->_audioLangDirectory . 'error.wav');
@@ -865,7 +896,7 @@ class Captcha implements IAdaptater {
     }
 
     protected function _display($captchaType) {
-        $this->create(Session::getInstance()->get($this->getName() . 'Captcha'), $captchaType);
+        $this->create();
         Header::sentHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
         Header::sentHeader('Cache-Control', 'post-check=0, pre-check=0', false);
         Header::sentHeader('Pragma', 'no-cache');

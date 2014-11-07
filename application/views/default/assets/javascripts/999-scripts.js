@@ -39,7 +39,7 @@
                 url: urls['language'] + '/' + language,
                 dataType: 'json',
                 success: function (datas) {
-                    if (datas.updated === true)
+                    if (datas.notifySuccess !== null)
                         window.location.reload();
                 },
                 error: function () {

@@ -374,12 +374,6 @@ class Validate {
             return false;
     }
 
-    public static function isGoogleBot() {
-        if (stripos(Http::getServer('HTTP_USER_AGENT'), 'Googlebot') !== false)
-            return true;
-        return false;
-    }
-
 }
 
 ?>

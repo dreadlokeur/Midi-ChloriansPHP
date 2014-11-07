@@ -60,6 +60,8 @@ interface IAdaptater {
 
     public function getCurrentRoute();
 
+    public function getCurrentRouteName();
+
     public function isCurrentRoute($routeName);
 
     public function getRoutes();

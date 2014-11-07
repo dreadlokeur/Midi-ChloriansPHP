@@ -18,8 +18,9 @@ class Csrf implements IAdaptater {
     protected $_urlsReferer = array();
     protected $_token = null;
     protected $_allowMultiple = true;
-    protected $_tokenName = 'csrfToken';
-    protected $_tokenTimeName = 'csrfTokenTime';
+    protected $_sessionKeyTokenName = 'csrfToken';
+    protected $_sessionKeyTokenTimeName = 'csrfTokenTime';
+    protected $_tokenName = null;
 
     public function __construct($options = array()) {
         if (!isset($options['name']))
@@ -30,17 +31,14 @@ class Csrf implements IAdaptater {
             $this->setAutorun($options['autorun']);
 
         if (isset($options['timeValidity']))
-            $this->_timeValidity = (int) $options['timeValidity'];
+            $this->setTimeValidity($options['timeValidity']);
 
-        if (isset($options['urlsReferer'])) {
-            if (is_array($options['urlsReferer'])) {
-                foreach ($options['urlsReferer'] as &$url)
-                    $this->_urlsReferer[] = $url;
-            } else
-                $this->_urlsReferer[] = $options['urlsReferer'];
-        }
+
+        if (isset($options['urlsReferer']))
+            $this->setUrlsReferer($options['urlsReferer']);
+
         if (isset($options['allowMultiple']))
-            $this->_allowMultiple = (bool) $options['allowMultiple'];
+            $this->setAllowMultiple($options['allowMultiple']);
 
         if (isset($options['name']))
             $this->setName($options['name']);
@@ -48,10 +46,13 @@ class Csrf implements IAdaptater {
         if (isset($options['errorRedirect']))
             $this->setErrorRedirect($options['errorRedirect']);
 
-        if (isset($options['tokenName']))
-            $this->setTokenName($options['tokenName']);
-        if (isset($options['tokenTimeName']))
-            $this->setTokenTimeName($options['tokenTimeName']);
+        if (isset($options['sessionKeyTokenName']))
+            $this->setSessionKeyTokenName($options['sessionKeyTokenName']);
+        if (isset($options['sessionKeyTokenTimeName']))
+            $this->setSessionKeyTokenTimeName($options['sessionKeyTokenTimeName']);
+
+        $this->setTokenName(isset($options['tokenName']) ? $options['tokenName'] : $this->getName() );
+
 
         Logger::getInstance()->addGroup('security' . $this->getName(), 'Security ' . $this->getName(), true, true);
     }
@@ -79,23 +80,25 @@ class Csrf implements IAdaptater {
     }
 
     public function run() {
-        $controller = Router::getInstance()->getControllerInstance();
-        if ($controller) {
-            $this->create();
-            // check
-            if (Http::isPost() && !$this->check(Http::getPost($this->getName()))) {
-                //add error
+        $controller = Router::getInstance()->getCurrentController();
+        $this->create();
+        // check
+        if (Http::isPost() && !$this->check(Http::getPost($this->getTokenName()))) {
+            //add error
+            if ($controller)
                 $controller->addError('Csrf invalid', 'csrf');
-                if ($this->getErrorRedirect())
-                    Router::getInstance()->show403(true);
-            }
-
-            //assign token value
-            $controller->addAjaxDatas($this->getName(), $this->get());
-            $controller->tpl->setVar($this->getName(), $this->get());
-            $this->set();
-            Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
+            if ($this->getErrorRedirect())
+                Router::getInstance()->show403(true);
         }
+
+        //assign token value
+        if ($controller) {
+            $controller->addAjaxDatas($this->getTokenName(), $this->get());
+            $controller->tpl->setVar($this->getTokenName(), $this->get());
+        }
+
+        $this->set();
+        Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
     }
 
     public function stop() {
@@ -115,20 +118,20 @@ class Csrf implements IAdaptater {
         }
 
         $token = array();
-        if ($this->_allowMultiple)
-            $token = Session::getInstance()->get($this->getName() . $this->getTokenName(), array());
+        if ($this->getAllowMultiple())
+            $token = Session::getInstance()->get($this->getName() . $this->getSessionKeyTokenName(), array());
 
-        $token[$this->_token] = $this->_token;
-        Session::getInstance()->add($this->getName() . $this->getTokenName(), $token, true, true);
+        $token[] = $this->_token;
+        Session::getInstance()->add($this->getName() . $this->getSessionKeyTokenName(), $token, true, true);
         Logger::getInstance()->debug('Set token value : "' . $this->_token . '" into session', 'security' . $this->getName());
-        if ($this->_timeValidity > 0) {
+        if ($this->getTimeValidity() > 0) {
             $time = array();
-            if ($this->_allowMultiple)
-                $time = Session::getInstance()->get($this->getName() . $this->getTokenTimeName(), array());
+            if ($this->getAllowMultiple())
+                $time = Session::getInstance()->get($this->getName() . $this->getSessionKeyTokenTimeName(), array());
 
             $timeVal = time();
             $time[$this->_token] = $timeVal;
-            Session::getInstance()->add($this->getName() . $this->getTokenTimeName(), $time, true, true);
+            Session::getInstance()->add($this->getName() . $this->getSessionKeyTokenTimeName(), $time, true, true);
             Logger::getInstance()->debug('Set token time value : "' . $timeVal . '" into session', 'security' . $this->getName());
         }
     }
@@ -141,8 +144,8 @@ class Csrf implements IAdaptater {
     public function check($checkingValue, $flush = false) {
         if (is_null($this->_token))
             return false;
-        $tokenRealValue = Session::getInstance()->get($this->getName() . $this->getTokenName(), array());
-        $tokenTimeRealValue = Session::getInstance()->get($this->getName() . $this->getTokenTimeName(), array());
+        $tokenRealValue = Session::getInstance()->get($this->getName() . $this->getSessionKeyTokenName(), array());
+        $tokenTimeRealValue = Session::getInstance()->get($this->getName() . $this->getSessionKeyTokenTimeName(), array());
         if ($flush)
             $this->flush();
 
@@ -150,12 +153,13 @@ class Csrf implements IAdaptater {
             Logger::getInstance()->debug('Token miss"', 'security' . $this->getName());
             return false;
         }
-        if ($this->_timeValidity > 0 && empty($tokenTimeRealValue)) {
+        if ($this->getTimeValidity() > 0 && empty($tokenTimeRealValue)) {
             Logger::getInstance()->debug('TokenTime miss"', 'security' . $this->getName());
             return false;
         }
-        if (!empty($this->_urlsReferer)) {
-            foreach ($this->_urlsReferer as &$url) {
+        $urls = $this->getUrlsReferer();
+        if (!empty($urls)) {
+            foreach ($urls as &$url) {
                 if (stripos(Http::getServer('HTTP_REFERER'), Router::getUrl($url)) !== false || Http::getServer('HTTP_REFERER') == Router::getUrl($url)) {
                     $match = true;
                     break;
@@ -168,14 +172,14 @@ class Csrf implements IAdaptater {
         }
 
         // check value
-        if (!array_key_exists($checkingValue, $tokenRealValue)) {
+        if (!in_array($checkingValue, $tokenRealValue)) {
             Logger::getInstance()->debug('Token : "' . (string) $checkingValue . '" invalid', 'security' . $this->getName());
             return false;
         }
 
         //check time
-        if ($this->_timeValidity > 0) {
-            if (!array_key_exists($checkingValue, $tokenTimeRealValue) || $tokenTimeRealValue[$checkingValue] <= time() - $this->_timeValidity) {
+        if ($this->getTimeValidity() > 0) {
+            if (!array_key_exists($checkingValue, $tokenTimeRealValue) || $tokenTimeRealValue[$checkingValue] <= time() - $this->getTimeValidity()) {
                 Logger::getInstance()->debug('TokenTime too old"', 'security' . $this->getName());
                 return false;
             }
@@ -186,11 +190,52 @@ class Csrf implements IAdaptater {
     }
 
     public function flush() {
-        Session::getInstance()->delete($this->getName() . $this->getTokenName(), true);
-        if ($this->_timeValidity > 0)
-            Session::getInstance()->delete($this->getName() . $this->getTokenTimeName(), true);
+        Session::getInstance()->delete($this->getName() . $this->getSessionKeyTokenName(), true);
+        if ($this->getTimeValidity() > 0)
+            Session::getInstance()->delete($this->getName() . $this->getSessionKeyTokenTimeName(), true);
 
         $this->_token = null;
+    }
+
+    public function setTimeValidity($time) {
+        if (!is_int($time) || $time < 0)
+            throw new \Exception('timeValidity must be an positif integer');
+
+        $this->_timeValidity = $time;
+    }
+
+    public function getTimeValidity() {
+        return $this->_timeValidity;
+    }
+
+    public function setUrlsReferer($urlsReferer) {
+        if (is_array($urlsReferer)) {
+            foreach ($urlsReferer as &$url)
+                $this->addUrlReferer($url);
+        } else
+            $this->addUrlReferer($url);
+    }
+
+    public function addUrlReferer($url) {
+        if (!is_string($url))
+            throw new \Exception('Url referer must be a string');
+
+        $this->_urlsReferer[] = $url;
+    }
+
+    public function getUrlsReferer() {
+        return $this->_urlsReferer;
+    }
+
+    public function setAllowMultiple($bool) {
+        if (!is_bool($bool))
+            throw new \Exception('AllowMultiple must be a boolean');
+
+        $this->_allowMultiple = $bool;
+    }
+
+    public function getAllowMultiple() {
+        return $this->_allowMultiple;
     }
 
     public function setErrorRedirect($errorRedirect) {
@@ -204,26 +249,37 @@ class Csrf implements IAdaptater {
         return $this->_errorRedirect;
     }
 
+    public function setSessionKeyTokenName($name) {
+        if (!Validate::isVariableName($name))
+            throw new \Exception('session key tokenName must be a valid variable name');
+
+        $this->_sessionKeyTokenName = $name;
+    }
+
+    public function getSessionKeyTokenName() {
+        return $this->_sessionKeyTokenName;
+    }
+
+    public function setSessionKeyTokenTimeName($name) {
+        if (!Validate::isVariableName($name))
+            throw new \Exception('session key tokenTimeName must be a valid variable');
+
+        $this->_sessionKeyTokenTimeName = $name;
+    }
+
+    public function getSessionKeyTokenTimeName() {
+        return $this->_sessionKeyTokenTimeName;
+    }
+
     public function setTokenName($name) {
         if (!Validate::isVariableName($name))
-            throw new \Exception('tokenName must be a valid variable name');
+            throw new \Exception('tokenName must be a valid variable');
 
         $this->_tokenName = $name;
     }
 
     public function getTokenName() {
         return $this->_tokenName;
-    }
-
-    public function setTokenTimeName($name) {
-        if (!Validate::isVariableName($name))
-            throw new \Exception('tokenTimeName must be a valid variable');
-
-        $this->_tokenTimeName = $name;
-    }
-
-    public function getTokenTimeName() {
-        return $this->_tokenTimeName;
     }
 
 }

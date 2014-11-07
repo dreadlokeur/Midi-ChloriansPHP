@@ -208,8 +208,12 @@ class Php extends Template implements IAdaptater {
         return Router::getInstance()->getCurrentRoute();
     }
 
+    public function getCurrentRouteName() {
+        return Router::getInstance()->getCurrentRouteName();
+    }
+
     public function isCurrentRoute($routeName) {
-        return Router::getInstance()->getCurrentRoute() == $routeName;
+        return Router::getInstance()->getCurrentRouteName() == $routeName;
     }
 
     public function getRoutes() {
