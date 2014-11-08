@@ -1,30 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <config>
-    <!-- <NAME>value</NAME> -->
-    <!-- required -->
-    <ENVIRONNEMENT>dev</ENVIRONNEMENT><!-- dev/test/prod -->
-    <HOSTNAME>localhost/Midi-ChloriansPHP</HOSTNAME><!-- your hostname> -->
-    <ADMIN_NAME>your admin name</ADMIN_NAME><!-- administrator name -->
-    <ADMIN_EMAIL>youadminemail@mail.com</ADMIN_EMAIL><!-- administrator email -->
-    <LANGUAGE_DEFAULT>fr-FR</LANGUAGE_DEFAULT>
-    <!-- Optional -->
-    <SITE_MAINTENANCE>false</SITE_MAINTENANCE><!-- true/false (if true, running route "error" with param : "503") -->
-    <SMTP_SERVER></SMTP_SERVER>
-    <TIMEZONE>Europe/Paris</TIMEZONE>
-    <TEMPLATE_DEFAULT>default</TEMPLATE_DEFAULT><!-- template name -->
-    <AUTOLOADER_CACHE>core</AUTOLOADER_CACHE> <!-- cache name/ false -->
-    <AUTOLOADER_GLOBALIZER>true</AUTOLOADER_GLOBALIZER><!-- autoloader cache must be activated) -->
-    <GOOGLE_VERIFICATION></GOOGLE_VERIFICATION>
-    <GOOGLE_UA></GOOGLE_UA>
-    <!-- logger -->
-    <LOGGER_LEVEL>4</LOGGER_LEVEL> <!-- EMERGENCY = 0,  ALERT = 1, CRITICAL = 2, ERROR = 3, WARNING = 4, NOTICE = 5, INFO = 6, DEBUG = 7 -->
-    <LOGGER_BACKTRACE>false</LOGGER_BACKTRACE>
-    <LOGGER_WRITE>false</LOGGER_WRITE>
-    <LOGGER_DISPLAY>display,firebug,chrome</LOGGER_DISPLAY>
-    <LOGGER_MAIL>false</LOGGER_MAIL>
-    <LOG_MAIL_TO_NAME>[ADMIN_NAME]</LOG_MAIL_TO_NAME>
-    <LOG_MAIL_TO_EMAIL>[ADMIN_EMAIL]</LOG_MAIL_TO_EMAIL> 
-    <LOGGER_CACHE>core</LOGGER_CACHE><!-- cache name -->
-    <LOGGER_ERROR>true</LOGGER_ERROR>
+    <!-- 
+    EXAMPLE
+        <ENVIRONNEMENT>dev</ENVIRONNEMENT>
+    -->
 </config>

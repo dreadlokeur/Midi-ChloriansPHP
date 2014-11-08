@@ -11,16 +11,16 @@ class Route {
 
     protected $_name;
     protected $_controller;
+    protected $_regex = true;
     protected $_requireSsl = false;
-    protected $_regex = false;
     protected $_requireAjax = false;
     protected $_autoSetAjax = true;
-    protected $_requireHttpMethod = null;
+    protected $_requireHttpMethods = array();
     protected $_httpResponseStatusCode = null;
     protected $_httpProtocol = null;
     protected $_security = array();
     protected $_rules = array();
-    protected $_methods = array();
+    protected $_actions = array();
 
     public function __construct($name, $controller) {
         $this->setName($name);
@@ -94,15 +94,20 @@ class Route {
         return $this->_autoSetAjax;
     }
 
-    public function setRequireHttpMethod($requireHttpMethod) {
-        if (!is_null($requireHttpMethod) && !Method::isValid($requireHttpMethod))
-            throw new \Exception('Route requireHttpMethod parameter must null or a valid HTTP METHOD');
+    public function setRequireHttpMethods($requireHttpMethods) {
+        if (!is_array($requireHttpMethods))
+            throw new \Exception('Route requireHttpMethods parameter must an array');
 
-        $this->_requireHttpMethod = $requireHttpMethod;
+        foreach ($requireHttpMethods as &$method) {
+            if (!Method::isValid($method))
+                throw new \Exception('Route requireHttpMethod parameter must null or a valid HTTP METHOD');
+        }
+
+        $this->_requireHttpMethods = $requireHttpMethods;
     }
 
-    public function getRequireHttpMethod() {
-        return $this->_requireHttpMethod;
+    public function getRequireHttpMethods() {
+        return $this->_requireHttpMethods;
     }
 
     public function setHttpResponseStatusCode($httpResponseStatusCode) {
@@ -149,15 +154,21 @@ class Route {
         return $this->_rules;
     }
 
-    public function setMethods($methods) {
-        if (!is_array($methods))
-            throw new \Exception('Route methods parameter must be an array');
+    public function setActions($actions) {
+        if (!is_array($actions))
+            throw new \Exception('Route actions parameter must be an array');
+        foreach ($actions as $actionName => $actionParameters) {
+            if (!is_string($actionName))
+                throw new \Exception('Action name must be a string');
+            if (!is_array($actionParameters))
+                throw new \Exception('Action parameters must be an array');
+        }
 
-        $this->_methods = $methods;
+        $this->_actions = $actions;
     }
 
-    public function getMethods() {
-        return $this->_methods;
+    public function getActions() {
+        return $this->_actions;
     }
 
 }

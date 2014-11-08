@@ -10,6 +10,10 @@ interface IAdaptater {
 
     public function getName();
 
+    public function setAutorun($autorun);
+
+    public function getAutorun();
+
     public function run();
 
     public function stop();

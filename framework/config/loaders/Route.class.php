@@ -38,44 +38,76 @@ class Route extends Loader {
             if (isset($datas['autoSetAjax']))
                 $route->setAutoSetAjax(Tools::castValue($datas['autoSetAjax']));
 
-            if (isset($datas['requireHttpMethod']))
-                $route->setRequireHttpMethod(Tools::castValue($datas['requireHttpMethod']));
-
             if (isset($datas['httpResponseStatusCode']))
                 $route->setHttpResponseStatusCode(Tools::castValue($datas['httpResponseStatusCode']));
 
             if (isset($datas['httpProtocol']))
                 $route->setHttpProtocol(Tools::castValue($datas['httpProtocol']));
 
+
+
+            if (isset($datas['requireHttpMethods'])) {
+                if (is_array($datas['requireHttpMethods'])) {
+                    if (isset($datas['requireHttpMethods']['requireHttpMethod']) && is_array($datas['requireHttpMethods']['requireHttpMethod']))
+                        $datas['requireHttpMethods'] = $datas['requireHttpMethods']['requireHttpMethod'];
+
+                    $route->setRequireHttpMethods($datas['requireHttpMethods']);
+                } else
+                    $route->setRequireHttpMethods(array($datas['requireHttpMethods']));
+            }
             if (isset($datas['security'])) {
                 if (is_array($datas['security'])) {
-                    if (isset($datas['security']['form']) && is_array($datas['security']['form']))
-                        $datas['security'] = $datas['security']['form'];
-                }
-                $route->setSecurity($datas['security']);
+                    if (isset($datas['security']['security']) && is_array($datas['security']['security']))
+                        $datas['security'] = $datas['security']['security'];
+
+                    $route->setSecurity($datas['security']);
+                } else
+                    $route->setSecurity(array($datas['security']));
             }
 
             if (isset($datas['rules'])) {
                 if (is_array($datas['rules'])) {
                     if (isset($datas['rules']['rule']) && is_array($datas['rules']['rule']))
                         $datas['rules'] = $datas['rules']['rule'];
-                }
-                $route->setRules($datas['rules']);
+
+                    $route->setRules($datas['rules']);
+                } else
+                    $route->setRules(array($datas['rules']));
             }
 
-            if (isset($datas['methods'])) {
-                if (is_array($datas['methods'])) {
-                    $methods = $datas['methods'];
-                    foreach ($methods as $method => $val) {
-                        //no have parameters, replace wtih empty parameters list
-                        if (is_int($method)) {
-                            //TODO fix : replace methode into good order
-                            unset($methods[$method]);
-                            $methods[$val] = array();
-                        }
+
+            if (isset($datas['actions'])) {
+                if (is_array($datas['actions'])) {
+                    if (isset($datas['actions']['action']) && is_array($datas['actions']['action'])) {
+                        $datas['actions'] = $datas['actions']['action'];
                     }
-                    $route->setMethods($methods);
+                    $actions = $datas['actions'];
+                } else
+                    $actions = array($datas['actions']);
+
+                $actionsCast = array();
+                foreach ($actions as $action => $parameters) {
+                    if (is_int($action) && is_string($parameters)) {
+                        $actionsCast[$parameters] = array();
+                    } elseif (is_int($action) && is_array($parameters)) {
+                        //xml
+                        if (isset($parameters['@attributes']) && isset($parameters['@attributes']['name'])) {
+                            $name = $parameters['@attributes']['name'];
+                            $params = array();
+                            if (isset($parameters['parameter'])) {
+                                if (is_array($parameters['parameter']))
+                                    $params = $parameters['parameter'];
+                                elseif (is_string($parameters['parameter']))
+                                    $params = array($parameters['parameter']);
+                            }
+                            $actionsCast[$name] = $params;
+                        }
+                    } elseif (is_string($action) && is_array($parameters)) {
+                        $actionsCast[$action] = $parameters;
+                    }
                 }
+
+                $route->setActions($actionsCast);
             }
 
             // Add into router

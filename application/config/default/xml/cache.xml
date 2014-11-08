@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <core>
-        <adaptater>file</adaptater><!-- class name (must be implement \framework\cache\IAdaptater) -->
-        <prefix>_</prefix><!-- prefix string -->
-        <path>[PATH_CACHE_CORE]</path>
-        <gc>time</gc><!-- Garbage collection : time/number => toutes les x secondes, ou toutes les x requests -->
-        <gcOption>86400</gcOption><!-- seconds/request -->
-        <groups>autoloader,logger</groups><!-- group list separated by "," -->
-    </core>
-    <default>
-        <adaptater>file</adaptater>
-        <prefix>_</prefix>
-        <path>[PATH_CACHE_DEFAULT]</path>
-        <gc>time</gc>
-        <gcOption>86400</gcOption>
-        <groups>template</groups><!-- group list separated by "," -->
-    </default>
+    <!-- 
+    EXAMPLE
+        <core>
+            <adaptater>file</adaptater>
+            <prefix>_</prefix>
+            <path>[PATH_CACHE_CORE]</path>
+            <gc>time</gc>
+            <gcOption>86400</gcOption>
+            <groups>autoloader,logger</groups>
+        </core>
+    -->
 </config>

@@ -4,6 +4,9 @@ namespace framework\security\adaptaters;
 
 use framework\Cache;
 use framework\Logger;
+use framework\network\Http;
+use framework\network\http\Method;
+use framework\utility\Tools;
 use framework\utility\Validate;
 use framework\security\IAdaptater;
 
@@ -12,13 +15,21 @@ class Flooder implements IAdaptater {
     protected $_name = null;
     protected $_autorun = false;
     protected $_maxAttempts = 10;
+    protected $_banTime = 600; // in second
     protected $_errorRedirect = false;
     protected $_cache = null;
+    protected $_cacheKeyName = 'flooder';
+    protected $_ip = null;
+    protected $_httpMethods = array(Method::POST, Method::GET);
 
     public function __construct($options = array()) {
         if (!isset($options['name']))
             throw new \Exception('Miss param name');
         $this->setName($options['name']);
+
+        if (!isset($options['cache']))
+            throw new \Exception('Miss param cache name');
+        $this->setCache($options['cache']);
 
         if (isset($options['autorun']))
             $this->setAutorun($options['autorun']);
@@ -29,8 +40,7 @@ class Flooder implements IAdaptater {
         if (isset($options['errorRedirect']))
             $this->setErrorRedirect($options['errorRedirect']);
 
-        if (isset($options['cache']))
-            $this->setCache($options['cache']);
+
 
         Logger::getInstance()->addGroup('security' . $this->getName(), 'Security ' . $this->getName(), true, true);
     }
@@ -58,6 +68,25 @@ class Flooder implements IAdaptater {
     }
 
     public function run() {
+        $this->create();
+        $httpMethod = Http::getMethod();
+        foreach ($this->_httpMethods as $method) {
+            if ($method == $httpMethod) {
+                $cache = $this->get();
+                if (!is_null($cache)) {
+                    $isBanned = $cache['isBanned'];
+                    if ($isBanned > $this->_banTime) {
+                        if ($this->getErrorRedirect())
+                            Router::getInstance()->show403(true);
+                        break;
+                    } else {
+                        $this->check($isBanned);
+                    }
+                }
+            }
+        }
+
+
         Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
     }
 
@@ -67,7 +96,8 @@ class Flooder implements IAdaptater {
     }
 
     public function create() {
-        
+        $this->_ip = Tools::getUserIp();
+        Logger::getInstance()->debug('ip : "' . $this->_ip . '"', 'security' . $this->getName());
     }
 
     public function set() {
@@ -75,7 +105,7 @@ class Flooder implements IAdaptater {
     }
 
     public function get() {
-        
+        return $this->getCache()->read(md5($this->_ip . $this->getCacheKeyName()));
     }
 
     public function check($checkingValue, $flush = false) {
@@ -118,6 +148,10 @@ class Flooder implements IAdaptater {
 
     public function getCache() {
         return $this->_cache;
+    }
+
+    public function getCacheKeyName() {
+        return $this->_cacheKeyName;
     }
 
 }

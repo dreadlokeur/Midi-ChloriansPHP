@@ -19,7 +19,7 @@ class Router {
 
     use \framework\pattern\Singleton;
 
-    protected static $_routes = null;
+    protected static $_routes = array();
     protected static $_host = '';
     protected $_controllersNamespace = 'controllers';
     protected $_namespaceSeparator = '\\';
@@ -38,25 +38,23 @@ class Router {
     }
 
     public static function addRoute(Route $route, $forceReplace = false) {
-        if (!is_string($route->getName()) && !is_int($route->getName()))
+        $name = $route->getName();
+        if (!is_string($name) && !is_int($name))
             throw new \Exception('Route name must be string or integer');
 
-        if (method_exists(self::$_routes, $route->getName())) {
+        if (array_key_exists($name, self::$_routes)) {
             if (!$forceReplace)
-                throw new \Exception('Route : "' . $route->getName() . '" already defined');
+                throw new \Exception('Route : "' . $name . '" already defined');
 
-            Logger::getInstance()->debug('Route : "' . $route->getName() . '" already defined, was overloaded');
+            Logger::getInstance()->debug('Route : "' . $name . '" already defined, was overloaded');
         }
-        if (!is_object(self::$_routes))
-            self::$_routes = new \stdClass();
 
-        $name = $route->getName();
-        self::$_routes->$name = $route;
+        self::$_routes[$name] = $route;
     }
 
     public static function getRoute($routeName) {
         if (array_key_exists($routeName, self::$_routes))
-            return self::$_routes->$routeName;
+            return self::$_routes[$routeName];
 
         return false;
     }
@@ -71,7 +69,6 @@ class Router {
             $this->_setCurrentRoute($route);
             Logger::getInstance()->debug('Run route : "' . $routeName . '"', 'router');
             $this->_runController($vars);
-            //$this->_runController($route->getController(), $route->getMethods(), $vars, $route->getRequireSsl(), $route->getRequireAjax(), $route->getAutoSetAjax(), $route->getRequireHttpMethod(), $route->getHttpResponseStatusCode(), $route->getHttpProtocol(), $route->getSecurity());
         }
         if ($die)
             exit();
@@ -291,27 +288,41 @@ class Router {
     }
 
     protected function _runController($vars = array()) {
-        //$controller, $methods = array(), $vars = array(), $requireSsl = false, $requireAjax = false, $autoSetAjax = true, $requireHttpMethod = null, $httpResponseStatusCode = null, $httpProtocol = null, $security = array()
-
-        $controllerExplode = explode($this->getNamespaceSeparator(), (string) $this->getCurrentRoute()->getController());
+        $controllerExplode = explode($this->getNamespaceSeparator(), $this->getCurrentRoute()->getController());
         if (is_array($controllerExplode) && count($controllerExplode) > 1) {
             $controllerName = $this->getNamespaceSeparator() . ucfirst(array_pop($controllerExplode));
             $controllerName = implode($this->getNamespaceSeparator(), $controllerExplode) . $controllerName;
         } else
-            $controllerName = (string) ucfirst($this->getCurrentRoute()->getController());
+            $controllerName = ucfirst($this->getCurrentRoute()->getController());
 
 
-        $controllerClass = $this->getControllersNamespace(true) . $controllerName;
+        // Check if controller exists
+        $classExist = false;
+
+        //with controllers namespace
+        $class = $this->getControllersNamespace(true) . $controllerName;
+        if (class_exists($class)) {
+            $classExist = true;
+            $controllerClass = $this->getControllersNamespace(true) . $controllerName;
+        } else {
+            //without controllers namespace
+            $class = $controllerName;
+            if (class_exists($controllerName)) {
+                $classExist = true;
+                $controllerClass = $controllerName;
+            }
+        }
+        if (!$classExist)
+            throw new \Exception('Controller "' . $class . '" not found');
+
+
+
+
         Logger::getInstance()->debug('Try run controller : "' . $controllerClass . '"', 'router');
-
-        // Check if controller exists (with controllers namespace)
-        if (!class_exists($controllerClass))
-            throw new \Exception('Controller "' . $controllerClass . '" not found');
-
         if (!is_array($vars))
             throw new \Exception('Controller : "' . $controllerClass . '" vars must be an array');
-        if (!is_array($this->getCurrentRoute()->getMethods()))
-            throw new \Exception('Controller : "' . $controllerClass . '" methods must be an array');
+        if (!is_array($this->getCurrentRoute()->getActions()))
+            throw new \Exception('Controller : "' . $controllerClass . '" actions must be an array');
 
         $inst = new \ReflectionClass($controllerClass);
         if ($inst->isInterface() || $inst->isAbstract())
@@ -327,17 +338,18 @@ class Router {
 
         if (!Cli::isCli()) {
             if (!Http::isHttps() && $this->getCurrentRoute()->getRequireSsl()) {
-                Logger::getInstance()->debug('Controller "' . $controllerClass . '" need ssl http request', 'router');
+                Logger::getInstance()->debug('Route "' . $this->getCurrentRoute()->getName() . '" need ssl http request', 'router');
                 $this->show400(true);
             }
-            if (!is_null($this->getCurrentRoute()->getRequireHttpMethod())) {
-                if ($this->getCurrentRoute()->getRequireHttpMethod() != Http::getMethod()) {
-                    Logger::getInstance()->debug('Controller "' . $controllerClass . '" invalid http method');
+            $httpMethods = $this->getCurrentRoute()->getRequireHttpMethods();
+            if (!empty($httpMethods)) {
+                if (!in_array(Http::getMethod(), $httpMethods)) {
+                    Logger::getInstance()->debug('Route "' . $this->getCurrentRoute()->getName() . '" method: "' . Http::getMethod() . '" not allowed', 'router');
                     $this->show405(true);
                 }
             }
             if (!Http::isAjax() && $this->getCurrentRoute()->getRequireAjax()) {
-                Logger::getInstance()->debug('Controller "' . $controllerClass . '" need ajax http request');
+                Logger::getInstance()->debug('Route "' . $this->getCurrentRoute()->getName() . '" need ajax http request', 'router');
                 $this->show400(true);
             }
             if (Http::isAjax() && $this->getCurrentRoute()->getAutoSetAjax())
@@ -358,18 +370,18 @@ class Router {
                 $se->run();
         }
 
-        if ($this->getCurrentRoute()->getMethods()) {
-            $methods = $this->getCurrentRoute()->getMethods();
-            foreach ($methods as $methodName => $methodParams) {
-                Logger::getInstance()->debug('Call method : "' . $methodName . '"', 'router');
-                if (!method_exists($this->getCurrentController(), $methodName) || !$inst->getMethod($methodName)->isPublic())
-                    throw new \Exception('Method "' . $methodName . '" don\'t exists or isn\'t public on controller "' . $controllerClass . '"');
+        if ($this->getCurrentRoute()->getActions()) {
+            $actions = $this->getCurrentRoute()->getActions();
+            foreach ($actions as $actionName => $actionParams) {
+                Logger::getInstance()->debug('Call action : "' . $actionName . '"', 'router');
+                if (!method_exists($this->getCurrentController(), $actionName) || !$inst->getMethod($actionName)->isPublic())
+                    throw new \Exception('Action "' . $actionName . '" don\'t exists or isn\'t public on controller "' . $controllerClass . '"');
 
                 $args = array();
-                if (!is_array($methodParams))
-                    $args[] = $methodParams;
+                if (!is_array($actionParams))
+                    $args[] = $actionParams;
                 else {
-                    foreach ($methodParams as $parameter) {
+                    foreach ($actionParams as $parameter) {
                         //check if is [['key']] type, or direct value
                         if (stripos($parameter, '[[') === false)
                             $args[] = $parameter;
@@ -387,13 +399,13 @@ class Router {
                 foreach ($args as $arg)
                     Logger::getInstance()->debug('Add argument : "' . $arg . '"', 'router');
                 // Call method with $args
-                \call_user_func_array(array($this->getCurrentController(), $methodName), $args);
+                \call_user_func_array(array($this->getCurrentController(), $actionName), $args);
             }
         }
 
         //call display only when have a template
         if ($this->getCurrentController()->getAutoCallDisplay() && Template::getTemplate()) {
-            Logger::getInstance()->debug('Call method "display"', 'router');
+            Logger::getInstance()->debug('Call action "display"', 'router');
             $this->getCurrentController()->display();
         }
     }
