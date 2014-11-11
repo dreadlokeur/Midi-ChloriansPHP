@@ -86,7 +86,7 @@ if (defined('LOGGER_DISPLAY') && LOGGER_DISPLAY && static::getDebug()) {
             $log->attach(new $name(), $observer);
     }
 }
-if (defined('LOGGER_MAIL') && LOGGER_MAIL && defined('LOGGER_MAIL_TO_EMAIL') && defined('LOGGER_MAIL_TO_NAME')/*&& !static::getDebug()*/) {
+if (defined('LOGGER_MAIL') && LOGGER_MAIL && defined('LOGGER_MAIL_TO_EMAIL') && defined('LOGGER_MAIL_TO_NAME') && !static::getDebug()) {
     $mailConfig = array(
         'fromEmail' => ADMIN_EMAIL,
         'fromName' => $language->getVar('site_name'),
