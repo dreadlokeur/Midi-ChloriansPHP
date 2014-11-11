@@ -184,7 +184,7 @@ abstract class ResponseCode {
     }
 
     public static function isValid($code) {
-        return array_key_exists((string) $code, self::$_messages);
+        return array_key_exists((int) $code, self::$_messages);
     }
 
     public static function isError($code) {

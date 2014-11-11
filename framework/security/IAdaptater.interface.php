@@ -16,8 +16,6 @@ interface IAdaptater {
 
     public function run();
 
-    public function stop();
-
     public function create();
 
     public function set();

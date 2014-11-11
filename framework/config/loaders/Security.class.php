@@ -37,7 +37,20 @@ class Security extends Loader {
                 if (is_array($datas['urlsReferer'])) {
                     if (isset($datas['urlsReferer']['urlReferer']) && is_array($datas['urlsReferer']['urlReferer']))
                         $params['urlsReferer'] = $datas['urlsReferer']['urlReferer'];
-                }
+                    else
+                        $params['urlsReferer'] = $datas['urlsReferer'];
+                } else
+                    $params['urlsReferer'] = array($datas['urlsReferer']);
+            }
+
+            if (isset($datas['httpMethods'])) {
+                if (is_array($datas['httpMethods'])) {
+                    if (isset($datas['httpMethods']['httpMethods']) && is_array($datas['httpMethods']['httpMethod']))
+                        $params['httpMethods'] = $datas['httpMethods']['httpMethod'];
+                    else
+                        $params['httpMethods'] = $datas['httpMethods'];
+                } else
+                    $params['httpMethods'] = array($datas['httpMethods']);
             }
 
 

@@ -199,11 +199,6 @@ class Captcha implements IAdaptater {
         Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
     }
 
-    public function stop() {
-        $this->flush();
-        Logger::getInstance()->debug('Security was stopped', 'security' . $this->getName());
-    }
-
     public function create() {
         $key = Session::getInstance()->get($this->getName() . $this->getSessionKeyName());
         $this->_key = is_null($key) ? Tools::generateString($this->_length, $this->_charsList) : $key;

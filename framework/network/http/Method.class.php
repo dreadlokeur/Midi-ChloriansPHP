@@ -28,7 +28,7 @@ class Method {
     }
 
     public static function isValid($method) {
-        return array_key_exists((int) $method, self::$_methodsList);
+        return in_array($method, self::$_methodsList);
     }
 
     public static function isPost($method) {

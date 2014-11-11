@@ -101,11 +101,6 @@ class Csrf implements IAdaptater {
         Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
     }
 
-    public function stop() {
-        $this->flush();
-        Logger::getInstance()->debug('Security was stopped', 'security' . $this->getName());
-    }
-
     public function create() {
         $this->_token = uniqid(rand(), true);
         Logger::getInstance()->debug('Create token value : "' . $this->_token . '"', 'security' . $this->getName());
@@ -159,6 +154,7 @@ class Csrf implements IAdaptater {
         }
         $urls = $this->getUrlsReferer();
         if (!empty($urls)) {
+            Logger::getInstance()->debug('Check url : "' . Http::getServer('HTTP_REFERER') . '"', 'security' . $this->getName());
             foreach ($urls as &$url) {
                 if (stripos(Http::getServer('HTTP_REFERER'), Router::getUrl($url)) !== false || Http::getServer('HTTP_REFERER') == Router::getUrl($url)) {
                     $match = true;
@@ -209,10 +205,10 @@ class Csrf implements IAdaptater {
     }
 
     public function setUrlsReferer($urlsReferer) {
-        if (is_array($urlsReferer)) {
-            foreach ($urlsReferer as &$url)
-                $this->addUrlReferer($url);
-        } else
+        if (!is_array($urlsReferer))
+            throw new \Exception('Urls referer must be an array');
+
+        foreach ($urlsReferer as &$url)
             $this->addUrlReferer($url);
     }
 

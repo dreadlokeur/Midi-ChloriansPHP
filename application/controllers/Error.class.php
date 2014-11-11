@@ -9,7 +9,7 @@ use framework\error\ExceptionManager;
 class Error extends Controller {
 
     public function __construct() {
-        $this->tpl->setFile('controllers' . DS . 'Error' . DS . 'index.tpl.php');
+        $this->tpl->setFile('layouts' . DS . 'Error' . DS . 'index.tpl.php');
     }
 
     public function show($code) {
@@ -55,11 +55,11 @@ class Error extends Controller {
         if ($isException) {
             $ex = ExceptionManager::getInstance()->getException();
             $this->tpl->setVar('exception', $ex, false, true);
-            $this->tpl->setFile('controllers' . DS . 'Error' . DS . 'exception.tpl.php');
+            $this->tpl->setFile('layouts' . DS . 'Error' . DS . 'exception.tpl.php');
         } else {
             $err = ErrorManager::getInstance()->getError();
             $this->tpl->setVar('error', $err, false, true);
-            $this->tpl->setFile('controllers' . DS . 'Error' . DS . 'error.tpl.php');
+            $this->tpl->setFile('layouts' . DS . 'Error' . DS . 'error.tpl.php');
         }
     }
 

@@ -118,11 +118,6 @@ class Crawler implements IAdaptater {
         Logger::getInstance()->debug('Security was run', 'security' . $this->getName());
     }
 
-    public function stop() {
-        $this->flush();
-        Logger::getInstance()->debug('Security was stopped', 'security' . $this->getName());
-    }
-
     public function create() {
         $this->_ip = Tools::getUserIp();
         $this->_userAgent = Http::getServer('HTTP_USER_AGENT');
@@ -132,7 +127,7 @@ class Crawler implements IAdaptater {
     public function set() {
         switch ($this->_isCrawler) {
             case self::CRAWLER_BAD:
-                Session::getInstance()->add(md5($this->_ip . $this->getSessionKeyName()), self::CRAWLER_BAD, true, true);
+                Session::getInstance()->add($this->getName() . $this->getSessionKeyName(), self::CRAWLER_BAD, true, true);
                 if ($this->getBadCrawlerLog())
                     Logger::getInstance()->warning(self::CRAWLER_BAD . ' crawler detected, ip : "' . $this->_ip . '" and user-agent : "' . $this->_userAgent . '"');
 
@@ -141,7 +136,7 @@ class Crawler implements IAdaptater {
                 }
                 break;
             case self::CRAWLER_GOOD:
-                Session::getInstance()->add(md5($this->_ip . $this->getSessionKeyName()), self::CRAWLER_GOOD, true, true);
+                Session::getInstance()->add($this->getName() . $this->getSessionKeyName(), self::CRAWLER_GOOD, true, true);
                 if ($this->getBadCrawlerLog())
                     Logger::getInstance()->warning(self::CRAWLER_GOOD . ' crawler detected, ip : "' . $this->_ip . '" and user-agent : "' . $this->_userAgent . '"');
 
@@ -150,7 +145,7 @@ class Crawler implements IAdaptater {
                 }
                 break;
             case self::CRAWLER_UNKNOWN:
-                Session::getInstance()->add(md5($this->_ip . $this->getSessionKeyName()), self::CRAWLER_UNKNOWN, true, true);
+                Session::getInstance()->add($this->getName() . $this->getSessionKeyName(), self::CRAWLER_UNKNOWN, true, true);
                 if ($this->getBadCrawlerLog())
                     Logger::getInstance()->warning(self::CRAWLER_UNKNOWN . ' crawler detected, ip : "' . $this->_ip . '" and user-agent : "' . $this->_userAgent . '"');
 
@@ -165,7 +160,7 @@ class Crawler implements IAdaptater {
 
     public function get() {
         Logger::getInstance()->debug('Get session key for : "' . $this->_ip . '"', 'security' . $this->getName());
-        return Session::getInstance()->get(md5($this->_ip . $this->getSessionKeyName()));
+        return Session::getInstance()->get($this->getName() . $this->getSessionKeyName());
     }
 
     public function check($checkingValue, $flush = false) {
@@ -196,7 +191,7 @@ class Crawler implements IAdaptater {
     }
 
     public function flush() {
-        Session::getInstance()->delete(md5($this->_ip . $this->getSessionKeyName()), true);
+        Session::getInstance()->delete($this->getName() . $this->getSessionKeyName(), true);
     }
 
     public function setQueryName($name) {

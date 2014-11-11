@@ -14,7 +14,7 @@ class Session {
     protected static $_securise = true;
     protected static $_securityKeyName = 'securityHash';
     protected static $_state = false;
-    protected $_lockedkeys = array();
+    protected $_lockedKeys = array();
 
     public static function setSecurise($securise) {
         if (!is_bool($securise))
@@ -40,6 +40,14 @@ class Session {
         return self::$_securityKeyName;
     }
 
+    public function __set($key, $variable) {
+        $this->add($key, $variable);
+    }
+
+    public function __get($key) {
+        return $this->get($key);
+    }
+
     protected function __construct() {
         if (!extension_loaded('session'))
             throw new \Exception('Session extension not loaded try change your PHP configuration');
@@ -50,7 +58,7 @@ class Session {
             Logger::getInstance()->debug('Use session on cli', 'session');
         // Securise
         if (self::getSecurise()) {
-            $this->add(self::getSecurityKeyName(), $this->_generateSecurity(), true, true);
+            $this->add(self::getSecurityKeyName(), $this->_generateSecurity(), true);
             Logger::getInstance()->debug('Session was securised', 'session');
         }
     }
@@ -173,6 +181,9 @@ class Session {
         if (!Validate::isVariableName($key))
             throw new \Exception('The key must be a valid key name');
 
+        if ($this->isLocked($key))
+            throw new \Exception('key : "' . $key . '" is locked');
+
         if (isset($_SESSION[$key]) && !$forceReplace)
             throw new \Exception('key : "' . $key . '" already exists in session');
 
@@ -201,6 +212,10 @@ class Session {
 
     public function get($key, $default = null) {
         self::_checkState();
+
+        if ($this->isLocked($key))
+            throw new \Exception('key : "' . $key . '" is locked');
+
         if (!isset($_SESSION[$key]))
             return $default;
         else

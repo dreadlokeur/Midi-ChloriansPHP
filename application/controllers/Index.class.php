@@ -10,7 +10,7 @@ use framework\utility\Cookie;
 class Index extends Controller {
 
     public function __construct() {
-        $this->tpl->setFile('controllers' . DS . 'Index' . DS . 'index.tpl.php');
+        $this->tpl->setFile('layouts' . DS . 'Index' . DS . 'index.tpl.php');
 
         //for tests
         //$article = $this->model->factoryRepostery('article')->find(10);

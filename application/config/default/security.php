@@ -5,7 +5,7 @@ $config = array(
     'csrf' => array(
         'adaptater' => 'csrf', //class name (implement \framework\security\IAdaptater)
         'autorun' => false, //autorun (optionnal default is false)
-        'urlsReferer' => array('index'), //routes name
+        'urlsReferer' => 'index', //routes name, must be an array, or a string for one (optional, default accepte all urls)
         'timeValidity' => 600, // token time validity in second (optional default is : 0 (no limit))
         'allowMultiple' => true, // (allow multiple pages open, optional, default is true)
         'errorRedirect' => true, // (redirect 403 if is invalid, optional, default is false)
@@ -20,13 +20,6 @@ $config = array(
         'errorRedirect' => false, // redirect 403 if is invalid (optional, default is false
         'sessionKeyName' => 'captcha', //  subfix session key name (optional, default is captcha)
     ),
-    'flooder' => array(
-        'adaptater' => 'flooder', // class name (implement \framework\security\IAdaptater)
-        'autorun' => false, // autorun (optionnal default is false)
-        'maxAttempts' => 10, // attemps fail max (optional, default is 10)
-        'errorRedirect' => true, // (redirect 403 if is blacklisted, optional, default is true)
-        'cache' => 'core', // cache name
-    ),
     'crawler' => array(
         'adaptater' => 'crawler', // class name (implement \framework\security\IAdaptater)
         'autorun' => true, // autorun (optionnal default is false)
@@ -40,6 +33,14 @@ $config = array(
         'badCrawlerLog' => true, //log if is catched (optionnal default is "true")
         'goodCrawlerLog' => true, //log if is catched (optionnal default is "true")
         'unknownCrawlerLog' => true, //log if is catched (optionnal default is "true")
-    )
+    ),
+    /*'flooder' => array(
+        'adaptater' => 'flooder', // class name (implement \framework\security\IAdaptater)
+        'autorun' => false, // autorun (optionnal default is false)
+        'maxAttempts' => 10, // attemps fail max (optional, default is 10)
+        'errorRedirect' => true, // (redirect 403 if is blacklisted, optional, default is true)
+        'cache' => 'core', // cache name (required)
+        'httpMethods' => array('POST', 'GET'), // check on http method, must be an array, or a string for one (GET, HEAD, POST, PUT', DELETE, TRACE, OPTIONS, CONNECT, PATCH, optional default is null)
+    ),*/
 );
 ?>
