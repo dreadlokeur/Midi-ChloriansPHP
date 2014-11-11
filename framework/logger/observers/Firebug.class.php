@@ -4,6 +4,7 @@ namespace framework\logger\observers;
 
 use framework\Logger;
 use framework\Cli;
+use \FirePHP;
 
 class Firebug implements \SplObserver {
 
@@ -11,7 +12,7 @@ class Firebug implements \SplObserver {
 
     public function __construct() {
         if (!Cli::isCli())
-            $this->_fb = \FirePHP::getInstance(true);
+            $this->_fb = FirePHP::getInstance(true);
     }
 
     public function update(\SplSubject $subject, $logs = array(), $groups = array()) {

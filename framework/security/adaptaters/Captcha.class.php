@@ -17,6 +17,7 @@ use framework\utility\Tools;
 use framework\utility\Validate;
 use framework\utility\Color;
 use framework\security\IAdaptater;
+use WavFile;
 
 class Captcha implements IAdaptater {
 
@@ -824,7 +825,7 @@ class Captcha implements IAdaptater {
             throw new \Exception('Invalid audio language path, please set datas');
 
         try {
-            $globalWavFile = new \WavFile();
+            $globalWavFile = new WavFile();
             // Set sample rate, bits/sample, and Num of channels // TODO setter and getter this params ?
             $globalWavFile->setSampleRate(8000);
             $globalWavFile->setBitsPerSample(8);
@@ -834,7 +835,7 @@ class Captcha implements IAdaptater {
                 if (!file_exists($this->_audioLangDirectory . $letter . '.wav'))
                     throw new \Exception('Audio file : "' . $this->_audioLangDirectory . $letter . '.wav' . '" miss');
 
-                $l = new \WavFile($this->_audioLangDirectory . $letter . '.wav');
+                $l = new WavFile($this->_audioLangDirectory . $letter . '.wav');
                 // append letter to the captcha audio
                 $globalWavFile->appendWav($l);
                 // random silence  between letters
@@ -845,7 +846,7 @@ class Captcha implements IAdaptater {
             // noise by sound file
             if ($this->_audioNoise) {
                 // use background audio
-                $wavNoise = new \WavFile($this->_audioNoiseFile, false);
+                $wavNoise = new WavFile($this->_audioNoiseFile, false);
                 $wavNoise->setSampleRate($globalWavFile->getSampleRate())
                         ->setBitsPerSample($globalWavFile->getBitsPerSample())
                         ->setNumChannels($globalWavFile->getNumChannels());

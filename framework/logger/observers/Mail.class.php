@@ -3,8 +3,11 @@
 namespace framework\logger\observers;
 
 use framework\Logger;
-use framework\mail\SwiftMailer;
 use framework\utility\Validate;
+use \Swift_Mailer;
+use \Swift_Message;
+use \Swift_SmtpTransport;
+use \Swift_MailTransport;
 
 class Mail implements \SplObserver {
 
@@ -12,7 +15,6 @@ class Mail implements \SplObserver {
     protected $_logs = '';
 
     public function __construct($mailConfig) {
-        SwiftMailer::getInstance();
         //Set mail config
         if (!is_array($mailConfig))
             throw new \Exception('mailConfig parameter must be an array');
@@ -65,8 +67,7 @@ class Mail implements \SplObserver {
                         $this->_addGroupBottom($l->date);
                     }
                 }
-            }
-            else
+            } else
                 $this->_addLog($log->message, $log->level, $log->date, $log->isTrace);
         }
         if (count($bottomLogs) > 0)
@@ -91,7 +92,7 @@ class Mail implements \SplObserver {
 
     protected function _mailLogs() {
         if (!empty($this->_logs)) {
-            $mail = \Swift_Message::newInstance();
+            $mail = Swift_Message::newInstance();
             $mail->setFrom($this->_mailConfig['fromEmail'], $this->_mailConfig['fromName']);
             $mail->setTo($this->_mailConfig['toEmail'], $this->_mailConfig['toName']);
             if (isset($this->_mailConfig['mailSubject']))
@@ -100,8 +101,8 @@ class Mail implements \SplObserver {
 
             $mail->addPart(nl2br($this->_logs), 'text/html');
             // send email
-            $transport = defined('SMTP_SERVER') && !is_null(SMTP_SERVER) && SMTP_SERVER != '' ? \Swift_SmtpTransport::newInstance(SMTP_SERVER, 25) : \Swift_MailTransport::newInstance();
-            $mailer = \Swift_Mailer::newInstance($transport);
+            $transport = defined('SMTP_SERVER') && !is_null(SMTP_SERVER) && SMTP_SERVER != '' ? Swift_SmtpTransport::newInstance(SMTP_SERVER, 25) : Swift_MailTransport::newInstance();
+            $mailer = Swift_Mailer::newInstance($transport);
             $mailer->send($mail);
             //reset logs
             $this->_logs = '';

@@ -4,6 +4,7 @@ namespace framework\logger\observers;
 
 use framework\Logger;
 use framework\Cli;
+use \ChromePhp;
 
 class Chrome implements \SplObserver {
 
@@ -11,7 +12,7 @@ class Chrome implements \SplObserver {
 
     public function __construct() {
         if (!Cli::isCli())
-            $this->_chrome = \ChromePHP::getInstance();
+            $this->_chrome = ChromePhp::getInstance();
     }
 
     public function update(\SplSubject $subject, $logs = array(), $groups = array()) {

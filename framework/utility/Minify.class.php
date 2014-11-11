@@ -8,7 +8,7 @@ use framework\mvc\Router;
 use framework\utility\Tools;
 use framework\utility\Validate;
 use framework\network\Http;
-use JavaScriptPacker;
+use \JavaScriptPacker;
 
 class Minify {
 
