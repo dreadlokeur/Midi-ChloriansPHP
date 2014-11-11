@@ -22,6 +22,9 @@
         "dreadlokeur/php-wav-utils": "dev-master",
         "swiftmailer/swiftmailer": "5.3.*@dev"
     },
+    "require-dev": {
+        "phpunit/phpunit": "4.5.*@dev"
+    },
     "autoload": {
         "psr-4": {
             "MidiChloriansPHP\\": "src/"
