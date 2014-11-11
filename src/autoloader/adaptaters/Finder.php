@@ -19,7 +19,7 @@ class Finder extends Autoloader implements IAdaptater {
         $classSourceFile = self::findClassSourceFile($class);
         if ($classSourceFile) {
             if ($classSourceFile['isCached'])
-                self::_addLog('Class: "' . $class . '" find by cache');
+                self::_addLog('"' . $class . '" find by cache');
 
             self::_setClassInfo($class, $classSourceFile['sourceFilePath'], $classSourceFile['isCached']);
         } else

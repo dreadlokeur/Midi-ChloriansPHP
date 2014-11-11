@@ -19,6 +19,15 @@ trait Classes {
     public static function getClasses() {
         return self::$_classes;
     }
+    
+    public static function countCachedClasses() {
+        $number = 0;
+        foreach (self::$_classes as &$class) {
+            if ($class['isCached'])
+                $number++;
+        }
+        return $number;
+    }
 
     public static function countGlobalizedClasses() {
         $number = 0;

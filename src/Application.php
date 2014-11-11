@@ -30,12 +30,7 @@ final class Application {
     protected $_isInit = false;
     protected $_isRun = false;
     protected static $_globalizeClassList = array(
-        'MidiChloriansPHP\Config',
-        'MidiChloriansPHP\config\Reader',
-        'MidiChloriansPHP\config\Loader',
         'MidiChloriansPHP\mvc\Controller',
-        'MidiChloriansPHP\Logger',
-        'MidiChloriansPHP\mvc\Router',
         'MidiChloriansPHP\error\ErrorManager',
         'MidiChloriansPHP\error\ExceptionManager'
     );
@@ -139,7 +134,7 @@ final class Application {
                 foreach ($logs as &$log)
                     Logger::getInstance()->debug($log, 'autoloader');
                 Logger::getInstance()->debug(count(Autoloader::getAutoloaders()) . ' autoloader adaptaters, ' . count(Autoloader::getDirectories()) . ' directories and ' . count(Autoloader::getNamespaces()) . ' namespaces registered', 'autoloader');
-                Logger::getInstance()->debug('Loading ' . count(Autoloader::getClasses()) . ' classes (' . Autoloader::countGlobalizedClasses() . ' globalized classes)  in aproximately ' . round(Autoloader::getBenchmark('time') * 1000, 4) . ' ms', 'autoloader');
+                Logger::getInstance()->debug('Loading ' . count(Autoloader::getClasses()) . ' classes (' . Autoloader::countGlobalizedClasses() . ' globalized classes, ' . Autoloader::countCachedClasses() . ' cached)  in aproximately ' . round(Autoloader::getBenchmark('time') * 1000, 4) . ' ms', 'autoloader');
                 Logger::getInstance()->debug('Aproximately memory used  : ' . round(Autoloader::getBenchmark('memory') / 1024, 4) . ' KB', 'autoloader');
                 Autoloader::purgeLogs();
                 Autoloader::purgeBenchmark();

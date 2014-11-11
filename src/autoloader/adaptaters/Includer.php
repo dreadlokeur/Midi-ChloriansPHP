@@ -19,11 +19,11 @@ class Includer extends Autoloader implements IAdaptater {
         if ($classInfos) {
             if (file_exists($classInfos['sourceFilePath'])) {
                 require_once $classInfos['sourceFilePath'];
-                self::_addLog('Class: "' . $class . '" was included by sourceFile : "' . $classInfos['sourceFilePath'] . '"');
+                self::_addLog('"' . $class . '" was included by sourceFile : "' . $classInfos['sourceFilePath'] . '"');
             } else
-                self::_addLog('Class : "' . $class . '" can\'t include by source file : "' . $classInfos['sourceFilePath'] . '"');
+                self::_addLog('"' . $class . '" can\'t include by source file : "' . $classInfos['sourceFilePath'] . '"');
         } else
-            self::_addLog('Class : "' . $class . '" not found');
+            self::_addLog('"' . $class . '" not found');
 
         if (self::getDebug())
             self::_setBenchmark(microtime(true) - $benchTime, memory_get_usage() - $benchMemory);
