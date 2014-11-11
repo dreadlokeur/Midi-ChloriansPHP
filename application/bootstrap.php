@@ -38,8 +38,8 @@ if (defined('AUTOLOADER_CACHE') && !static::getDebug()) {
         $globalizer->loadGlobalizedClass();
     }
 }
-// Add vendors directory
-Autoloader::addDirectory(PATH_VENDORS);
+// Add vendor directory
+Autoloader::addDirectory(PATH_VENDOR);
 
 // Exception, Error and Logger management
 $exc = ExceptionManager::getInstance()->start();

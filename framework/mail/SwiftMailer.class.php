@@ -12,7 +12,7 @@ class SwiftMailer {
 
     protected function __construct() {
         // Add Namespace, for autoloading class with name "Swift" ...
-        Autoloader::addNamespace('Swift', PATH_VENDORS . DS . 'SwiftMailer' . DS);
+        Autoloader::addNamespace('Swift', PATH_VENDOR . DS . 'SwiftMailer' . DS);
 
         //Load in dependency maps
         $this->_loadDependencyMaps();

@@ -13,7 +13,7 @@
 define('DS', DIRECTORY_SEPARATOR);
 define('PATH_ROOT', __DIR__ . DS);
 define('PATH_FRAMEWORK', PATH_ROOT . 'framework' . DS);
-define('PATH_VENDORS', PATH_ROOT . 'vendors' . DS);
+define('PATH_VENDOR', PATH_ROOT . 'vendor' . DS);
 
 //application
 define('PATH_APP', PATH_ROOT . 'application' . DS);
