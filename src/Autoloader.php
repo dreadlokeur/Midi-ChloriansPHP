@@ -69,7 +69,7 @@ class Autoloader {
         if (!is_string($loaderName))
             throw new \Exception('LoaderName parameter must be a string');
 
-        if (class_exists('MidiChloriansPHP\autoloader\adaptaters\\' . $loaderName, false))
+        if (class_exists('MidiChloriansPHP\autoloader\adaptaters\\' . $loaderName))
             $loaderClass = 'MidiChloriansPHP\autoloader\adaptaters\\' . $loaderName;
         else
             $loaderClass = $loaderName;
