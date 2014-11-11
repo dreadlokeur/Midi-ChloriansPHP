@@ -4,6 +4,10 @@
     "type": "library",
     "homepage": "https://github.com/dreadlokeur/Midi-ChloriansPHP",
     "license": "GPLv3",
+    "keywords": [
+        "framework",
+        "midichloriansphp"
+    ],
     "authors": [
         {
             "name": "dreadlokeur",
