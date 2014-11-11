@@ -17,5 +17,10 @@
         "meenie/javascript-packer": "dev-master",
         "dreadlokeur/php-wav-utils": "dev-master",
         "swiftmailer/swiftmailer": "5.3.*@dev"
+    },
+    "autoload": {
+        "psr-0": {
+            "MidiChloriansPHP\\": "library/"
+        }
     }
 }
