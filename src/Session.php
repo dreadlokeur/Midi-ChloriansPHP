@@ -169,7 +169,7 @@ class Session {
         }
         if (!is_writable($dir))
             throw new \Exception('Directory "' . $dir . '" is not writable');
-        session_save_path(realpath($dir) . DS);
+        session_save_path(realpath($dir) . DIRECTORY_SEPARATOR);
     }
 
     public static function getSaveDirectory() {

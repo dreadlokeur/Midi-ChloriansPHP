@@ -240,7 +240,7 @@ class Tools {
         foreach (self::cleanScandir($dir) as $f) {
             if (is_dir($dir . $f)) {
                 $l[] = $dir . $f . '/';
-                $l = array_merge($l, self::dirList($dir . $f . DS));
+                $l = array_merge($l, self::dirList($dir . $f . DIRECTORY_SEPARATOR));
             }
         }
         return $l;

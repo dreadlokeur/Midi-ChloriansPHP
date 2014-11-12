@@ -666,7 +666,7 @@ class Captcha implements IAdaptater {
         if (!is_dir($path))
             throw new \Exception('Invalid audio language path : "' . $path . '"');
         // TODO check if have all wav files (charslist)
-        $this->_audioLangDirectory = $path . DS;
+        $this->_audioLangDirectory = $path . DIRECTORY_SEPARATOR;
     }
 
     public function setAudioLettersGap($gapValue, $gabType) {
@@ -816,10 +816,10 @@ class Captcha implements IAdaptater {
         //http://www.gilles-joyeux.fr/MP3/ten.mp3 numbers
         // revoir les sons S et F en anglais ...
         // set audio path with language
-        if (is_dir($this->_audioLangDirectory . Language::getInstance()->getLanguage() . DS))
-            $this->_audioLangDirectory = $this->_audioLangDirectory . Language::getInstance()->getLanguage() . DS;
+        if (is_dir($this->_audioLangDirectory . Language::getInstance()->getLanguage() . DIRECTORY_SEPARATOR))
+            $this->_audioLangDirectory = $this->_audioLangDirectory . Language::getInstance()->getLanguage() . DIRECTORY_SEPARATOR;
         else
-            $this->_audioLangDirectory = $this->_audioLangDirectory . Language::getInstance()->getDefaultLanguage() . DS;
+            $this->_audioLangDirectory = $this->_audioLangDirectory . Language::getInstance()->getDefaultLanguage() . DIRECTORY_SEPARATOR;
 
         if (!is_dir($this->_audioLangDirectory))
             throw new \Exception('Invalid audio language path, please set datas');

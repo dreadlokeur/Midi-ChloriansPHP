@@ -73,7 +73,7 @@ class Language {
         if (!is_readable($datasPath))
             throw new \Exception('Directory "' . $datasPath . '" is not readable');
 
-        self::$_datasPath = realpath($datasPath) . DS;
+        self::$_datasPath = realpath($datasPath) . DIRECTORY_SEPARATOR;
     }
 
     public static function getDatasPath() {

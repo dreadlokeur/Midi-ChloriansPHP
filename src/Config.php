@@ -23,7 +23,7 @@ class Config {
         if (!is_readable($path))
             throw new \Exception('Directory "' . $path . '" is not readable');
 
-        self::$_path = realpath($path) . DS;
+        self::$_path = realpath($path) . DIRECTORY_SEPARATOR;
     }
 
     public static function getPath() {
@@ -52,8 +52,8 @@ class Config {
     public function loadPath($path) {
         $dir = Tools::cleanScandir($path);
         foreach ($dir as &$f) {
-            if (is_file($path . DS . $f))
-                $this->loadFile($path . DS . $f);
+            if (is_file($path . DIRECTORY_SEPARATOR . $f))
+                $this->loadFile($path . DIRECTORY_SEPARATOR . $f);
         }
     }
 

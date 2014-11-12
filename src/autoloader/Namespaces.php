@@ -16,7 +16,7 @@ trait Namespaces {
         if (array_key_exists($namespaceName, self::$_namespaces) && !$forceReplace)
             throw new \Exception('Namespace directory "' . $namespacePath . '" already registered');
 
-        self::$_namespaces[$namespaceName] = realpath($namespacePath) . DS;
+        self::$_namespaces[$namespaceName] = realpath($namespacePath) . DIRECTORY_SEPARATOR;
     }
 
     public static function addNamespaces($namespaces) {

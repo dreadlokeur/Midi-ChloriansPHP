@@ -139,7 +139,7 @@ class Globalizer extends Autoloader {
 
 
             $classInfos = pathinfo($classSourceFile['sourceFilePath']);
-            $ClassCacheName = str_replace(DS, '-', str_replace(PATH_ROOT, '', realpath($classInfos['dirname'])) . DS . $classInfos['basename']);
+            $ClassCacheName = str_replace(DIRECTORY_SEPARATOR, '-', str_replace(PATH_ROOT, '', realpath($classInfos['dirname'])) . DIRECTORY_SEPARATOR . $classInfos['basename']);
             $ClassCache = self::getCache()->read($ClassCacheName);
             if (!$ClassCache)
                 return true;
@@ -181,7 +181,7 @@ class Globalizer extends Autoloader {
             // Write meta file
             $classInfos = pathinfo($classSourceFile['sourceFilePath']);
             if (self::getCache()) {
-                $cacheName = str_replace(DS, '-', str_replace(PATH_ROOT, '', realpath($classInfos['dirname'])) . DS . $classInfos['basename']);
+                $cacheName = str_replace(DIRECTORY_SEPARATOR, '-', str_replace(PATH_ROOT, '', realpath($classInfos['dirname'])) . DIRECTORY_SEPARATOR . $classInfos['basename']);
                 self::getCache()->write($cacheName, filemtime($classSourceFile['sourceFilePath']), true);
             }
 

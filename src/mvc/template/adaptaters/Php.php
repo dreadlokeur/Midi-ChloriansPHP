@@ -62,7 +62,7 @@ class Php extends Template implements IAdaptater {
             throw new \Exception('Template path ' . $path . ' don\'t exist');
         if (!is_readable($path))
             throw new \Exception('Path ' . $path . ' is not readable');
-        $this->_path = realpath($path) . DS;
+        $this->_path = realpath($path) . DIRECTORY_SEPARATOR;
     }
 
     public function getPath() {
@@ -243,7 +243,7 @@ class Php extends Template implements IAdaptater {
             return false;
 
         $asset = $this->_assets[$type];
-        return Router::getHost(true, $ssl) . str_replace(DS, '/', str_replace(PATH_ROOT, '', $asset['directory']));
+        return Router::getHost(true, $ssl) . str_replace(DIRECTORY_SEPARATOR, '/', str_replace(PATH_ROOT, '', $asset['directory']));
     }
 
     public function getCss() {

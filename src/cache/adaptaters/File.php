@@ -22,7 +22,7 @@ class File extends Cache implements IAdaptater {
         }
         if (!is_writable($params['path']))
             throw new \Exception('Directory "' . $params['path'] . '" is not writable');
-        $this->_path = realpath($params['path']) . DS;
+        $this->_path = realpath($params['path']) . DIRECTORY_SEPARATOR;
     }
 
     public function runGc() {

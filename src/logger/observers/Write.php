@@ -25,7 +25,7 @@ class Write implements \SplObserver {
         }
         if (!is_writable($dir))
             throw new \Exception('Directory "' . $dir . '" is not writable');
-        self::$_logDir = realpath($dir) . DS;
+        self::$_logDir = realpath($dir) . DIRECTORY_SEPARATOR;
     }
 
     public static function getLogDir() {
@@ -113,7 +113,7 @@ class Write implements \SplObserver {
             if (!mkdir($yearDir, 0775, true))
                 throw new \Exception('Error on creating "' . $yearDir . '" directory');
         }
-        $monthDir = $yearDir . DS . date('m') . DS;
+        $monthDir = $yearDir . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR;
         if (!is_dir($monthDir)) {
             if (!mkdir($monthDir, 0775, true))
                 throw new \Exception('Error on creating "' . $monthDir . '" directory');

@@ -42,7 +42,7 @@ class Finder extends Autoloader implements IAdaptater {
         if ($namespace && array_key_exists($namespace['namespaceValue'], $namespaces)) {
             $classFile = self::_getClassFile(str_replace(array(
                         $namespace['namespaceValue'] . $namespace['namespaceSeparator'],
-                        $namespace['namespaceSeparator']), array($namespaces[$namespace['namespaceValue']], DS), $class)
+                        $namespace['namespaceSeparator']), array($namespaces[$namespace['namespaceValue']], DIRECTORY_SEPARATOR), $class)
             );
             if (!$classFile)
                 return false;
@@ -50,8 +50,8 @@ class Finder extends Autoloader implements IAdaptater {
         } else {
             $directories = self::getDirectories();
             foreach ($directories as &$directory) {
-                $className = str_replace(self::getNamespacesSeparators(), DS, $class);
-                $classFile = self::_getClassFile($directory . DS . $className);
+                $className = str_replace(self::getNamespacesSeparators(), DIRECTORY_SEPARATOR, $class);
+                $classFile = self::_getClassFile($directory . DIRECTORY_SEPARATOR . $className);
                 if ($classFile)
                     return array('isCached' => false, 'sourceFilePath' => $classFile);
             }
