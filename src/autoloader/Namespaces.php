@@ -13,7 +13,7 @@ trait Namespaces {
         if (!is_dir($namespacePath))
             throw new \Exception('Namespace : "' . $namespaceName . '" path must be a valid directory');
 
-        if (array_key_exists($namespaceName, self::$_namespaces) && !$forceReplace)
+        if (self::existNamespace($namespaceName) && !$forceReplace)
             throw new \Exception('Namespace directory "' . $namespacePath . '" already registered');
 
         self::$_namespaces[$namespaceName] = realpath($namespacePath) . DIRECTORY_SEPARATOR;
@@ -29,7 +29,7 @@ trait Namespaces {
     public static function deleteNamespace($namespaceName) {
         if (!is_string($namespaceName))
             throw new \Exception('Namespace name parameter must be a string');
-        if (!array_key_exists($namespaceName, self::$_namespaces))
+        if (self::existNamespace($namespaceName))
             throw new \Exception('Namespace "' . $namespaceName . '" isn\'t registered');
 
         unset(self::$_namespaces[$namespaceName]);
@@ -45,10 +45,17 @@ trait Namespaces {
     public static function getNamespace($namespaceName) {
         if (!is_string($namespaceName))
             throw new \Exception('Namespace name parameter must be a string');
-        if (!array_key_exists($namespaceName, self::$_namespaces))
+        if (self::existNamespace($namespaceName))
             throw new \Exception('Namespace : "' . $namespaceName . '" don\'t exists');
 
         return self::$_namespaces[$namespaceName];
+    }
+
+    public static function existNamespace($namespaceName) {
+        if (!is_string($namespaceName))
+            throw new \Exception('Namespace name parameter must be a string');
+
+        return array_key_exists($namespaceName, self::$_namespaces);
     }
 
     public static function getNamespaces() {

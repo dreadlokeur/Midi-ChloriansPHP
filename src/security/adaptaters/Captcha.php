@@ -143,9 +143,6 @@ class Captcha implements IAdaptater {
         if (isset($options['audio']))
             $this->setAudio($options['audio'], $options);
 
-        if (isset($options['name']))
-            $this->setName($options['name']);
-
         if (isset($options['errorRedirect']))
             $this->setErrorRedirect($options['errorRedirect']);
 

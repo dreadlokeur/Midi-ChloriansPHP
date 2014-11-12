@@ -31,6 +31,10 @@ class Autoloader {
     public function __construct($debug = false) {
         if ($debug)
             self::setDebug($debug);
+
+        // add self namespace
+        if (!self::existNamespace('MidiChloriansPHP'))
+            $this->addNamespace('MidiChloriansPHP', __DIR__);
     }
 
     public static function setDebug($bool) {
