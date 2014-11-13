@@ -62,6 +62,9 @@ class Language {
     public function __get($name) {
         return self::getVar($name);
     }
+    public function __($name) {
+        return self::getVar($name);
+    }
 
     protected function __construct() {
         Logger::getInstance()->addGroup('language', 'Language informations', true, true);

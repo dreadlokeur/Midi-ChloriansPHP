@@ -26,6 +26,8 @@ interface IAdaptater {
 
     public function __get($name);
 
+    public function __($languageVarName, $display = true); //language
+
     public function getVar($name, $default = null); //alias
 
     public function setVar($name, $value, $safeValue = false, $forceReplace = false);
@@ -71,6 +73,8 @@ interface IAdaptater {
     public function isCurrentRule($rule);
 
     public function getUrlAsset($type, $ssl = false);
+
+    public function getAssetPath($type, $withRoot = true);
 
     public function getCss();
 

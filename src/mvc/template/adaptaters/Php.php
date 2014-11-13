@@ -2,10 +2,11 @@
 
 namespace MidiChloriansPHP\mvc\template\adaptaters;
 
+use MidiChloriansPHP\Language;
+use MidiChloriansPHP\Logger;
 use MidiChloriansPHP\mvc\template\IAdaptater;
 use MidiChloriansPHP\utility\Validate;
 use MidiChloriansPHP\mvc\Template;
-use MidiChloriansPHP\Logger;
 use MidiChloriansPHP\mvc\Router;
 use MidiChloriansPHP\network\Http;
 
@@ -47,6 +48,14 @@ class Php extends Template implements IAdaptater {
 
     public function __isset($name) {
         return \property_exists($this->_vars, $name);
+    }
+
+    public function __($languageVarName, $display = true) {
+        $var = Language::getInstance()->__($languageVarName);
+        if ($display)
+            echo $var;
+        else
+            return Language::getInstance()->__($languageVarName);
     }
 
     public function setName($name) {
@@ -237,13 +246,22 @@ class Php extends Template implements IAdaptater {
         if (Http::isHttps())
             $ssl = true;
 
-        if (!is_array($this->_assets))
-            return false;
         if (!array_key_exists($type, $this->_assets))
             return false;
 
         $asset = $this->_assets[$type];
         return Router::getHost(true, $ssl) . str_replace(DIRECTORY_SEPARATOR, '/', str_replace(PATH_ROOT, '', $asset['directory']));
+    }
+
+    public function getAssetPath($type, $withRoot = true) {
+        if (!is_string($type))
+            throw new \Exception('Asset type must be a string');
+
+        if (!array_key_exists($type, $this->_assets))
+            return false;
+
+        $asset = $this->_assets[$type];
+        return $withRoot ? $asset['directory'] : str_replace(PATH_ROOT, '', $asset['directory']);
     }
 
     public function getCss() {

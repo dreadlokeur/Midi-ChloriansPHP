@@ -2,11 +2,12 @@
 
 namespace MidiChloriansPHP\mvc;
 
-use MidiChloriansPHP\mvc\Template;
+use MidiChloriansPHP\Application;
 use MidiChloriansPHP\Config;
 use MidiChloriansPHP\Language;
 use MidiChloriansPHP\Logger;
 use MidiChloriansPHP\Session;
+use MidiChloriansPHP\mvc\Template;
 use MidiChloriansPHP\mvc\Model;
 use MidiChloriansPHP\mvc\Router;
 use MidiChloriansPHP\network\Http;
@@ -55,6 +56,7 @@ abstract class Controller {
         $this->_template->setVar('urls', Router::getUrls($this->language->getLanguage(), Http::isHttps()), false, true);
         $this->_template->setVar('langs', $this->language->getVars(true), false, true);
         $this->_template->setVar('lang', $this->language->getLanguage(), false, true);
+        $this->_template->setVar('debug', Application::getDebug(), false, true);
         //init assets
         if (!Http::isAjax())
             $this->_template->initAssets();
