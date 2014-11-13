@@ -17,6 +17,7 @@ abstract class Template {
     const ASSET_SOUND = 'sound';
     const ASSET_MODULE = 'module';
     const ASSET_FONT = 'font';
+    const ASSET_LIB = 'lib';
 
     protected static $_template = null;
     protected static $_templates = array();
@@ -26,7 +27,8 @@ abstract class Template {
         self::ASSET_IMG,
         self::ASSET_SOUND,
         self::ASSET_MODULE,
-        self::ASSET_FONT
+        self::ASSET_FONT,
+        self::ASSET_LIB
     );
     protected $_css = '';
     protected $_js = '';
