@@ -1,11 +1,13 @@
 [![Midi-ChloriansPHP](http://img15.hostingpics.net/pics/582569MidichloriansPHP.png)](http://www.midichlorians-php.fr.ht/)
 
 #Midi-ChloriansPHP
-Welcome to the Midi-ChloriansPHP 1.0.1 Release! 
+Welcome to the Midi-ChloriansPHP 1.0.2 Release! 
 
 ### RELEASE INFORMATION
 
-Midi-ChloriansPHP 1.0.1stable
+Midi-ChloriansPHP 1.0.2dev
+THIS RELEASE IS A DEVELOPMENT RELEASE AND NOT INTENDED FOR PRODUCTION USE.
+PLEASE USE AT YOUR OWN RISK.
 
 ### SYSTEM REQUIREMENTS
 
