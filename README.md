@@ -7,9 +7,6 @@ Welcome to the Midi-ChloriansPHP 1.0.1 Release!
 
 Midi-ChloriansPHP 1.0.1stable
 
-THIS RELEASE IS A DEVELOPMENT RELEASE AND NOT INTENDED FOR PRODUCTION USE.
-PLEASE USE AT YOUR OWN RISK.
-
 ### SYSTEM REQUIREMENTS
 
 Midi-ChloriansPHP requires PHP 5.4 or later. 
