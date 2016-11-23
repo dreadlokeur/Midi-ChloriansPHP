@@ -87,7 +87,9 @@ abstract class Controller {
 
     public function display() {
         if ($this->hasErrors())
-            $this->tpl->setVar('errors', $this->getErrors());
+            $this->tpl->setVar('errors', $this->getErrors(), false, true);
+        if ($this->session->get('errors'))
+            $this->tpl->setVar('errors', $this->session->get('errors'), false, true);
 
         if ($this->tpl->post === null)
             $this->tpl->setVar('post', Http::getPost(), false, true);
@@ -154,6 +156,7 @@ abstract class Controller {
         $this->session->delete('notifyInformation', true);
         $this->session->delete('notifyError', true);
         $this->session->delete('notifySuccess', true);
+        $this->session->delete('errors', true);
     }
 
     public function setAutoCallDisplay($autoCallDisplay) {
